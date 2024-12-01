@@ -1,0 +1,7 @@
+day=$1
+test -z "${day}"
+cp day00.go day${day}.go
+cp day00_test.go day${day}_test.go
+sed --in-place s/"00"/"${day}"/g day${day}.go
+sed --in-place s/"00"/"${day}"/g day${day}_test.go
+sed --in-place s/"(0)"/"(${day})"/g day${day}_test.go

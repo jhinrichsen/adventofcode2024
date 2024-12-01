@@ -1,0 +1,65 @@
+= Advent of code 2024
+
+image:https://godoc.org/gitlab.com/jhinrichsen/adventofcode2024?status.svg["godoc", link="https://godoc.org/gitlab.com/jhinrichsen/adventofcode2024"]
+image:https://goreportcard.com/badge/gitlab.com/jhinrichsen/adventofcode2024["Go report card", link="https://goreportcard.com/report/gitlab.com/jhinrichsen/adventofcode2024"]
+image:https://gitlab.com/jhinrichsen/adventofcode2024/badges/main/pipeline.svg[link="https://gitlab.com/jhinrichsen/adventofcode2024/-/commits/main",title="pipeline status"]
+image:https://gitlab.com/jhinrichsen/adventofcode2024/badges/main/coverage.svg[link="https://gitlab.com/jhinrichsen/adventofcode2024/badges/main/coverage.svg",title="coverage report"]
+
+
+My take on https://adventofcode.com/2024/ in Go. As usual, i don't particularly
+care if i provide my solutions _fast_, i try to be _correct_ on the first
+answer, and care for being runtime efficient.
+All puzzles are backed by unit testing the examples and the puzzles.
+Results are hard coded into the unit tests, so you might not want to peek at `_test.go` files.
+
+== Environment
+
+- Go 1.23
+- vim, vim-go, gopls, fed by an HHKB
+- VisualStudio Code for debugging
+- Fedora 41 @ Framework 16" (AMD Ryzen 7 7840HS w/ Radeon 780M Graphics)
+- Fedora 41 @ custom built AMD Ryzen 5 3400G on a Gigabyte B450
+- macOS @ 16" Macbook Pro 2019 (Intel(R) Core(TM) i9-9980HK CPU @ 2.40GHz)
+
+== Project structure
+
+Each puzzle for day `n` lives in a `day{{.n}}.go` and `day{{.n}}_test.go` file.
+Unit test data, both examples and puzzle input, is in
+`testdata/day{{.n}}.txt`, and `testdata/day{{.n}}_example.txt`.
+
+== Overview
+
+Number of tries for a correct answer:
+
+|===
+| Day | Part 1 | Part 2
+| 1   |   1    |   
+| 2   |        |   
+| 3   |        |   
+| 4   |        |   
+| 5   |        |
+| 6   |        |   
+| 7   |        |   
+| 8   |        |
+| 9   |        |   
+| 10  |        |   
+| 11  |        |
+| 12  |        |
+| 13  |        |
+| 14  |        |
+| 15  |        |
+| 16  |        |
+| 17  |        |
+| 18  |        |
+| 19  |        |
+| 20  |        |
+| 21  |        |
+| 22  |        |
+| 23  |        |
+| 24  |        |
+| 25  |        |
+|===
+
+== Day 1: Historian Hysteria
+
+
