@@ -17,7 +17,7 @@ Results are hard coded into the unit tests, so you might not want to peek at `_t
 - Go 1.23
 - vim, vim-go, gopls, fed by an HHKB
 - VisualStudio Code for debugging
-- Fedora 41 @ Framework 16" (AMD Ryzen 7 7840HS w/ Radeon 780M Graphics)
+- Fedora 41 @ Framework 16" (AMD Ryzen 7 7840HS w/ Radeon 780M Graphics), 256 KiB L1d, 256 KiB L1i
 - Fedora 41 @ custom built AMD Ryzen 5 3400G on a Gigabyte B450
 - macOS @ 16" Macbook Pro 2019 (Intel(R) Core(TM) i9-9980HK CPU @ 2.40GHz)
 
@@ -80,3 +80,6 @@ BenchmarkDay01Part2-16    	   29608	     40189 ns/op	   57374 B/op	       4 allo
 ----
 <1> left and right slice, each len(1000) X 64 bit integer, memory is O(2*N)
 <2> the above plus a histogram for the right list, memory is (O(2*N + N))
+
+By using smaller int types (uint -> uint32, uint16) `B/op` could be decreased, but 16 KiB fits into L1 cache.
+
