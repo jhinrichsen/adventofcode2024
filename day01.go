@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func Day01(lines []string) uint {
+func Day01(lines []string, part1 bool) uint {
 	atoi := func(s string) (int, int) {
 		parts := strings.Fields(s)
 		l, _ := strconv.Atoi(parts[0])
@@ -18,16 +18,33 @@ func Day01(lines []string) uint {
 	for i := range lines {
 		left[i], right[i] = atoi(lines[i])
 	}
-	slices.Sort(left)
-	slices.Sort(right)
-
-	delta := func(x, y int) uint {
-		return uint(max(x, y) - min(x, y))
-	}
 
 	var sum uint
-	for i := range lines {
-		sum += delta(left[i], right[i])
+	if part1 {
+		slices.Sort(left)
+		slices.Sort(right)
+
+		delta := func(x, y int) uint {
+			return uint(max(x, y) - min(x, y))
+		}
+
+		for i := range lines {
+			sum += delta(left[i], right[i])
+		}
+	} else {
+
+		histogram := make(map[int]uint, len(lines)) // len(lines) is the worst case without any  duplicates
+		for i := range right {
+			histogram[right[i]] += 1
+		}
+
+		for i := range left {
+			sum += uint(left[i]) * histogram[left[i]]
+		}
 	}
 	return sum
+}
+
+func twoUint(buf []byte) [][2]uint {
+	return nil
 }
