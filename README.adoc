@@ -62,4 +62,21 @@ Number of tries for a correct answer:
 
 == Day 1: Historian Hysteria
 
-
+----
+goos: linux
+goarch: amd64
+pkg: gitlab.com/jhinrichsen/adventofcode2024
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics     
+BenchmarkDay01Part1-16    	   40551	     29019 ns/op	   16384 B/op	       2 allocs/op <1>
+BenchmarkDay01Part1-16    	   39687	     28998 ns/op	   16384 B/op	       2 allocs/op
+BenchmarkDay01Part1-16    	   41421	     28890 ns/op	   16384 B/op	       2 allocs/op
+BenchmarkDay01Part1-16    	   40461	     28838 ns/op	   16384 B/op	       2 allocs/op
+BenchmarkDay01Part1-16    	   40435	     29237 ns/op	   16384 B/op	       2 allocs/op
+BenchmarkDay01Part2-16    	   29532	     40068 ns/op	   57374 B/op	       4 allocs/op <2>
+BenchmarkDay01Part2-16    	   30114	     40194 ns/op	   57374 B/op	       4 allocs/op
+BenchmarkDay01Part2-16    	   29638	     39958 ns/op	   57374 B/op	       4 allocs/op
+BenchmarkDay01Part2-16    	   29630	     40373 ns/op	   57374 B/op	       4 allocs/op
+BenchmarkDay01Part2-16    	   29608	     40189 ns/op	   57374 B/op	       4 allocs/op
+----
+<1> left and right slice, each len(1000) X 64 bit integer, memory is O(2*N)
+<2> the above plus a histogram for the right list, memory is (O(2*N + N))
