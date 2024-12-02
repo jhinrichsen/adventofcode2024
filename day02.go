@@ -1,6 +1,7 @@
 package adventofcode2023
 
 import (
+	"cmp"
 	"slices"
 	"strconv"
 	"strings"
@@ -45,11 +46,6 @@ func safe(levels []uint) bool {
 		atleast = 1
 		atmost  = 3
 	)
-	var (
-		cp         []uint
-		increasing bool
-		decreasing bool
-	)
 	// predicate 1: difference at least 1, at most 3
 	for j := 1; j < len(levels); j++ {
 		delta := max(levels[j-1], levels[j]) - min(levels[j-1], levels[j])
@@ -59,16 +55,14 @@ func safe(levels []uint) bool {
 	}
 
 	// predicate 2: increasing
-	cp = make([]uint, len(levels))
-	copy(cp, levels)
-	slices.Sort(cp)
-	increasing = slices.Equal(levels, cp)
+	asc := cmp.Compare[uint]
 
 	// predicate 3: decreasing
-	slices.Reverse(cp)
-	decreasing = slices.Equal(levels, cp)
+	desc := func(x, y uint) int {
+		return cmp.Compare(y, x)
+	}
 
-	return increasing || decreasing
+	return slices.IsSortedFunc(levels, asc) || slices.IsSortedFunc(levels, desc)
 }
 
 // Diff returns number of differences between two slices.
