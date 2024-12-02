@@ -17,6 +17,32 @@ func TestLinesFromFilename(t *testing.T) {
 	if len(lines) != 1 {
 		t.Fatalf("want 1 line but got %d", len(lines))
 	}
+
+}
+
+func TestNumbersFromFilename(t *testing.T) {
+	var (
+		line0 = []uint{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}
+	)
+	ns := mustNumbersFromFilename("testdata/numbers.txt")
+	if len(ns) != 3 {
+		t.Fatalf("want 3 lines but got %d", len(ns))
+	}
+	if !slices.Equal(line0, ns[0]) {
+		t.Fatalf("line #1: want %v but got %v", line0, ns[0])
+	}
+
+	if len(ns[1]) != 10 {
+		t.Fatalf("line #2: want 10 numbers but got %d", len(ns[1]))
+	}
+
+	if ns[2][0] != 1 {
+		t.Fatalf("line #3: want 1 but got %d", ns[2][0])
+	}
+	last := len(ns[2]) - 1
+	if ns[2][last] != 16384 {
+		t.Fatalf("line #3: want 16384 but got %d", ns[2][last])
+	}
 }
 
 func TestLinesAsNumbers(t *testing.T) {
@@ -75,6 +101,7 @@ func TestMagicConstants(t *testing.T) {
 
 	var gotLongestLine, gotMaxLines uint
 	for i := range filenames {
+		var lines uint
 		buf, err := os.ReadFile(filenames[i])
 		if err != nil {
 			t.Fatal(err)
@@ -88,12 +115,14 @@ func TestMagicConstants(t *testing.T) {
 			if lineLength > gotLongestLine {
 				gotLongestLine = lineLength
 			}
-			gotMaxLines++
+			lines++
 		}
 
 		if err := scanner.Err(); err != nil {
 			t.Fatal(err)
 		}
+
+		gotMaxLines = max(gotMaxLines, lines)
 	}
 	if MagicMaxLines != gotMaxLines {
 		t.Fatalf("want %d but got %d", MagicMaxLines, gotMaxLines)

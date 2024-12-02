@@ -8,12 +8,13 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
+	"unicode"
 	"unsafe"
 )
 
 const (
-	MagicMaxLines    = 2014 // maximum number of lines for any puzzle input
-	MagicLongestLine = 23   // longest line of any puzzle input
+	MagicMaxLines    = 1000 // maximum number of lines for any puzzle input
+	MagicLongestLine = 54   // longest line of any puzzle input
 )
 
 func linesFromFilename(filename string) ([]string, error) {
@@ -71,16 +72,6 @@ func linesAsNumbers(lines []string) ([]int, error) {
 	}
 	return is, nil
 }
-
-/*
-func numbersFromFilename(filename string) ([]int, error) {
-	ls, err := linesFromFilename(filename)
-	if err != nil {
-		return nil, err
-	}
-	return linesAsNumbers(ls)
-}
-*/
 
 func DayAdapterV1(day func([][]byte, bool) (uint, error), filename string, part1 bool) (uint, error) {
 	bs, err := bytesFromFilename(filename)
@@ -174,4 +165,43 @@ func DayAdapterV2(day func([][]byte, bool) (uint, error), filename string, part1
 	}
 
 	return day(lines[:lineIndex], part1)
+}
+
+func mustNumbersFromFilename(filename string) [][]uint {
+	buf, err := os.ReadFile(filename)
+	if err != nil {
+		panic(err)
+	}
+	var dim uint
+	for i := range buf {
+		if buf[i] == '\n' {
+			dim++
+		}
+	}
+	m := make([][]uint, dim)
+	for i := range m {
+		m[i] = make([]uint, 0, 8)
+	}
+
+	for i, y := 0, 0; i < len(buf); {
+		var n uint
+
+		// number
+		for unicode.IsDigit(rune(buf[i])) {
+			n = 10*n + uint(buf[i]-'0')
+			i++
+		}
+		m[y] = append(m[y], n)
+
+		// skip to next digit
+		for !unicode.IsDigit(rune(buf[i])) {
+			if buf[i] == '\n' {
+				y++
+				i++
+				break
+			}
+			i++
+		}
+	}
+	return m
 }
