@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
-	"unicode"
 	"unsafe"
 )
 
@@ -183,18 +182,21 @@ func mustNumbersFromFilename(filename string) [][]uint {
 		m[i] = make([]uint, 0, 8)
 	}
 
+	isDigit := func(b byte) bool {
+		return b >= '0' && b <= '9'
+	}
 	for i, y := 0, 0; i < len(buf); {
 		var n uint
 
 		// number
-		for unicode.IsDigit(rune(buf[i])) {
+		for isDigit(buf[i]) {
 			n = 10*n + uint(buf[i]-'0')
 			i++
 		}
 		m[y] = append(m[y], n)
 
 		// skip to next digit
-		for !unicode.IsDigit(rune(buf[i])) {
+		for !isDigit(buf[i]) {
 			if buf[i] == '\n' {
 				y++
 				i++
