@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	MagicMaxLines    = 140 // maximum number of lines for any puzzle input
-	MagicLongestLine = 307 // longest line of any puzzle input
+	MagicMaxLines    = 2014 // maximum number of lines for any puzzle input
+	MagicLongestLine = 23   // longest line of any puzzle input
 )
 
 func linesFromFilename(filename string) ([]string, error) {

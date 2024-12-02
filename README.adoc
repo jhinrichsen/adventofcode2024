@@ -34,7 +34,7 @@ Number of tries for a correct answer:
 |===
 | Day | Part 1 | Part 2
 | 1   |   1    |   1
-| 2   |   1    |   
+| 2   |   1    |   1
 | 3   |        |   
 | 4   |        |   
 | 5   |        |
@@ -82,4 +82,16 @@ BenchmarkDay01Part2-16    	   29608	     40189 ns/op	   57374 B/op	       4 allo
 <2> the above plus a histogram for the right list, memory is (O(2*N + N))
 
 By using smaller int types (uint -> uint32, uint16) `B/op` could be decreased, but 16 KiB fits into L1 cache.
+
+== Day 2: Red-Nosed Reports
+
+----
+goos: linux
+goarch: amd64
+pkg: gitlab.com/jhinrichsen/adventofcode2024
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics     
+BenchmarkDay02Part1-16    	    9501	    123002 ns/op	  191264 B/op	    2552 allocs/op
+BenchmarkDay02Part2-16    	    5326	    221674 ns/op	  396720 B/op	    6266 allocs/op
+PASS
+----
 

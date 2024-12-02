@@ -10,7 +10,7 @@ import (
 )
 
 func TestLinesFromFilename(t *testing.T) {
-	lines, err := linesFromFilename("testdata/helloworld.txt")
+	lines, err := linesFromFilename("testdata/day00.txt")
 	if err != nil {
 		t.Fatal(err)
 	}
