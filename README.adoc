@@ -34,7 +34,7 @@ Number of tries for a correct answer:
 |===
 | Day | Part 1 | Part 2
 | 1   |   1    |   1
-| 2   |        |   
+| 2   |   1    |   
 | 3   |        |   
 | 4   |        |   
 | 5   |        |
