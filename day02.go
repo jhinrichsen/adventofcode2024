@@ -3,31 +3,18 @@ package adventofcode2023
 import (
 	"cmp"
 	"slices"
-	"strconv"
-	"strings"
 )
 
-func Day02(lines []string, part1 bool) uint {
-	var (
-		n uint
-		// part2 = !part1
-	)
-
-	for i := range lines {
-		parts := strings.Fields(lines[i])
-		levels := make([]uint, len(parts))
-		for j := range parts {
-			x, _ := strconv.Atoi(parts[j])
-			levels[j] = uint(x)
-		}
-
+func Day02(reports [][]uint, part1 bool) (n uint) {
+	for i := range reports {
+		levels := reports[i]
 		if part1 {
 			if safe(levels) {
 				n++
 			}
 		} else {
 			for j := range levels {
-				// Delete() zeroes the last n elements from the parameter slice
+				// Delete() zero's out the last n elements from the parameter slice
 				cropped := make([]uint, len(levels))
 				copy(cropped, levels)
 				cropped = slices.Delete(cropped, j, j+1)
@@ -38,7 +25,7 @@ func Day02(lines []string, part1 bool) uint {
 			}
 		}
 	}
-	return n
+	return
 }
 
 func safe(levels []uint) bool {
