@@ -95,3 +95,71 @@ BenchmarkDay02Part2-16    	    5326	    221674 ns/op	  396720 B/op	    6266 allo
 PASS
 ----
 
+== Day 3: Mull it over
+
+Usually i try to avoid regular expressions, as they quickly become hard to understand.
+No way around `regexp` package in this puzzle.
+
+People keep praising Python for its brevity in code golf.
+
+[quote]
+Me gopher staring at 5 lines of Python code
+- Reddit user
+
+They surely have a good point, although sometimes statically typed Go doing just fine.
+
+=== Part 1
+
+[source, Go]
+----
+func Day03(lines []string) (sum uint) {
+        atoi := func(s string) (n uint) { <1>
+                for i := range s { 
+                        n = 10*n + uint(s[i]-'0')
+                }
+                return <2>
+        }
+        re := regexp.MustCompile(`mul\((\d{1,3}),(\d{1,3})\)`)
+        for i := range lines {
+                gs := re.FindAllStringSubmatch(lines[i], -1)
+                for j := range gs {
+                        sum += atoi(gs[j][1]) * atoi(gs[j][2])
+                }
+        }
+        return <2>
+} 
+----
+<1> custom atoi() instead of strconv.Atoi()
+<2> yes, that is rather opinionated
+
+I am using a fast custom parser because `strconv.Atoi()` is way more elaborate (error handling, negative values, `e` notation, ...) than our use case requires.
+The regexp already makes sure of 1 to 3 digits, so no additional logic required.
+
+----
+goos: linux
+goarch: amd64
+pkg: gitlab.com/jhinrichsen/adventofcode2024
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics     
+BenchmarkDay03Part1-16    	    6162	    192923 ns/op	  125182 B/op	    1564 allocs/op
+BenchmarkDay03Part1-16    	    6196	    194894 ns/op	  125120 B/op	    1564 allocs/op
+BenchmarkDay03Part1-16    	    5199	    193495 ns/op	  125184 B/op	    1564 allocs/op
+BenchmarkDay03Part1-16    	    5224	    193238 ns/op	  125096 B/op	    1564 allocs/op
+BenchmarkDay03Part1-16    	    6243	    191711 ns/op	  125127 B/op	    1564 allocs/op
+PASS
+----
+
+=== Part 2
+
+Using a `do()|don't()` RE to build hot and cold regions, then apply part 1 in hot regions.
+
+----
+xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5)
+++++++++++++++++++++                                       +++++++++++++ <1>
+ ******** <2>
+                            ******** <3>
+                                                *********
+                                                                ********
+----
+<1> `+` indicates enabled region
+<2> match group in an enabled region
+<3> match group in a disabled region
