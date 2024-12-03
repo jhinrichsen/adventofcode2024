@@ -41,12 +41,13 @@ func TestDay03Part1(t *testing.T) {
 
 func TestDay03Part2(t *testing.T) {
 	// const want = 31862452 // too low
-	const want = 184576302 // too high
+	// const want = 184576302 // too high
+	const want = 118173507 // too high
 	program, err := os.ReadFile(filename(03))
 	if err != nil {
 		t.Fatal(err)
 	}
-	got := Day03(string(program), true)
+	got := Day03(string(program), false)
 	if want != got {
 		t.Fatalf("want %d but got %d", want, got)
 	}
