@@ -1,0 +1,11 @@
+goos: linux
+goarch: amd64
+pkg: gitlab.com/jhinrichsen/adventofcode2024
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics     
+BenchmarkDay04Part1-16    	    5364	    224012 ns/op	   48560 B/op	     154 allocs/op
+BenchmarkDay04Part1-16    	    5380	    223078 ns/op	   48559 B/op	     154 allocs/op
+BenchmarkDay04Part1-16    	    5467	    222404 ns/op	   48560 B/op	     154 allocs/op
+BenchmarkDay04Part1-16    	    4488	    222880 ns/op	   48560 B/op	     154 allocs/op
+BenchmarkDay04Part1-16    	    5368	    219925 ns/op	   48560 B/op	     154 allocs/op
+PASS
+ok  	gitlab.com/jhinrichsen/adventofcode2024	9.718s
