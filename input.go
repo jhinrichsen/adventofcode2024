@@ -1,4 +1,4 @@
-package adventofcode2023
+package adventofcode2024
 
 import (
 	"bufio"
@@ -206,4 +206,11 @@ func mustNumbersFromFilename(filename string) [][]uint {
 		}
 	}
 	return m
+}
+
+func atoi(s string) (n uint) {
+	for i := range s {
+		n = 10*n + uint(s[i]-'0')
+	}
+	return
 }
