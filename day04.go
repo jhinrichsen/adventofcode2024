@@ -1,54 +1,91 @@
 package adventofcode2024
 
-import "image"
+import (
+	"image"
+)
 
-func Day04(grid [][]byte) (n uint) {
-	const (
-		magic = "XMAS"
-		l     = len(magic)
-	)
+func Day04(grid [][]byte, part1 bool) (n uint) {
 	var (
-		dimX = len(grid[0])
-		dimY = len(grid)
-		r    = image.Rect(0, 0, dimX, dimY)
+		r = image.Rect(0, 0, len(grid[0]), len(grid))
+
+		N  = image.Point{+0, -1}
+		NE = image.Point{+1, -1}
+		E  = image.Point{+1, 0}
+		SE = image.Point{+1, +1}
+		S  = image.Point{+0, +1}
+		SW = image.Point{-1, +1}
+		W  = image.Point{-1, 0}
+		NW = image.Point{-1, -1}
 	)
 
-	for y := range dimY {
-		for x := range dimX {
-			// fast predicates first
-			if grid[y][x] != magic[0] {
-				continue
-			}
-			p0 := image.Point{x, y}
-			for _, dp := range []image.Point{
-				{+0, -1}, // N
-				{+1, -1}, // NE
-				{+1, 0},  // E
-				{+1, +1}, // SE
-				{+0, +1}, // S
-				{-1, +1}, // SW
-				{-1, 0},  // W
-				{-1, -1}, // NW
-			} {
-				// check if end of word is still inside the grid
-				p3 := p0.Add(dp.Mul(l - 1))
-				if !p3.In(r) {
+	if part1 {
+		const (
+			magic = "XMAS"
+			l     = len(magic)
+		)
+		for y := range r.Max.Y {
+			for x := range r.Max.X {
+				// fast predicates first
+				if grid[y][x] != magic[0] {
 					continue
 				}
+				p0 := image.Point{x, y}
+				for _, dp := range []image.Point{N, NE, E, SE, S, SW, W, NW} {
+					// check if end of word is still inside the grid
+					p3 := p0.Add(dp.Mul(l - 1))
+					if !p3.In(r) {
+						continue
+					}
 
-				found := true
-				// now go for the magic word itself, X already checked
-				for i := 1; i < l; i++ {
-					pi := p0.Add(dp.Mul(i))
-					if grid[pi.Y][pi.X] != magic[i] {
-						found = false
-						break
+					found := true
+					// now go for the magic word itself, X already checked
+					for i := 1; i < l; i++ {
+						pi := p0.Add(dp.Mul(i))
+						if grid[pi.Y][pi.X] != magic[i] {
+							found = false
+							break
+						}
+					}
+					if found {
+						n++
 					}
 				}
+			}
+		}
+		return n
+	}
 
-				if found {
-					n++
-				}
+	// part 2
+
+	const (
+		magic = "MAS"
+		l     = len(magic)
+	)
+	// any 'A' must be found within 1 off border
+	for y := 1; y < r.Max.Y-1; y++ {
+		for x := 1; x < r.Max.X-1; x++ {
+			if grid[y][x] != magic[1] {
+				continue
+			}
+			p1 := image.Point{x, y}
+			has := func(p image.Point, dir image.Point, b byte) bool {
+				p2 := p.Add(dir)
+				return grid[p2.Y][p2.X] == b
+			}
+			hasSE := func() bool {
+				return has(p1, NW, magic[0]) && has(p1, SE, magic[2])
+			}
+			hasNW := func() bool {
+				return has(p1, SE, magic[0]) && has(p1, NW, magic[2])
+			}
+			hasNE := func() bool {
+				return has(p1, SW, magic[0]) && has(p1, NE, magic[2])
+			}
+			hasSW := func() bool {
+				return has(p1, NE, magic[0]) && has(p1, SW, magic[2])
+			}
+			if (hasSE() || hasNW()) && (hasNE() || hasSW()) {
+				n++
 			}
 		}
 	}
