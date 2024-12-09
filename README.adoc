@@ -37,7 +37,7 @@ Number of tries for a correct answer:
 | 2   |   1    |   1
 | 3   |   1    |   3
 | 4   |   1    |   1
-| 5   |        |
+| 5   |   1    |
 | 6   |        |   
 | 7   |        |   
 | 8   |        |
@@ -236,5 +236,27 @@ BenchmarkDay04Part2-16    	   12699	     93705 ns/op	   48560 B/op	     154 allo
 BenchmarkDay04Part2-16    	   12814	     94808 ns/op	   48559 B/op	     154 allocs/op
 BenchmarkDay04Part2-16    	   12862	     94259 ns/op	   48559 B/op	     154 allocs/op
 BenchmarkDay04Part2-16    	   12758	     93285 ns/op	   48559 B/op	     154 allocs/op
+PASS
+----
+
+== Day 5: Print Queue
+
+=== Part 1
+
+----
+goos: linux
+goarch: amd64
+pkg: gitlab.com/jhinrichsen/adventofcode2024
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics     
+BenchmarkDay05Part1-16    	     378	   3107355 ns/op	    2688 B/op	       1 allocs/op
+BenchmarkDay05Part1-16    	     386	   2970485 ns/op	    2688 B/op	       1 allocs/op
+BenchmarkDay05Part1-16    	     393	   2939942 ns/op	    2688 B/op	       1 allocs/op
+BenchmarkDay05Part1-16    	     403	   3054037 ns/op	    2688 B/op	       1 allocs/op
+BenchmarkDay05Part1-16    	     398	   2887172 ns/op	    2688 B/op	       1 allocs/op
+BenchmarkDay05Part2-16    	     385	   2903265 ns/op	    2688 B/op	       1 allocs/op
+BenchmarkDay05Part2-16    	     400	   3035211 ns/op	    2688 B/op	       1 allocs/op
+BenchmarkDay05Part2-16    	     397	   2913256 ns/op	    2688 B/op	       1 allocs/op
+BenchmarkDay05Part2-16    	     410	   3027882 ns/op	    2688 B/op	       1 allocs/op
+BenchmarkDay05Part2-16    	     394	   2989433 ns/op	    2688 B/op	       1 allocs/op
 PASS
 ----
