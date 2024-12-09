@@ -37,7 +37,7 @@ Number of tries for a correct answer:
 | 2   |   1    |   1
 | 3   |   1    |   3
 | 4   |   1    |   1
-| 5   |   1    |
+| 5   |   1    |   1
 | 6   |        |   
 | 7   |        |   
 | 8   |        |
@@ -268,3 +268,19 @@ Day05Part1-16    2.69kB ± 0%    0.00kB       -100.00%  (p=0.008 n=5+5)
 name           old allocs/op  new allocs/op  delta
 Day05Part1-16      1.00 ± 0%      0.00       -100.00%  (p=0.008 n=5+5)
 ----
+
+=== Part 2
+
+----
+goos: linux
+goarch: amd64
+pkg: gitlab.com/jhinrichsen/adventofcode2024
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics     
+BenchmarkDay05Part2-16    	      39	  29821854 ns/op	       0 B/op	       0 allocs/op <1>
+BenchmarkDay05Part2-16    	      34	  30269073 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDay05Part2-16    	      38	  30446051 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDay05Part2-16    	      36	  30861993 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDay05Part2-16    	      32	  31323378 ns/op	       0 B/op	       0 allocs/op
+PASS
+----
+<1> That's 30 ms for part 2, no heap allocation -> no garbage collection
