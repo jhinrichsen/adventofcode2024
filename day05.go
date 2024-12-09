@@ -5,32 +5,38 @@ type tuple struct {
 }
 
 func Day05(lines []string) (sum uint) {
-	digit := func(b byte) uint8 {
-		return b - '0'
-	}
-	ten := func(b byte) uint8 {
-		return 10 * digit(b)
-	}
+	const N = 1200
 
-	// find empty group separation line
-	var section int
-	for i := range lines {
-		if len(lines[i]) == 0 {
-			section = i
+	var (
+		nRules  int
+		rules   [N]tuple
+		numbers [N]uint8
+
+		digit = func(b byte) uint8 {
+			return b - '0'
+		}
+
+		ten = func(b byte) uint8 {
+			return 10 * digit(b)
+		}
+	)
+
+	// section 1: rules
+
+	for {
+		line := lines[nRules]
+		if len(line) == 0 {
 			break
 		}
+		rules[nRules].before = ten(line[0]) + digit(line[1])
+		rules[nRules].after = ten(line[3]) + digit(line[4])
+
+		nRules++
 	}
 
-	// parse section 1: rules
+	// section 2: order
 
-	rules := make([]tuple, section)
-	for i, line := range lines[:section] {
-		rules[i].before = ten(line[0]) + digit(line[1])
-		rules[i].after = ten(line[3]) + digit(line[4])
-	}
-
-	var numbers [100]uint8
-	for _, line := range lines[section+1:] {
+	for _, line := range lines[nRules+1:] {
 
 		// parse section 2: numbers
 		n := (len(line) + 1) / 3
