@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	MagicMaxLines    = 1000 // maximum number of lines for any puzzle input
+	MagicMaxLines    = 1381 // maximum number of lines for any puzzle input
 	MagicLongestLine = 3433 // longest line of any puzzle input
 )
 
