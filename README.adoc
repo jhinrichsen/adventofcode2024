@@ -38,7 +38,7 @@ Number of tries for a correct answer:
 | 3   |   1    |   3
 | 4   |   1    |   1
 | 5   |   1    |   1
-| 6   |        |   
+| 6   |   1    |   
 | 7   |   1    |   
 | 8   |        |
 | 9   |        |   
@@ -308,6 +308,22 @@ PASS
 ----
 <1> That's 30 ms for part 2, no heap allocation -> no garbage collection
 
+== Day 6: Guard Gallivant
+
+=== Part 1
+
+----
+goos: linux
+goarch: amd64
+pkg: gitlab.com/jhinrichsen/adventofcode2024
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics     
+BenchmarkDay06Part1-16    	    5900	    197549 ns/op	  663577 B/op	       2 allocs/op
+BenchmarkDay06Part1-16    	    5949	    196379 ns/op	  663577 B/op	       2 allocs/op
+BenchmarkDay06Part1-16    	    6105	    196933 ns/op	  663577 B/op	       2 allocs/op
+BenchmarkDay06Part1-16    	    6088	    197120 ns/op	  663577 B/op	       2 allocs/op
+BenchmarkDay06Part1-16    	    6140	    199124 ns/op	  663577 B/op	       2 allocs/op
+----
+
 == Day 7: Bridge Repair
 
 === Part 1
@@ -322,5 +338,4 @@ BenchmarkDay07Part1-8   	     457	   2715711 ns/op	       0 B/op	       0 allocs
 BenchmarkDay07Part1-8   	     412	   2797532 ns/op	       0 B/op	       0 allocs/op
 BenchmarkDay07Part1-8   	     430	   2739465 ns/op	       0 B/op	       0 allocs/op
 BenchmarkDay07Part1-8   	     349	   2983310 ns/op	       0 B/op	       0 allocs/op
-PASS
 ----
