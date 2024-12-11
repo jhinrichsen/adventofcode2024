@@ -69,3 +69,10 @@ govulncheck.sarif:
 	govulncheck -version
 	govulncheck -format=sarif ./... > $@
 
+
+.SUFFIXES: .peg .go
+
+.peg.go:
+	peg -noast -switch -inline -strict -output $@ $<
+
+peg: grammar.go
