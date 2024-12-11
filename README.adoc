@@ -39,7 +39,7 @@ Number of tries for a correct answer:
 | 4   |   1    |   1
 | 5   |   1    |   1
 | 6   |        |   
-| 7   |        |   
+| 7   |   1    |   
 | 8   |        |
 | 9   |        |   
 | 10  |        |   
@@ -275,7 +275,7 @@ Day05Part1-16      1.00 ± 0%      0.00       -100.00%  (p=0.008 n=5+5)
 goos: linux
 goarch: amd64
 pkg: gitlab.com/jhinrichsen/adventofcode2024
-cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics     
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics
 BenchmarkDay05Part2-16    	      39	  29821854 ns/op	       0 B/op	       0 allocs/op <1>
 BenchmarkDay05Part2-16    	      34	  30269073 ns/op	       0 B/op	       0 allocs/op
 BenchmarkDay05Part2-16    	      38	  30446051 ns/op	       0 B/op	       0 allocs/op
@@ -284,3 +284,20 @@ BenchmarkDay05Part2-16    	      32	  31323378 ns/op	       0 B/op	       0 allo
 PASS
 ----
 <1> That's 30 ms for part 2, no heap allocation -> no garbage collection
+
+== Day 7: Bridge Repair
+
+=== Part 1
+
+----
+goos: linux
+goarch: amd64
+pkg: gitlab.com/jhinrichsen/adventofcode2024
+cpu: AMD Ryzen 5 3400G with Radeon Vega Graphics
+BenchmarkDay07Part1-8   	     424	   2644397 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDay07Part1-8   	     457	   2715711 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDay07Part1-8   	     412	   2797532 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDay07Part1-8   	     430	   2739465 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDay07Part1-8   	     349	   2983310 ns/op	       0 B/op	       0 allocs/op
+PASS
+----
