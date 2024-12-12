@@ -38,11 +38,11 @@ Number of tries for a correct answer:
 | 3   |   1    |   3
 | 4   |   1    |   1
 | 5   |   1    |   1
-| 6   |   1    |   
-| 7   |   1    |   
-| 8   |   1    |
-| 9   |        |   
-| 10  |        |   
+| 6   |   1    |
+| 7   |   1    |
+| 8   |   1    |   1
+| 9   |        |
+| 10  |        |
 | 11  |        |
 | 12  |        |
 | 13  |        |
@@ -67,21 +67,25 @@ goos: linux
 goarch: amd64
 pkg: gitlab.com/jhinrichsen/adventofcode2024
 cpu: AMD Ryzen 5 3400G with Radeon Vega Graphics
-BenchmarkDay01Part1-8   	    9079	    143024 ns/op	   16384 B/op	       2 allocs/op
-BenchmarkDay01Part2-8   	   10000	    127043 ns/op	   57374 B/op	       4 allocs/op
-BenchmarkDay02Part1-8   	    4488	    266174 ns/op	  109453 B/op	    1007 allocs/op
-BenchmarkDay02Part2-8   	    1785	    690027 ns/op	  309247 B/op	    4509 allocs/op
-BenchmarkDay03Part1-8   	     697	   1464631 ns/op	  157583 B/op	    1543 allocs/op
-BenchmarkDay03Part2-8   	     637	   2353681 ns/op	  165930 B/op	    1711 allocs/op
-BenchmarkDay04Part1-8   	    1969	    619775 ns/op	   48543 B/op	     154 allocs/op
-BenchmarkDay04Part2-8   	    2690	    450060 ns/op	   48544 B/op	     154 allocs/op
-BenchmarkDay05Part1-8   	      46	  24423551 ns/op	       0 B/op	       0 allocs/op
-BenchmarkDay05Part2-8   	      19	  56350154 ns/op	       0 B/op	       0 allocs/op
-BenchmarkDay07Part1-8   	     436	   2703922 ns/op	       0 B/op	       0 allocs/op
-PASS
+BenchmarkDay01Part1-8   	   10000	    133619 ns/op	   16384 B/op	       2 allocs/op
+BenchmarkDay01Part2-8   	   10000	    122981 ns/op	   57374 B/op	       4 allocs/op
+BenchmarkDay02Part1-8   	    4788	    275458 ns/op	  109453 B/op	    1007 allocs/op
+BenchmarkDay02Part2-8   	    1605	    645229 ns/op	  309248 B/op	    4509 allocs/op
+BenchmarkDay03Part1-8   	     934	   1359496 ns/op	  157584 B/op	    1543 allocs/op
+BenchmarkDay03Part2-8   	     583	   2208954 ns/op	  165925 B/op	    1711 allocs/op
+BenchmarkDay04Part1-8   	    2104	    568110 ns/op	   48544 B/op	     154 allocs/op
+BenchmarkDay04Part2-8   	    3135	    417356 ns/op	   48544 B/op	     154 allocs/op
+BenchmarkDay05Part1-8   	      55	  20832291 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDay05Part2-8   	      21	  51428549 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDay06Part1-8   	    1938	    701061 ns/op	  663580 B/op	       2 allocs/op
+
+BenchmarkDay07Part1-8   	     445	   2474109 ns/op	       0 B/op	       0 allocs/op
+
+BenchmarkDay08Part1-8   	    1798	    672954 ns/op	   90136 B/op	       2 allocs/op
+BenchmarkDay08Part2-8   	    2086	    655172 ns/op	   90139 B/op	       2 allocs/op
 ----
 
-That's 90 ms total.
+That's 82 ms total.
 
 == Day 1: Historian Hysteria
 

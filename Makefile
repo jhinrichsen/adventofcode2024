@@ -76,3 +76,7 @@ govulncheck.sarif:
 	peg -noast -switch -inline -strict -output $@ $<
 
 peg: grammar.go
+
+.PHONY: total
+total:
+	awk -f total.awk < benches/all.txt
