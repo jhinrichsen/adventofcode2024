@@ -349,9 +349,55 @@ goos: linux
 goarch: amd64
 pkg: gitlab.com/jhinrichsen/adventofcode2024
 cpu: AMD Ryzen 5 3400G with Radeon Vega Graphics
-BenchmarkDay08Part1-8   	    1557	    712041 ns/op	   90136 B/op	       2 allocs/op
-BenchmarkDay08Part1-8   	    1587	    671964 ns/op	   90136 B/op	       2 allocs/op
-BenchmarkDay08Part1-8   	    1602	    681443 ns/op	   90136 B/op	       2 allocs/op
-BenchmarkDay08Part1-8   	    1563	    744944 ns/op	   90136 B/op	       2 allocs/op
-BenchmarkDay08Part1-8   	    1761	    743635 ns/op	   90136 B/op	       2 allocs/op
+BenchmarkDay08Part1-8   	    1564	    661012 ns/op	   90139 B/op	       2 allocs/op
+BenchmarkDay08Part1-8   	    1797	    631212 ns/op	   90136 B/op	       2 allocs/op
+BenchmarkDay08Part1-8   	    2593	    630481 ns/op	   90136 B/op	       2 allocs/op
+BenchmarkDay08Part1-8   	    1716	    678508 ns/op	   90136 B/op	       2 allocs/op
+BenchmarkDay08Part1-8   	    1820	    648858 ns/op	   90136 B/op	       2 allocs/op
+goos: linux
 ----
+
+=== Part 2
+
+----
+goos: linux
+goarch: amd64
+pkg: gitlab.com/jhinrichsen/adventofcode2024
+cpu: AMD Ryzen 5 3400G with Radeon Vega Graphics
+BenchmarkDay08Part2-8   	    2032	    647094 ns/op	   90139 B/op	       2 allocs/op
+BenchmarkDay08Part2-8   	    2167	    616031 ns/op	   90140 B/op	       2 allocs/op
+BenchmarkDay08Part2-8   	    2073	    652428 ns/op	   90139 B/op	       2 allocs/op
+BenchmarkDay08Part2-8   	    1794	    638548 ns/op	   90139 B/op	       2 allocs/op
+BenchmarkDay08Part2-8   	    1544	    649896 ns/op	   90140 B/op	       2 allocs/op
+----
+
+Being an electrical engineer, i misread part 1 to stop after one complete wave.
+The unit test was my safety net.
+I lazily used
+
+[source, Go]
+----
+for range 1 {
+    ....
+}
+-----
+
+to stop iterating.
+Part 2 was exactly that, my part 1.
+
+Part 1 decreased slightly
+
+----
+name          old time/op    new time/op    delta
+Day08Part1-8     711µs ± 5%     650µs ± 4%  -8.55%  (p=0.016 n=5+5)
+
+name          old alloc/op   new alloc/op   delta
+Day08Part1-8    90.1kB ± 0%    90.1kB ± 0%    ~     (all equal)
+
+name          old allocs/op  new allocs/op  delta
+Day08Part1-8      2.00 ± 0%      2.00 ± 0%    ~     (all equal)
+----
+
+Performancewise, part 1 and 2 are very similar, suggesting that the major part is locating antennas on the same frequency, as opposed to spreading the wave.
+
+

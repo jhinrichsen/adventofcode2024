@@ -1,0 +1,11 @@
+goos: linux
+goarch: amd64
+pkg: gitlab.com/jhinrichsen/adventofcode2024
+cpu: AMD Ryzen 5 3400G with Radeon Vega Graphics    
+BenchmarkDay08Part1-8   	    1564	    661012 ns/op	   90139 B/op	       2 allocs/op
+BenchmarkDay08Part1-8   	    1797	    631212 ns/op	   90136 B/op	       2 allocs/op
+BenchmarkDay08Part1-8   	    2593	    630481 ns/op	   90136 B/op	       2 allocs/op
+BenchmarkDay08Part1-8   	    1716	    678508 ns/op	   90136 B/op	       2 allocs/op
+BenchmarkDay08Part1-8   	    1820	    648858 ns/op	   90136 B/op	       2 allocs/op
+PASS
+ok  	gitlab.com/jhinrichsen/adventofcode2024	7.476s

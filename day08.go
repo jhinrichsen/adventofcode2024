@@ -5,7 +5,7 @@ import (
 	"image"
 )
 
-func Day08(lines []string) (total uint) {
+func Day08(lines []string, part1 bool) (total uint) {
 	const (
 		empty = '.'
 	)
@@ -37,14 +37,26 @@ func Day08(lines []string) (total uint) {
 					}
 					// my antinodes
 					dx, dy := x2-x, y2-y
-					p := image.Point{x2, y2}
-					for range 1 {
+					var p image.Point
+					if part1 {
+						// start from opposite antenna
+						p = image.Point{x2, y2}
+					} else {
+						// start from base antenna
+						p = image.Point{x, y}
+					}
+					for {
 						p.X = p.X + dx
 						p.Y = p.Y + dy
 						if off(p) {
 							break
 						}
 						uniques[p] = true
+						if part1 {
+							// part 1: frequency stops after one wave
+							break
+						}
+						// part 2: waves keep going
 					}
 				}
 			}
