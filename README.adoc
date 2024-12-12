@@ -41,7 +41,7 @@ Number of tries for a correct answer:
 | 6   |   1    |
 | 7   |   1    |
 | 8   |   1    |   1
-| 9   |        |
+| 9   |   1    |
 | 10  |        |
 | 11  |        |
 | 12  |        |
@@ -404,4 +404,21 @@ Day08Part1-8      2.00 ± 0%      2.00 ± 0%    ~     (all equal)
 
 Performancewise, part 1 and 2 are very similar, suggesting that the major part is locating antennas on the same frequency, as opposed to spreading the wave.
 
+== Day 9: Disk Fragmenter
+
+=== Part 1
+
+----
+goos: linux
+goarch: amd64
+pkg: gitlab.com/jhinrichsen/adventofcode2024
+cpu: AMD Ryzen 5 3400G with Radeon Vega Graphics
+BenchmarkDay09Part1-8   	      42	  27858720 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDay09Part1-8   	      42	  27579218 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDay09Part1-8   	      40	  28169173 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDay09Part1-8   	      40	  28437979 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDay09Part1-8   	      40	  28237083 ns/op	       0 B/op	       0 allocs/op
+----
+
+That's 27 ms.
 
