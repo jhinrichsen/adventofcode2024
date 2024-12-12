@@ -40,7 +40,7 @@ Number of tries for a correct answer:
 | 5   |   1    |   1
 | 6   |   1    |   
 | 7   |   1    |   
-| 8   |        |
+| 8   |   1    |
 | 9   |        |   
 | 10  |        |   
 | 11  |        |
@@ -89,7 +89,7 @@ That's 90 ms total.
 goos: linux
 goarch: amd64
 pkg: gitlab.com/jhinrichsen/adventofcode2024
-cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics     
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics
 BenchmarkDay01Part1-16    	   40551	     29019 ns/op	   16384 B/op	       2 allocs/op <1>
 BenchmarkDay01Part1-16    	   39687	     28998 ns/op	   16384 B/op	       2 allocs/op
 BenchmarkDay01Part1-16    	   41421	     28890 ns/op	   16384 B/op	       2 allocs/op
@@ -112,7 +112,7 @@ By using smaller int types (uint -> uint32, uint16) `B/op` could be decreased, b
 goos: linux
 goarch: amd64
 pkg: gitlab.com/jhinrichsen/adventofcode2024
-cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics     
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics
 BenchmarkDay02Part1-16    	    9501	    123002 ns/op	  191264 B/op	    2552 allocs/op
 BenchmarkDay02Part2-16    	    5326	    221674 ns/op	  396720 B/op	    6266 allocs/op
 PASS
@@ -137,7 +137,7 @@ They surely have a good point, although sometimes statically typed Go doing just
 ----
 func Day03(lines []string) (sum uint) {
         atoi := func(s string) (n uint) { <1>
-                for i := range s { 
+                for i := range s {
                         n = 10*n + uint(s[i]-'0')
                 }
                 return <2>
@@ -150,7 +150,7 @@ func Day03(lines []string) (sum uint) {
                 }
         }
         return <2>
-} 
+}
 ----
 <1> custom atoi() instead of strconv.Atoi()
 <2> yes, that is rather opinionated
@@ -162,7 +162,7 @@ The regexp already makes sure of 1 to 3 digits, so no additional logic required.
 goos: linux
 goarch: amd64
 pkg: gitlab.com/jhinrichsen/adventofcode2024
-cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics     
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics
 BenchmarkDay03Part1-16    	    6162	    192923 ns/op	  125182 B/op	    1564 allocs/op
 BenchmarkDay03Part1-16    	    6196	    194894 ns/op	  125120 B/op	    1564 allocs/op
 BenchmarkDay03Part1-16    	    5199	    193495 ns/op	  125184 B/op	    1564 allocs/op
@@ -216,7 +216,7 @@ Benchmark for part 2:
 goos: linux
 goarch: amd64
 pkg: gitlab.com/jhinrichsen/adventofcode2024
-cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics     
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics
 BenchmarkDay03Part2-16    	    1332	    851205 ns/op	  165921 B/op	    1710 allocs/op
 BenchmarkDay03Part2-16    	    1305	    938589 ns/op	  165923 B/op	    1710 allocs/op
 BenchmarkDay03Part2-16    	    1395	    825859 ns/op	  165929 B/op	    1710 allocs/op
@@ -233,7 +233,7 @@ PASS
 goos: linux
 goarch: amd64
 pkg: gitlab.com/jhinrichsen/adventofcode2024
-cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics     
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics
 BenchmarkDay04Part1-16    	    5364	    224012 ns/op	   48560 B/op	     154 allocs/op
 BenchmarkDay04Part1-16    	    5380	    223078 ns/op	   48559 B/op	     154 allocs/op
 BenchmarkDay04Part1-16    	    5467	    222404 ns/op	   48560 B/op	     154 allocs/op
@@ -248,7 +248,7 @@ PASS
 goos: linux
 goarch: amd64
 pkg: gitlab.com/jhinrichsen/adventofcode2024
-cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics     
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics
 BenchmarkDay04Part1-16    	    5394	    219828 ns/op	   48561 B/op	     154 allocs/op
 BenchmarkDay04Part1-16    	    5421	    222877 ns/op	   48560 B/op	     154 allocs/op
 BenchmarkDay04Part1-16    	    5377	    220939 ns/op	   48559 B/op	     154 allocs/op
@@ -270,7 +270,7 @@ PASS
 goos: linux
 goarch: amd64
 pkg: gitlab.com/jhinrichsen/adventofcode2024
-cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics     
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics
 BenchmarkDay05Part1-16    	     378	   3107355 ns/op	    2688 B/op	       1 allocs/op
 BenchmarkDay05Part1-16    	     386	   2970485 ns/op	    2688 B/op	       1 allocs/op
 BenchmarkDay05Part1-16    	     393	   2939942 ns/op	    2688 B/op	       1 allocs/op
@@ -316,7 +316,7 @@ PASS
 goos: linux
 goarch: amd64
 pkg: gitlab.com/jhinrichsen/adventofcode2024
-cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics     
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics
 BenchmarkDay06Part1-16    	    5900	    197549 ns/op	  663577 B/op	       2 allocs/op
 BenchmarkDay06Part1-16    	    5949	    196379 ns/op	  663577 B/op	       2 allocs/op
 BenchmarkDay06Part1-16    	    6105	    196933 ns/op	  663577 B/op	       2 allocs/op
@@ -338,4 +338,20 @@ BenchmarkDay07Part1-8   	     457	   2715711 ns/op	       0 B/op	       0 allocs
 BenchmarkDay07Part1-8   	     412	   2797532 ns/op	       0 B/op	       0 allocs/op
 BenchmarkDay07Part1-8   	     430	   2739465 ns/op	       0 B/op	       0 allocs/op
 BenchmarkDay07Part1-8   	     349	   2983310 ns/op	       0 B/op	       0 allocs/op
+----
+
+== Day 8: Resonant Collinearity
+
+=== Part 1
+
+----
+goos: linux
+goarch: amd64
+pkg: gitlab.com/jhinrichsen/adventofcode2024
+cpu: AMD Ryzen 5 3400G with Radeon Vega Graphics
+BenchmarkDay08Part1-8   	    1557	    712041 ns/op	   90136 B/op	       2 allocs/op
+BenchmarkDay08Part1-8   	    1587	    671964 ns/op	   90136 B/op	       2 allocs/op
+BenchmarkDay08Part1-8   	    1602	    681443 ns/op	   90136 B/op	       2 allocs/op
+BenchmarkDay08Part1-8   	    1563	    744944 ns/op	   90136 B/op	       2 allocs/op
+BenchmarkDay08Part1-8   	    1761	    743635 ns/op	   90136 B/op	       2 allocs/op
 ----
