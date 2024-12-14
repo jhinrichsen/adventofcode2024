@@ -65,7 +65,7 @@ func Day08(lines []string, part1 bool) (total uint) {
 	return uint(len(uniques))
 }
 
-func dump(lines []string, ps map[image.Point]bool) {
+func DumpDay08(lines []string, ps map[image.Point]bool) {
 	fmt.Println()
 	for y := range lines {
 		for x := range lines[0] {
