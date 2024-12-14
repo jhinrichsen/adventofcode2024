@@ -61,6 +61,8 @@ gl-code-quality-report.json: staticcheck.json
 	golint-convert > $@
 
 staticcheck.json:
+	which staticcheck || $(GO) install honnef.co/go/tools/cmd/staticcheck@latest
+	staticcheck -version
 	-staticcheck -f json > $@
 
 # Gitlab dependency report
