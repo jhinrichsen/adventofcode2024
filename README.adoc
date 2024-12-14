@@ -28,6 +28,21 @@ Each puzzle for day `n` lives in a `day{{.n}}.go` and `day{{.n}}_test.go` file.
 Unit test data, both examples and puzzle input, is in
 `testdata/day{{.n}}.txt`, and `testdata/day{{.n}}_example.txt`.
 
+== Code quality
+
+Gitlab is starting to support the concept of code quality.
+Historically, you'd be using third party tools such as _goreportcard_ or _SonarQube_.
+Problem with this, you need to commit your change to the release branch, so third party tools can pick it up.
+Using staticcheck to prepare a mostly
+https://docs.gitlab.com/ee/ci/testing/code_quality.html#code-quality-report-format[Code Climate]
+compliant format, you get code quality in merge requests (all editions):
+
+image::img/code-quality.png[]
+
+Unfortunately, the code quality dashboard, Gitlab calls it the
+https://docs.gitlab.com/ee/ci/testing/code_quality.html#project-quality-view[Project quality view], 
+is only available in Gitlab Ultimate.
+
 == Overview
 
 Number of tries for a correct answer:
@@ -74,6 +89,7 @@ BenchmarkDay01Part2-8   	   10000	    122981 ns/op	   57374 B/op	       4 allocs
 BenchmarkDay02Part1-8   	    4788	    275458 ns/op	  109453 B/op	    1007 allocs/op
 BenchmarkDay02Part2-8   	    1605	    645229 ns/op	  309248 B/op	    4509 allocs/op
 BenchmarkDay03Part1-8   	     934	   1359496 ns/op	  157584 B/op	    1543 allocs/op
+
 BenchmarkDay03Part2-8   	     583	   2208954 ns/op	  165925 B/op	    1711 allocs/op
 BenchmarkDay04Part1-8   	    2104	    568110 ns/op	   48544 B/op	     154 allocs/op
 BenchmarkDay04Part2-8   	    3135	    417356 ns/op	   48544 B/op	     154 allocs/op
