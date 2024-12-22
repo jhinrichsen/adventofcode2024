@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	MagicMaxLines    = 1381 // maximum number of lines for any puzzle input
-	MagicLongestLine = 3433 // longest line of any puzzle input
+	MagicMaxLines    = 1381  // maximum number of lines for any puzzle input
+	MagicLongestLine = 19999 // longest line of any puzzle input
 )
 
 func linesFromFilename(filename string) ([]string, error) {
@@ -206,11 +206,4 @@ func mustNumbersFromFilename(filename string) [][]uint {
 		}
 	}
 	return m
-}
-
-func atoi(s string) (n uint) {
-	for i := range s {
-		n = 10*n + uint(s[i]-'0')
-	}
-	return
 }

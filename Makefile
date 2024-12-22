@@ -110,4 +110,13 @@ cpu.profile:
 prof: cpu.profile
 	$(GO) tool pprof $^
 
+.SUFFIXES: .peg .go
 
+.peg.go:
+	peg -noast -switch -inline -strict -output $@ $<
+
+peg: grammar.go
+
+.PHONY: total
+total:
+	awk -f total.awk < benches/all.txt
