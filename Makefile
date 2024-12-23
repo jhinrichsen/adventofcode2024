@@ -1,6 +1,6 @@
 GO ?= CGO_ENABLED=0 go
 
-REPORTS := coverage.txt gl-code-quality-report.json govet.json govulncheck.sarif junit.xml staticcheck.json test.log
+REPORTS := coverage.xml gl-code-quality-report.json govet.json govulncheck.sarif junit.xml staticcheck.json test.log
 
 .PHONY: all
 ifdef CI
