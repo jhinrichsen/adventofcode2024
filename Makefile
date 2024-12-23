@@ -29,7 +29,12 @@ test:
 	$(GO) test -run=Day -short -vet=all
 
 .PHONY: dependencies
-dependencies: dep-gitlab-code-quality-report dep-go-junit-report dep-gocover-cobertura dep-golint-convert dep-staticcheck
+dependencies: \
+	dep-gitlab-code-quality-report \
+	dep-go-junit-report \
+	dep-gocover-cobertura \
+	dep-govulncheck \
+	dep-staticcheck
 
 .PHONY: dep-gitlab-code-quality-report
 dep-gitlab-code-quality-report:
@@ -46,17 +51,7 @@ dep-gocover-cobertura:
 	which gocover-cobertura || $(GO) install github.com/boumenot/gocover-cobertura@latest
 	# not supported gocover-cobertura -version
 
-.PHONY: dep-golint-convert
-dep-golint-convert:
-	which golint-convert || $(GO) install github.com/banyansecurity/golint-convert@latest
-	# not supported golint-convert -version
-
-.PHONY: dep-govet-gitlab
-dep-govet-gitlab:
-	which govet-gitlab || $(GO) install gitlab.com/jhinrichsen/govet-gitlab@latest
-	govet-gitlab -version
-
-.PHONY: dep-govet-gitlab
+.PHONY: dep-govulncheck
 dep-govulncheck:
 	which govulncheck || $(GO) install golang.org/x/vuln/cmd/govulncheck@latest
 	govulncheck -version
@@ -82,7 +77,7 @@ govet.json:
 	$(GO) vet -json 2> $@
 
 # Gitlab dependency report
-govulncheck.sarif:
+govulncheck.sarif: | dep-govulncheck
 	govulncheck -format=sarif ./... > $@
 
 # Gitlab test report
