@@ -19,7 +19,7 @@ test-job:
     stage: test
     script:
         - make --version
-        - make -r 
+        - make -kr 
     coverage: '/coverage: \d+\.\d+%/'
     artifacts:
         reports:
