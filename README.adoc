@@ -422,3 +422,19 @@ BenchmarkDay09Part1-8   	      40	  28237083 ns/op	       0 B/op	       0 allocs
 
 That's 27 ms.
 
+== Day10: Hoof It
+
+=== Part 1
+
+----
+goos: linux
+goarch: amd64
+pkg: gitlab.com/jhinrichsen/adventofcode2024
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics     
+BenchmarkDay10Part1-16    	     996	   1124976 ns/op	 1459165 B/op	   13245 allocs/op
+BenchmarkDay10Part1-16    	     981	   1129558 ns/op	 1459171 B/op	   13245 allocs/op
+BenchmarkDay10Part1-16    	    1702	    656466 ns/op	 1459166 B/op	   13245 allocs/op
+BenchmarkDay10Part1-16    	    1764	    642919 ns/op	 1459166 B/op	   13245 allocs/op
+BenchmarkDay10Part1-16    	    1790	    638223 ns/op	 1459165 B/op	   13245 allocs/op
+PASS
+----
