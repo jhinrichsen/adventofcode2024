@@ -39,7 +39,7 @@ func TestDay10Part1Examples(t *testing.T) {
 	for i := range tt {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			want := tt[i].want
-			got := Day10(gridFromBytes([]byte(tt[i].sample)))
+			got := Day10(gridFromBytes([]byte(tt[i].sample)), true)
 			if want != got {
 				t.Fatalf("want %d but got %d\n", want, got)
 			}
@@ -53,19 +53,19 @@ func TestDay10Part1Example(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	got := Day10(lines)
+	got := Day10(lines, true)
 	if want != got {
 		t.Fatalf("want %d but got %d", want, got)
 	}
 }
 
 func TestDay10Part2Example(t *testing.T) {
-	const want = 0
+	const want = 81
 	lines, err := gridFromFilename(exampleFilename(10))
 	if err != nil {
 		t.Fatal(err)
 	}
-	got := Day10(lines)
+	got := Day10(lines, false)
 	if want != got {
 		t.Fatalf("want %d but got %d", want, got)
 	}
@@ -77,19 +77,19 @@ func TestDay10Part1(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	got := Day10(lines)
+	got := Day10(lines, true)
 	if want != got {
 		t.Fatalf("want %d but got %d", want, got)
 	}
 }
 
 func TestDay10Part2(t *testing.T) {
-	const want = 0
+	const want = 1340
 	lines, err := gridFromFilename(filename(10))
 	if err != nil {
 		t.Fatal(err)
 	}
-	got := Day10(lines)
+	got := Day10(lines, false)
 	if want != got {
 		t.Fatalf("want %d but got %d", want, got)
 	}
@@ -102,7 +102,7 @@ func BenchmarkDay10Part1(b *testing.B) {
 	}
 	b.ResetTimer()
 	for range b.N {
-		_ = Day10(lines)
+		_ = Day10(lines, true)
 	}
 }
 
@@ -113,6 +113,6 @@ func BenchmarkDay10Part2(b *testing.B) {
 	}
 	b.ResetTimer()
 	for range b.N {
-		_ = Day10(lines)
+		_ = Day10(lines, false)
 	}
 }

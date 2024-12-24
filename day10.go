@@ -10,7 +10,7 @@ type distinctTrail struct {
 	start, end image.Point
 }
 
-func Day10(grid [][]byte) uint {
+func Day10(grid [][]byte, part1 bool) uint {
 	var (
 		dimX  = len(grid[0])
 		dimY  = len(grid)
@@ -56,6 +56,11 @@ func Day10(grid [][]byte) uint {
 				}
 			}
 		}
+	}
+
+	// part 2: count all trails
+	if !part1 {
+		return uint(all.Len())
 	}
 
 	// multiple trails from 0 -> 9 count as 1 for the same 0 and 9

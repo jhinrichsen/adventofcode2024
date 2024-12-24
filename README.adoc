@@ -42,7 +42,7 @@ Number of tries for a correct answer:
 | 7   |   1    |
 | 8   |   1    |   1
 | 9   |   1    |
-| 10  |   1    |
+| 10  |   1    |   1
 | 11  |        |
 | 12  |        |
 | 13  |        |
@@ -436,5 +436,21 @@ BenchmarkDay10Part1-16    	     981	   1129558 ns/op	 1459171 B/op	   13245 allo
 BenchmarkDay10Part1-16    	    1702	    656466 ns/op	 1459166 B/op	   13245 allocs/op
 BenchmarkDay10Part1-16    	    1764	    642919 ns/op	 1459166 B/op	   13245 allocs/op
 BenchmarkDay10Part1-16    	    1790	    638223 ns/op	 1459165 B/op	   13245 allocs/op
+PASS
+----
+
+I misread part 1 and counted _all_ trails, not just _distinct_ start and end trails.
+For part 2, this turns out to be just what we need, lucky me...
+
+----
+goos: linux
+goarch: amd64
+pkg: gitlab.com/jhinrichsen/adventofcode2024
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics     
+BenchmarkDay10Part2-16    	    1028	   1007849 ns/op	 1377221 B/op	   13243 allocs/op
+BenchmarkDay10Part2-16    	    1116	   1018253 ns/op	 1377216 B/op	   13243 allocs/op
+BenchmarkDay10Part2-16    	    1926	    587530 ns/op	 1377217 B/op	   13243 allocs/op
+BenchmarkDay10Part2-16    	    1875	    569882 ns/op	 1377217 B/op	   13243 allocs/op
+BenchmarkDay10Part2-16    	    1897	    581965 ns/op	 1377217 B/op	   13243 allocs/op
 PASS
 ----
