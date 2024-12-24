@@ -64,7 +64,7 @@ func BenchmarkBytesFromFilename(b *testing.B) {
 	}
 	readall := func() {
 		for i := range filenames {
-			_, _ = bytesFromFilename(filenames[i])
+			_, _ = gridFromFilename(filenames[i])
 		}
 	}
 	// warm-up cache

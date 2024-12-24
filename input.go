@@ -73,14 +73,14 @@ func linesAsNumbers(lines []string) ([]int, error) {
 }
 
 func DayAdapterV1(day func([][]byte, bool) (uint, error), filename string, part1 bool) (uint, error) {
-	bs, err := bytesFromFilename(filename)
+	bs, err := gridFromFilename(filename)
 	if err != nil {
 		return 0, err
 	}
 	return day(bs, part1)
 }
 
-// bytesFromFilename reads newline separated lines from a file and returns them as [][]byte.
+// gridFromFilename reads newline separated lines from a file and returns them as [][]byte.
 // casting string([]byte) has a runtime overhead because of internal memory allocation.
 // len() is the number of lines, len([0]) is the length of the first line.
 // Both indices start at top left and go bottom right.
@@ -91,12 +91,17 @@ func DayAdapterV1(day func([][]byte, bool) (uint, error), filename string, part1
 // [0][0] == A
 // [2][1] == Z
 
-func bytesFromFilename(filename string) ([][]byte, error) {
+func gridFromFilename(filename string) ([][]byte, error) {
 	buf, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
 
+	return gridFromBytes(buf), nil
+}
+
+// transform newlines as a 2D [Y][X]byte
+func gridFromBytes(buf []byte) [][]byte {
 	var result [][]byte
 	start := 0
 	l := len(buf)
@@ -114,7 +119,7 @@ func bytesFromFilename(filename string) ([][]byte, error) {
 		result = append(result, append([]byte(nil), buf[start:]...))
 	}
 
-	return result, nil
+	return result
 }
 
 func DayAdapterV2(day func([][]byte, bool) (uint, error), filename string, part1 bool) (uint, error) {

@@ -6,7 +6,7 @@ import (
 
 func TestDay06Part1Example(t *testing.T) {
 	const want = 41
-	grid, err := bytesFromFilename(exampleFilename(06))
+	grid, err := gridFromFilename(exampleFilename(06))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -18,7 +18,7 @@ func TestDay06Part1Example(t *testing.T) {
 
 func TestDay06Part1(t *testing.T) {
 	const want = 4903
-	grid, err := bytesFromFilename(filename(06))
+	grid, err := gridFromFilename(filename(06))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -29,7 +29,7 @@ func TestDay06Part1(t *testing.T) {
 }
 
 func BenchmarkDay06Part1(b *testing.B) {
-	grid, err := bytesFromFilename(filename(06))
+	grid, err := gridFromFilename(filename(06))
 	if err != nil {
 		b.Fatal(err)
 	}
