@@ -42,7 +42,7 @@ Number of tries for a correct answer:
 | 7   |   1    |
 | 8   |   1    |   1
 | 9   |   1    |
-| 10  |        |
+| 10  |   1    |
 | 11  |        |
 | 12  |        |
 | 13  |        |
