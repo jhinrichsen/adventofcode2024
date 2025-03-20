@@ -36,10 +36,10 @@ func Day10(grid [][]byte, part1 bool) uint {
 			all.Remove(e)
 			if trail, ok := e.Value.(trail); ok {
 				for _, delta := range []image.Point{
-					image.Point{0, -1}, // N
-					image.Point{1, 0},  // E
-					image.Point{0, 1},  // S
-					image.Point{-1, 0}, // W
+					{0, -1}, // N
+					{1, 0},  // E
+					{0, 1},  // S
+					{-1, 0}, // W
 				} {
 					p := trail[i-1]
 					p = p.Add(delta)
