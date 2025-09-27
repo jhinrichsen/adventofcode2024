@@ -487,6 +487,7 @@ Each comparison uses bit manipulation to avoid branches:
 - Sum all results to get digit count
 
 **Performance characteristics:**
+
 - **Theoretical**: ~45 CPU cycles (11 comparisons × 4 ops each + setup)
 - **Actual (modern AMD64)**: ~8-12 cycles due to superscalar execution and instruction-level parallelism
 - **Advantage**: 10-20x faster than `math.Log10()`, completely branchless (no branch prediction misses)
@@ -521,10 +522,12 @@ PASS
 ----
 
 **Performance Improvement**:
+
 - **Part 1**: 345µs (~5,900x faster, from 2.0s to 0.3ms)
 - **Part 2**: 10.9ms (75 blinks, 207+ trillion stones)
 
 **Key Optimizations**:
+
 1. **Frequency Counting**: Track stone counts instead of individual stones
 2. **Iterative Processing**: Pure iteration, zero recursion
 3. **Mathematical Insight**: Identical stones transform identically
