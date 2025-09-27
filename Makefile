@@ -112,6 +112,7 @@ prof: cpu.profile
 
 peg: grammar.go
 
-.PHONY: total
-total:
+.PHONY: totalruntime
+totalruntime:
+	go test -run=^$ -bench=Day -benchmem | tee benches/all.txt
 	awk -f total.awk < benches/all.txt
