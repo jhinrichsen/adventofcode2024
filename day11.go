@@ -1,6 +1,5 @@
 package adventofcode2024
 
-import "slices"
 
 func NewDay11(input string) []uint64 {
 	stones := make([]uint64, 0, len(input)/2) // worst case: single digits separated by one space
@@ -18,29 +17,40 @@ func NewDay11(input string) []uint64 {
 	return stones
 }
 
-func Day11(stones []uint64) uint {
-	const blinks = 25
-	for range blinks {
-		stones = blink(stones)
+func Day11(stones []uint64, part1 bool) uint64 {
+	blinks := 75
+	if part1 {
+		blinks = 25
 	}
-	return uint(len(stones))
+
+	stoneCounts := make(map[uint64]uint64)
+	for _, stone := range stones {
+		stoneCounts[stone]++
+	}
+
+	for i := 0; i < blinks; i++ {
+		newCounts := make(map[uint64]uint64)
+		for stone, count := range stoneCounts {
+			if stone == 0 {
+				newCounts[1] += count
+			} else if high, low, ok := split(stone); ok {
+				newCounts[high] += count
+				newCounts[low] += count
+			} else {
+				newCounts[stone*2024] += count
+			}
+		}
+		stoneCounts = newCounts
+	}
+
+	var total uint64
+	for _, count := range stoneCounts {
+		total += count
+	}
+
+	return total
 }
 
-func blink(stones []uint64) []uint64 {
-	// iterate backwards so inserting does not break our index
-	for i := len(stones) - 1; i >= 0; i-- {
-		stone := stones[i]
-		if stone == 0 {
-			stones[i] = 1
-		} else if a, b, ok := split(stone); ok {
-			stones[i] = a
-			stones = slices.Insert(stones, i+1, b)
-		} else {
-			stones[i] *= 2024
-		}
-	}
-	return stones
-}
 
 func evenNumberOfDigits(n uint64) bool {
 	return digits_branchless(n)%2 == 0
