@@ -89,6 +89,40 @@ BenchmarkDay08Part2-8   	    2086	    655172 ns/op	   90139 B/op	       2 allocs
 
 That's 82 ms total.
 
+----
+go test -run=^$ -bench=Day -benchmem | tee benches/all.txt
+goos: linux
+goarch: amd64
+pkg: gitlab.com/jhinrichsen/adventofcode2024
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics
+BenchmarkDay01Part1-16    	   36889	     30237 ns/op	   16384 B/op	       2 allocs/op
+BenchmarkDay01Part2-16    	   31315	     36905 ns/op	   53328 B/op	       7 allocs/op
+BenchmarkDay02Part1-16    	  188276	      6090 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDay02Part2-16    	   12307	     95254 ns/op	  199737 B/op	    3502 allocs/op
+BenchmarkDay03Part1-16    	    2896	    383072 ns/op	  157598 B/op	    1543 allocs/op
+BenchmarkDay03Part2-16    	    1574	    717401 ns/op	  165976 B/op	    1711 allocs/op
+BenchmarkDay04Part1-16    	   10624	    115248 ns/op	   23616 B/op	     141 allocs/op
+BenchmarkDay04Part2-16    	   45325	     26349 ns/op	   23616 B/op	     141 allocs/op
+BenchmarkDay05Part1-16    	      99	  11922306 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDay05Part2-16    	      36	  29796143 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDay06Part1-16    	    3771	    296899 ns/op	  895652 B/op	     196 allocs/op
+
+BenchmarkDay07Part1-16    	     843	   1364444 ns/op	       0 B/op	       0 allocs/op
+
+BenchmarkDay08Part1-16    	    4962	    244642 ns/op	  109216 B/op	       9 allocs/op
+BenchmarkDay08Part2-16    	    4339	    273104 ns/op	  109216 B/op	       9 allocs/op
+BenchmarkDay09Part1-16    	      60	  17348834 ns/op	  327680 B/op	       1 allocs/op
+
+BenchmarkDay10Part1-16    	    1741	    606704 ns/op	 1478965 B/op	   13295 allocs/op
+BenchmarkDay10Part2-16    	    1994	    536712 ns/op	 1380583 B/op	   13290 allocs/op
+BenchmarkDay11Part1-16    	    3156	    335200 ns/op	  308456 B/op	     305 allocs/op
+BenchmarkDay11Part2-16    	     111	  10603092 ns/op	 8801646 B/op	    1974 allocs/op
+PASS
+ok  	gitlab.com/jhinrichsen/adventofcode2024	27.748s
+awk -f total.awk < benches/all.txt
+74738636 ns, 74738 μs, 74 ms, 0 s
+----
+
 == Day 1: Historian Hysteria
 
 ----
