@@ -38,3 +38,11 @@ func TestDay12Part1Example(t *testing.T) {
 		})
 	}
 }
+
+func TestDay12Part1(t *testing.T) {
+	const want = 1361494
+	got := Day12(NewDay12(linesFromFilename(t, filename(12))))
+	if want != got {
+		t.Fatalf("want %d but got %d", want, got)
+	}
+}
