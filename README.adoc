@@ -1,4 +1,5 @@
 = Advent of code 2024
+:toc:
 
 image:https://godoc.org/gitlab.com/jhinrichsen/adventofcode2024?status.svg["godoc", link="https://godoc.org/gitlab.com/jhinrichsen/adventofcode2024"]
 image:https://goreportcard.com/badge/gitlab.com/jhinrichsen/adventofcode2024["Go report card", link="https://goreportcard.com/report/gitlab.com/jhinrichsen/adventofcode2024"]
