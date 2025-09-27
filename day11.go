@@ -2,6 +2,22 @@ package adventofcode2024
 
 import "slices"
 
+func NewDay11(input string) []uint64 {
+	stones := make([]uint64, 0, len(input)/2) // worst case: single digits separated by one space
+	var n uint64
+
+	for _, c := range input {
+		if c >= '0' && c <= '9' {
+			n = 10*n + uint64(c-'0')
+		} else {
+			stones = append(stones, n)
+			n = 0
+		}
+	}
+
+	return stones
+}
+
 func Day11(stones []uint64) uint {
 	const blinks = 25
 	for range blinks {
@@ -48,17 +64,17 @@ func digits_branchless(n uint64) int {
 	d := 1
 
 	// Branchless comparisons using bit manipulation
-	d += int((n - 10) >> 63) ^ 1           // >= 10
-	d += int((n - 100) >> 63) ^ 1          // >= 100
-	d += int((n - 1000) >> 63) ^ 1         // >= 1000
-	d += int((n - 10000) >> 63) ^ 1        // >= 10000
-	d += int((n - 100000) >> 63) ^ 1       // >= 100000
-	d += int((n - 1000000) >> 63) ^ 1      // >= 1000000
-	d += int((n - 10000000) >> 63) ^ 1     // >= 10000000
-	d += int((n - 100000000) >> 63) ^ 1    // >= 100000000
-	d += int((n - 1000000000) >> 63) ^ 1   // >= 1000000000
-	d += int((n - 10000000000) >> 63) ^ 1  // >= 10000000000
-	d += int((n - 100000000000) >> 63) ^ 1 // >= 100000000000
+	d += int((n-10)>>63) ^ 1           // >= 10
+	d += int((n-100)>>63) ^ 1          // >= 100
+	d += int((n-1000)>>63) ^ 1         // >= 1000
+	d += int((n-10000)>>63) ^ 1        // >= 10000
+	d += int((n-100000)>>63) ^ 1       // >= 100000
+	d += int((n-1000000)>>63) ^ 1      // >= 1000000
+	d += int((n-10000000)>>63) ^ 1     // >= 10000000
+	d += int((n-100000000)>>63) ^ 1    // >= 100000000
+	d += int((n-1000000000)>>63) ^ 1   // >= 1000000000
+	d += int((n-10000000000)>>63) ^ 1  // >= 10000000000
+	d += int((n-100000000000)>>63) ^ 1 // >= 100000000000
 
 	return d
 }

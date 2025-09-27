@@ -2,6 +2,7 @@ package adventofcode2024
 
 import (
 	"fmt"
+	"os"
 	"slices"
 	"testing"
 )
@@ -38,16 +39,21 @@ func TestDay11Part1Examples(t *testing.T) {
 	}
 }
 
-func TestDay11Part2Example(t *testing.T) {
-	const want = 0
-}
-
 func TestDay11Part1(t *testing.T) {
 	const want = 185517
-	got := Day11([]uint64{64554, 35, 906, 6, 6960985, 5755, 975820, 0})
+	data, err := os.ReadFile("testdata/day11.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	stones := NewDay11(string(data))
+	got := Day11(stones)
 	if want != got {
 		t.Fatalf("want %d but got %d", want, got)
 	}
+}
+
+func TestDay11Part2Example(t *testing.T) {
+	const want = 0
 }
 
 func TestDay11Part2(t *testing.T) {
@@ -59,8 +65,13 @@ func TestDay11Part2(t *testing.T) {
 }
 
 func BenchmarkDay11Part1(b *testing.B) {
+	data, err := os.ReadFile("testdata/day11.txt")
+	if err != nil {
+		b.Fatal(err)
+	}
 	for range b.N {
-		_ = Day11([]uint64{64554, 35, 906, 6, 6960985, 5755, 975820, 0})
+		stones := NewDay11(string(data))
+		_ = Day11(stones)
 	}
 }
 
