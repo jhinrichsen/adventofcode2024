@@ -7,6 +7,14 @@ import (
 	"testing"
 )
 
+func TestDay11Part1Example(t *testing.T) {
+	const want = 55312
+	got := Day11([]uint64{125, 17})
+	if want != got {
+		t.Fatalf("want %d but got %d", want, got)
+	}
+}
+
 func TestDay11Part1Examples(t *testing.T) {
 	var (
 		t0 = []uint64{125, 17}
@@ -40,7 +48,7 @@ func TestDay11Part1Examples(t *testing.T) {
 }
 
 func TestDay11Part1(t *testing.T) {
-	const want = 185517
+	const want = 175006
 	data, err := os.ReadFile("testdata/day11.txt")
 	if err != nil {
 		t.Fatal(err)

@@ -43,7 +43,7 @@ Number of tries for a correct answer:
 | 8   |   1    |   1
 | 9   |   1    |
 | 10  |   1    |   1
-| 11  |        |
+| 11  |   2<1> |
 | 12  |        |
 | 13  |        |
 | 14  |        |
@@ -59,6 +59,7 @@ Number of tries for a correct answer:
 | 24  |        |
 | 25  |        |
 |===
+<1> error in bit shifting logic determining number of digits in a number
 
 Total runtime so far:
 
@@ -430,7 +431,7 @@ That's 27 ms.
 goos: linux
 goarch: amd64
 pkg: gitlab.com/jhinrichsen/adventofcode2024
-cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics     
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics
 BenchmarkDay10Part1-16    	     996	   1124976 ns/op	 1459165 B/op	   13245 allocs/op
 BenchmarkDay10Part1-16    	     981	   1129558 ns/op	 1459171 B/op	   13245 allocs/op
 BenchmarkDay10Part1-16    	    1702	    656466 ns/op	 1459166 B/op	   13245 allocs/op
@@ -446,7 +447,7 @@ For part 2, this turns out to be just what we need, lucky me...
 goos: linux
 goarch: amd64
 pkg: gitlab.com/jhinrichsen/adventofcode2024
-cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics     
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics
 BenchmarkDay10Part2-16    	    1028	   1007849 ns/op	 1377221 B/op	   13243 allocs/op
 BenchmarkDay10Part2-16    	    1116	   1018253 ns/op	 1377216 B/op	   13243 allocs/op
 BenchmarkDay10Part2-16    	    1926	    587530 ns/op	 1377217 B/op	   13243 allocs/op
@@ -472,10 +473,11 @@ func digits_branchless(n uint64) int {
 	d += int((n - 10) >> 63) ^ 1           // >= 10?
 	d += int((n - 100) >> 63) ^ 1          // >= 100?
 	d += int((n - 1000) >> 63) ^ 1         // >= 1000?
-	// ... up to 10^11
+	// ... up to 10^11 <1>
 	return d
 }
 ----
+<1> This is what GPT-5 came up with, but 10^11^ is wrong, it must be 10^18^
 
 Each comparison uses bit manipulation to avoid branches:
 
@@ -497,8 +499,48 @@ goos: linux
 goarch: amd64
 pkg: gitlab.com/jhinrichsen/adventofcode2024
 cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics
-BenchmarkDay11Part1-16    	       2	2212422778 ns/op
+BenchmarkDay11Part1-16    	       2	2026317200 ns/op	 7208584 B/op	      31 allocs/op
 PASS
 ----
 
-That's 2.21 seconds for part 1 with 25 blinks. The exponential stone growth dominates performance - the optimized branchless digit counting and zero-allocation parser contribute negligibly to the total runtime.
+That's ~2.0 seconds for part 1 with 25 blinks. The exponential stone growth dominates performance - the optimized branchless digit counting and zero-allocation parser contribute negligibly to the total runtime.
+
+
+The profiling data reveals the hot path very clearly:
+
+CPU Profile Results:
+
+Duration: 13.74s, Total samples = 13.44s (97.83%)
+flat  flat%   sum%        cum   cum%
+13.35s 99.33% 99.33%     13.35s 99.33%  runtime.memmove
+0.03s  0.22% 99.55%     13.38s 99.55%  slices.Insert
+
+Key Findings:
+
+1. runtime.memmove dominates: 99.33% of CPU time is spent in memory operations
+2. slices.Insert is the bottleneck: Nearly all time (99.55% cumulative) is spent in slice insertions
+3. Algorithmic functions are fast: blink(), split(), digits_branchless() barely register in the profile
+
+Hot Path Analysis:
+
+Primary Hot Path:
+BenchmarkDay11Part1 → Day11 → blink → slices.Insert → runtime.memmove
+
+What this means:
+- The exponential stone growth creates massive slice operations
+- Each slices.Insert triggers memory copy operations (memmove)
+- Our optimized digit counting and splitting logic is negligible compared to memory operations
+- The algorithmic optimizations we made are correct but overshadowed by the fundamental memory
+bottleneck
+
+Performance Implications:
+
+The flame graph confirms why count-based approaches (like the reference implementations) are
+superior:
+- They avoid slice operations entirely
+- Memory usage stays constant regardless of stone count
+- CPU time scales with unique stone types, not total stone count
+
+Our slice-based approach, while educationally valuable for finding the bug, is fundamentally
+limited by memory operations rather than computational complexity.
+

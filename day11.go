@@ -27,9 +27,9 @@ func Day11(stones []uint64) uint {
 }
 
 func blink(stones []uint64) []uint64 {
+	// iterate backwards so inserting does not break our index
 	for i := len(stones) - 1; i >= 0; i-- {
 		stone := stones[i]
-		// "If the stone is engraved with the number 0, it is replaced by a stone engraved with the number 1."
 		if stone == 0 {
 			stones[i] = 1
 		} else if a, b, ok := split(stone); ok {
@@ -59,22 +59,30 @@ func countDigits(n uint64) int {
 }
 
 // Branchless digit counting using bit manipulation
-// Each comparison is O(1) and branchless, totaling ~11 operations
+// Each comparison is O(1) and branchless, covering uint64 range up to 10^19
 func digits_branchless(n uint64) int {
 	d := 1
 
 	// Branchless comparisons using bit manipulation
-	d += int((n-10)>>63) ^ 1           // >= 10
-	d += int((n-100)>>63) ^ 1          // >= 100
-	d += int((n-1000)>>63) ^ 1         // >= 1000
-	d += int((n-10000)>>63) ^ 1        // >= 10000
-	d += int((n-100000)>>63) ^ 1       // >= 100000
-	d += int((n-1000000)>>63) ^ 1      // >= 1000000
-	d += int((n-10000000)>>63) ^ 1     // >= 10000000
-	d += int((n-100000000)>>63) ^ 1    // >= 100000000
-	d += int((n-1000000000)>>63) ^ 1   // >= 1000000000
-	d += int((n-10000000000)>>63) ^ 1  // >= 10000000000
-	d += int((n-100000000000)>>63) ^ 1 // >= 100000000000
+	d += int((n-1e1)>>63) ^ 1  // >= 10^1
+	d += int((n-1e2)>>63) ^ 1  // >= 10^2
+	d += int((n-1e3)>>63) ^ 1  // >= 10^3
+	d += int((n-1e4)>>63) ^ 1  // >= 10^4
+	d += int((n-1e5)>>63) ^ 1  // >= 10^5
+	d += int((n-1e6)>>63) ^ 1  // >= 10^6
+	d += int((n-1e7)>>63) ^ 1  // >= 10^7
+	d += int((n-1e8)>>63) ^ 1  // >= 10^8
+	d += int((n-1e9)>>63) ^ 1  // >= 10^9
+	d += int((n-1e10)>>63) ^ 1 // >= 10^10
+	d += int((n-1e11)>>63) ^ 1 // >= 10^11
+	d += int((n-1e12)>>63) ^ 1 // >= 10^12
+	d += int((n-1e13)>>63) ^ 1 // >= 10^13
+	d += int((n-1e14)>>63) ^ 1 // >= 10^14
+	d += int((n-1e15)>>63) ^ 1 // >= 10^15
+	d += int((n-1e16)>>63) ^ 1 // >= 10^16
+	d += int((n-1e17)>>63) ^ 1 // >= 10^17
+	d += int((n-1e18)>>63) ^ 1 // >= 10^18
+	// Note: 10^19 > uint64 max (18446744073709551615), so we stop at 10^18
 
 	return d
 }
@@ -90,11 +98,8 @@ func split(n uint64) (high, low uint64, ok bool) {
 
 	// Precomputed powers of 10 up to 10^19
 	powers := [20]uint64{
-		1, 10, 100, 1_000, 10_000, 100_000, 1_000_000, 10_000_000, 100_000_000,
-		1_000_000_000, 10_000_000_000, 100_000_000_000, 1_000_000_000_000,
-		10_000_000_000_000, 100_000_000_000_000, 1_000_000_000_000_000,
-		10_000_000_000_000_000, 100_000_000_000_000_000,
-		1_000_000_000_000_000_000, 10_000_000_000_000_000_000,
+		1e0, 1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9,
+		1e10, 1e11, 1e12, 1e13, 1e14, 1e15, 1e16, 1e17, 1e18, 1e19,
 	}
 
 	pow := powers[half]
