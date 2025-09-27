@@ -1,17 +1,13 @@
 package adventofcode2024
 
 import (
-	"os"
 	"slices"
 	"testing"
 )
 
 func TestDay01Part1Example(t *testing.T) {
 	const want = 11
-	in, err := os.ReadFile(exampleFilename(01))
-	if err != nil {
-		t.Fatal(err)
-	}
+	in := exampleFile(t, 1)
 	got := Day01(in, true)
 	if want != got {
 		t.Fatalf("want %d but got %d", want, got)
@@ -20,10 +16,7 @@ func TestDay01Part1Example(t *testing.T) {
 
 func TestDay01Part1(t *testing.T) {
 	const want = 2166959
-	in, err := os.ReadFile(filename(01))
-	if err != nil {
-		t.Fatal(err)
-	}
+	in := file(t, 1)
 	got := Day01(in, true)
 	if want != got {
 		t.Fatalf("want %d but got %d", want, got)
@@ -31,11 +24,7 @@ func TestDay01Part1(t *testing.T) {
 }
 
 func BenchmarkDay01Part1(b *testing.B) {
-	in, err := os.ReadFile(filename(01))
-	if err != nil {
-		b.Fatal(err)
-	}
-	b.ResetTimer()
+	in := file(b, 1)
 	for range b.N {
 		_ = Day01(in, true)
 	}
@@ -43,10 +32,7 @@ func BenchmarkDay01Part1(b *testing.B) {
 
 func TestDay01Part2Example(t *testing.T) {
 	const want = 31
-	in, err := os.ReadFile(exampleFilename(01))
-	if err != nil {
-		t.Fatal(err)
-	}
+	in := exampleFile(t, 1)
 	got := Day01(in, false)
 	if want != got {
 		t.Fatalf("want %d but got %d", want, got)
@@ -55,10 +41,7 @@ func TestDay01Part2Example(t *testing.T) {
 
 func TestDay01Part2(t *testing.T) {
 	const want = 23741109
-	in, err := os.ReadFile(filename(01))
-	if err != nil {
-		t.Fatal(err)
-	}
+	in := file(t, 1)
 	got := Day01(in, false)
 	if want != got {
 		t.Fatalf("want %d but got %d", want, got)
@@ -66,11 +49,7 @@ func TestDay01Part2(t *testing.T) {
 }
 
 func BenchmarkDay01Part2(b *testing.B) {
-	in, err := os.ReadFile(filename(01))
-	if err != nil {
-		b.Fatal(err)
-	}
-	b.ResetTimer()
+	in := file(b, 1)
 	for range b.N {
 		_ = Day01(in, false)
 	}
@@ -90,11 +69,7 @@ func TestTwoUint(t *testing.T) {
 }
 
 func BenchmarkTwoUint(b *testing.B) {
-	buf, err := os.ReadFile(filename(01))
-	if err != nil {
-		b.Fatal(err)
-	}
-	b.ResetTimer()
+	buf := file(b, 1)
 	for range b.N {
 		_ = twoUints(buf)
 	}

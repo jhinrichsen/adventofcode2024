@@ -1,7 +1,6 @@
 package adventofcode2024
 
 import (
-	"os"
 	"testing"
 )
 
@@ -29,10 +28,7 @@ func TestDay03Part2Example(t *testing.T) {
 
 func TestDay03Part1(t *testing.T) {
 	const want = 184576302
-	program, err := os.ReadFile(filename(03))
-	if err != nil {
-		t.Fatal(err)
-	}
+	program := file(t, 3)
 	got := Day03(string(program), true)
 	if want != got {
 		t.Fatalf("want %d but got %d", want, got)
@@ -43,10 +39,7 @@ func TestDay03Part2(t *testing.T) {
 	// const want = 31862452 // too low
 	// const want = 184576302 // too high
 	const want = 118173507 // too high
-	program, err := os.ReadFile(filename(03))
-	if err != nil {
-		t.Fatal(err)
-	}
+	program := file(t, 3)
 	got := Day03(string(program), false)
 	if want != got {
 		t.Fatalf("want %d but got %d", want, got)
@@ -54,22 +47,14 @@ func TestDay03Part2(t *testing.T) {
 }
 
 func BenchmarkDay03Part1(b *testing.B) {
-	program, err := os.ReadFile(filename(03))
-	if err != nil {
-		b.Fatal(err)
-	}
-	b.ResetTimer()
+	program := file(b, 3)
 	for range b.N {
 		_ = Day03(string(program), true)
 	}
 }
 
 func BenchmarkDay03Part2(b *testing.B) {
-	program, err := os.ReadFile(filename(03))
-	if err != nil {
-		b.Fatal(err)
-	}
-	b.ResetTimer()
+	program := file(b, 3)
 	for range b.N {
 		_ = Day03(string(program), false)
 	}

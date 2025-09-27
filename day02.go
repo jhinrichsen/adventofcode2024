@@ -2,10 +2,60 @@ package adventofcode2024
 
 import (
 	"cmp"
+	"os"
 	"slices"
 )
 
-func Day02(reports [][]uint, part1 bool) (n uint) {
+// Day02Puzzle represents the parsed Day 2 puzzle data
+type Day02Puzzle struct {
+	reports [][]uint
+}
+
+// NewDay02 creates a Day02Puzzle from lines
+func NewDay02(filename string) Day02Puzzle {
+	buf, err := os.ReadFile(filename)
+	if err != nil {
+		panic(err) // This will be called from tests with proper error handling
+	}
+	
+	var dim uint
+	for i := range buf {
+		if buf[i] == '\n' {
+			dim++
+		}
+	}
+	reports := make([][]uint, dim)
+	for i := range reports {
+		reports[i] = make([]uint, 0, 8)
+	}
+
+	isDigit := func(b byte) bool {
+		return b >= '0' && b <= '9'
+	}
+	for i, y := 0, 0; i < len(buf); {
+		var n uint
+
+		for isDigit(buf[i]) {
+			n = 10*n + uint(buf[i]-'0')
+			i++
+		}
+		reports[y] = append(reports[y], n)
+
+		for !isDigit(buf[i]) {
+			if buf[i] == '\n' {
+				y++
+				i++
+				break
+			}
+			i++
+		}
+	}
+	
+	return Day02Puzzle{reports: reports}
+}
+
+func Day02(puzzle Day02Puzzle, part1 bool) (n uint) {
+	reports := puzzle.reports
 	for i := range reports {
 		levels := reports[i]
 		if part1 {

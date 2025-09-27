@@ -6,11 +6,9 @@ import (
 
 func TestDay06Part1Example(t *testing.T) {
 	const want = 41
-	grid, err := gridFromFilename(exampleFilename(06))
-	if err != nil {
-		t.Fatal(err)
-	}
-	got := Day06(grid)
+	lines := linesFromFilename(t, exampleFilename(6))
+	puzzle := NewDay06(lines)
+	got := Day06(puzzle)
 	if want != got {
 		t.Fatalf("want %d but got %d", want, got)
 	}
@@ -18,23 +16,18 @@ func TestDay06Part1Example(t *testing.T) {
 
 func TestDay06Part1(t *testing.T) {
 	const want = 4903
-	grid, err := gridFromFilename(filename(06))
-	if err != nil {
-		t.Fatal(err)
-	}
-	got := Day06(grid)
+	lines := linesFromFilename(t, filename(6))
+	puzzle := NewDay06(lines)
+	got := Day06(puzzle)
 	if want != got {
 		t.Fatalf("want %d but got %d", want, got)
 	}
 }
 
 func BenchmarkDay06Part1(b *testing.B) {
-	grid, err := gridFromFilename(filename(06))
-	if err != nil {
-		b.Fatal(err)
-	}
-	b.ResetTimer()
+	lines := linesFromFilename(b, filename(6))
 	for range b.N {
-		_ = Day06(grid)
+		puzzle := NewDay06(lines)
+		_ = Day06(puzzle)
 	}
 }
