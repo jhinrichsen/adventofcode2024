@@ -417,7 +417,7 @@ goos: linux
 goarch: amd64
 pkg: gitlab.com/jhinrichsen/adventofcode2024
 cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics     
-BenchmarkDay07Part1-16               235           4981418 ns/op               0 B/op          0 allocs/op
+BenchmarkDay07Part1-16              1312            916007 ns/op               0 B/op          0 allocs/op
 ----
 
 === Part 2
@@ -427,10 +427,34 @@ goos: linux
 goarch: amd64
 pkg: gitlab.com/jhinrichsen/adventofcode2024
 cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics     
-BenchmarkDay07Part2-16                 3         488072524 ns/op               0 B/op          0 allocs/op
+BenchmarkDay07Part2-16                66          18897873 ns/op               0 B/op          0 allocs/op
 ----
 
-That's ~5ms for part 1 and ~488ms for part 2. Part 2 adds the concatenation operator (`||`) which combines digits from left and right operands (e.g., `12 || 345 = 12345`). The iterative solution systematically tests all operator combinations: 2^n for part 1 (+, *) and 3^n for part 2 (+, *, ||).
+That's ~0.9ms for part 1 and ~19ms for part 2.
+
+=== Optimization Analysis
+
+**Original approach** (full enumeration):
+- Tests all 2^n combinations for Part 1, 3^n for Part 2
+- Systematic but inefficient for large equation sets
+
+**Optimized approach** (stack-based traversal):
+
+1. **Stack-based exploration**: Uses fixed-size stack to traverse only viable solution paths
+2. **Aggressive pruning**: Immediately discards branches where `result > target`
+3. **Early termination**: Stops as soon as first valid solution is found
+4. **Zero allocations**: Uses stack array instead of heap allocations
+
+**Benchstat comparison**:
+----
+              │ day07_benchmarks.txt │         day07_optimized.txt         │
+              │        sec/op        │    sec/op     vs base               │
+Day07Part1-16          4979.1µ ± ∞ ¹   899.0µ ± ∞ ¹  -81.95% (p=0.008 n=5)
+Day07Part2-16          482.80m ± ∞ ¹   18.79m ± ∞ ¹  -96.11% (p=0.008 n=5)
+geomean                 49.03m         4.110m        -91.62%
+----
+
+**Performance improvement**: ~82% faster Part 1, ~96% faster Part 2, ~92% overall improvement
 
 == Day 8: Resonant Collinearity
 

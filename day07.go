@@ -1,21 +1,26 @@
 package adventofcode2024
 
-func Day07(lines []string, part1 bool) (sum uint) {
-	for _, line := range lines {
-		// parse test value
+type Day07Equation struct {
+	target uint
+	values [12]uint
+	count  uint
+}
 
+type Day07Puzzle []Day07Equation
+
+func NewDay07(lines []string) Day07Puzzle {
+	puzzle := make(Day07Puzzle, len(lines))
+	
+	for i, line := range lines {
 		var (
 			want uint
-
-			vals   = [12]uint{}
-			idx    uint
-			append = func(x uint) {
-				vals[idx] = x
-				idx++
-			}
-			j int
-			x uint
+			vals [12]uint
+			idx  uint
+			j    int
+			x    uint
 		)
+		
+		// parse test value
 		for j = range line {
 			if line[j] == ':' {
 				j++
@@ -26,17 +31,34 @@ func Day07(lines []string, part1 bool) (sum uint) {
 		}
 
 		// parse equation
-
 		for _, b := range line[j:] {
 			if b == ' ' {
-				append(x)
+				vals[idx] = x
+				idx++
 				x = 0
 				continue
 			}
 			x = 10*x + uint(b-'0')
 		}
 		// append final digit (no trailing separator)
-		append(x)
+		vals[idx] = x
+		idx++
+		
+		puzzle[i] = Day07Equation{
+			target: want,
+			values: vals,
+			count:  idx,
+		}
+	}
+	
+	return puzzle
+}
+
+func Day07(puzzle Day07Puzzle, part1 bool) (sum uint) {
+	for _, eq := range puzzle {
+		want := eq.target
+		vals := eq.values
+		idx := eq.count
 
 		// Helper function to concatenate two numbers
 		concat := func(a, b uint) uint {
@@ -49,50 +71,59 @@ func Day07(lines []string, part1 bool) (sum uint) {
 			return a*multiplier + b
 		}
 
-		// Iterative approach using base-3 counting for operator combinations
+		// Optimized iterative approach with better pruning
 		numOps := idx - 1
-		maxCombinations := uint(1)
-		for i := uint(0); i < numOps; i++ {
-			if part1 {
-				maxCombinations *= 2 // 2 operators: +, *
-			} else {
-				maxCombinations *= 3 // 3 operators: +, *, ||
-			}
+		
+		// Use stack-based approach to avoid full enumeration
+		type state struct {
+			pos    uint
+			result uint
 		}
-
+		
+		stack := [1024]state{{pos: 0, result: vals[0]}}
+		stackSize := 1
+		
 		found := false
-		for combo := uint(0); combo < maxCombinations && !found; combo++ {
-			result := vals[0]
-			temp := combo
+		for stackSize > 0 && !found {
+			stackSize--
+			current := stack[stackSize]
 			
-			for i := uint(0); i < numOps; i++ {
-				var op uint
-				if part1 {
-					op = temp % 2
-					temp /= 2
-				} else {
-					op = temp % 3
-					temp /= 3
+			if current.pos == numOps {
+				if current.result == want {
+					sum += want
+					found = true
 				}
-				
-				next := vals[i+1]
-				switch op {
-				case 0: // addition
-					result += next
-				case 1: // multiplication
-					result *= next
-				case 2: // concatenation (Part 2 only)
-					result = concat(result, next)
-				}
-				
-				if result > want {
-					break // Early pruning
-				}
+				continue
 			}
 			
-			if result == want {
-				sum += want
-				found = true
+			if current.result > want {
+				continue // Prune this branch
+			}
+			
+			next := vals[current.pos+1]
+			nextPos := current.pos + 1
+			
+			// Try addition
+			newResult := current.result + next
+			if newResult <= want && stackSize < 1024 {
+				stack[stackSize] = state{pos: nextPos, result: newResult}
+				stackSize++
+			}
+			
+			// Try multiplication
+			newResult = current.result * next
+			if newResult <= want && stackSize < 1024 {
+				stack[stackSize] = state{pos: nextPos, result: newResult}
+				stackSize++
+			}
+			
+			// Try concatenation (Part 2 only)
+			if !part1 {
+				newResult = concat(current.result, next)
+				if newResult <= want && stackSize < 1024 {
+					stack[stackSize] = state{pos: nextPos, result: newResult}
+					stackSize++
+				}
 			}
 		}
 	}
