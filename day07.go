@@ -1,6 +1,6 @@
 package adventofcode2024
 
-func Day07(lines []string) (sum uint) {
+func Day07(lines []string, part1 bool) (sum uint) {
 	for _, line := range lines {
 		// parse test value
 
@@ -38,23 +38,61 @@ func Day07(lines []string) (sum uint) {
 		// append final digit (no trailing separator)
 		append(x)
 
-		combinations := 1 << (idx - 1) // 2^(number of operators)
-		for i := range combinations {
-			got := vals[0]
-			// deduct operators from bits
-			for j, val := range vals[1:idx] {
-				mask := 1 << j
-				// use RISC-V style because why not
-				if i&mask == 0 {
-					got += val // funct7=0000000
+		// Helper function to concatenate two numbers
+		concat := func(a, b uint) uint {
+			multiplier := uint(1)
+			temp := b
+			for temp > 0 {
+				multiplier *= 10
+				temp /= 10
+			}
+			return a*multiplier + b
+		}
+
+		// Iterative approach using base-3 counting for operator combinations
+		numOps := idx - 1
+		maxCombinations := uint(1)
+		for i := uint(0); i < numOps; i++ {
+			if part1 {
+				maxCombinations *= 2 // 2 operators: +, *
+			} else {
+				maxCombinations *= 3 // 3 operators: +, *, ||
+			}
+		}
+
+		found := false
+		for combo := uint(0); combo < maxCombinations && !found; combo++ {
+			result := vals[0]
+			temp := combo
+			
+			for i := uint(0); i < numOps; i++ {
+				var op uint
+				if part1 {
+					op = temp % 2
+					temp /= 2
 				} else {
-					got *= val // funct7=0000001
+					op = temp % 3
+					temp /= 3
+				}
+				
+				next := vals[i+1]
+				switch op {
+				case 0: // addition
+					result += next
+				case 1: // multiplication
+					result *= next
+				case 2: // concatenation (Part 2 only)
+					result = concat(result, next)
+				}
+				
+				if result > want {
+					break // Early pruning
 				}
 			}
-			if want == got {
+			
+			if result == want {
 				sum += want
-				// don't count all combinations, just one
-				break
+				found = true
 			}
 		}
 	}
