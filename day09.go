@@ -6,7 +6,7 @@ type fa struct {
 	file   bool // true: file, false: empty
 }
 
-func Day09(buf []byte) (checksum uint) {
+func Day09(buf []byte, part1 bool) (checksum uint) {
 	var (
 		fat  = [20000]fa{}
 		last int
@@ -53,27 +53,81 @@ func Day09(buf []byte) (checksum uint) {
 	}
 	trackback()
 
-	for i := 0; i <= last; i++ {
-		if fat[i].file {
-			continue
+	if part1 {
+		// Part 1: Move individual blocks
+		for i := 0; i <= last; i++ {
+			if fat[i].file {
+				continue
+			}
+
+			free := fat[i].length
+			avail := fat[last].length
+
+			if free == avail {
+				fat[i] = fat[last]
+				trackback()
+			} else if free < avail {
+				fat[i].id = fat[last].id
+				fat[i].file = true
+				fat[last].length -= free
+			} else { // free > avail
+				fat[i].id = fat[last].id
+				fat[i].length = avail
+				fat[i].file = true
+				mkEmpty(i+1, free-avail)
+				trackback()
+			}
+		}
+	} else {
+		// Part 2: Move whole files in decreasing file ID order
+		maxFileId := uint(0)
+		for i := 0; i <= last; i++ {
+			if fat[i].file && fat[i].id > maxFileId {
+				maxFileId = fat[i].id
+			}
 		}
 
-		free := fat[i].length
-		avail := fat[last].length
+		// Try to move each file from highest ID to lowest
+		for fileId := maxFileId; fileId > 0; fileId-- {
+			// Find the file with this ID
+			filePos := -1
+			var fileLength uint8
+			for i := 0; i <= last; i++ {
+				if fat[i].file && fat[i].id == fileId {
+					filePos = i
+					fileLength = fat[i].length
+					break
+				}
+			}
+			
+			if filePos == -1 {
+				continue // File not found
+			}
 
-		if free == avail {
-			fat[i] = fat[last]
-			trackback()
-		} else if free < avail {
-			fat[i].id = fat[last].id
-			fat[i].file = true
-			fat[last].length -= free
-		} else { // free > avail
-			fat[i].id = fat[last].id
-			fat[i].length = avail
-			fat[i].file = true
-			mkEmpty(i+1, free-avail)
-			trackback()
+			// Find leftmost free space that can fit this file
+			for i := 0; i < filePos; i++ {
+				if !fat[i].file && fat[i].length >= fileLength {
+					// Move the file here
+					if fat[i].length == fileLength {
+						// Exact fit
+						fat[i].id = fileId
+						fat[i].file = true
+					} else {
+						// Split the free space
+						remaining := fat[i].length - fileLength
+						fat[i].id = fileId
+						fat[i].length = fileLength
+						fat[i].file = true
+						mkEmpty(i+1, remaining)
+						filePos++ // Adjust position due to insertion
+					}
+					
+					// Mark original position as free
+					fat[filePos].file = false
+					fat[filePos].id = 0
+					break
+				}
+			}
 		}
 	}
 
