@@ -75,19 +75,47 @@ func Day06(puzzle Day06Puzzle, part1 bool) uint {
 	}
 
 	// Part 2: Count positions where adding obstruction causes loop
-	simulate := func(obst image.Point) bool {
+	originalPath := make(map[image.Point]bool, dimX*dimY)
+	{
 		dir := image.Point{0, -1}
 		pos := start
-		// Track visited states (position + direction)
-		type state struct{ p, d image.Point }
-		seen := make(map[state]struct{}, dimX*dimY*4)
+		for !off(pos) {
+			originalPath[pos] = true
+			p2 := pos.Add(dir)
+			if off(p2) || !blocked(p2, nil) {
+				pos = p2
+			} else {
+				dir = image.Point{-dir.Y, dir.X}
+			}
+		}
+	}
+
+	dirToInt := func(d image.Point) int {
+		switch d {
+		case image.Point{0, -1}: return 0 // up
+		case image.Point{1, 0}:  return 1 // right
+		case image.Point{0, 1}:  return 2 // down
+		case image.Point{-1, 0}: return 3 // left
+		}
+		return -1
+	}
+
+	visited := make([]bool, dimX*dimY*4)
+	
+	simulate := func(obst image.Point) bool {
+		for i := range visited {
+			visited[i] = false
+		}
+		
+		dir := image.Point{0, -1}
+		pos := start
 
 		for !off(pos) {
-			s := state{pos, dir}
-			if _, exists := seen[s]; exists {
+			stateIdx := pos.Y*dimX*4 + pos.X*4 + dirToInt(dir)
+			if visited[stateIdx] {
 				return true // Loop detected
 			}
-			seen[s] = struct{}{}
+			visited[stateIdx] = true
 
 			p2 := pos.Add(dir)
 			if off(p2) || !blocked(p2, &obst) {
@@ -100,16 +128,12 @@ func Day06(puzzle Day06Puzzle, part1 bool) uint {
 	}
 
 	count := uint(0)
-	for y := 0; y < dimY; y++ {
-		for x := 0; x < dimX; x++ {
-			obst := image.Point{x, y}
-			// Can't place obstruction at guard's starting position or existing blocks
-			if obst == start || puzzle.grid[y][x] == block {
-				continue
-			}
-			if simulate(obst) {
-				count++
-			}
+	for pos := range originalPath {
+		if pos == start || puzzle.grid[pos.Y][pos.X] == block {
+			continue
+		}
+		if simulate(pos) {
+			count++
 		}
 	}
 	return count
