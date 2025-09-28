@@ -27,16 +27,15 @@ func NewDay06(lines []string) Day06Puzzle {
 }
 
 // Day06 solves Day 6 using the puzzle struct
-func Day06(puzzle Day06Puzzle) uint {
+func Day06(puzzle Day06Puzzle, part1 bool) uint {
 	const (
 		block = '#'
 		guard = '^'
 	)
 	var (
-		dimX = len(puzzle.grid[0])
-		dimY = len(puzzle.grid)
-		dir  = image.Point{0, -1}
-		pos  = func() image.Point {
+		dimX = puzzle.dimX
+		dimY = puzzle.dimY
+		start = func() image.Point {
 			for y := range dimY {
 				for x := range dimX {
 					if puzzle.grid[y][x] == guard {
@@ -49,21 +48,70 @@ func Day06(puzzle Day06Puzzle) uint {
 		off = func(p image.Point) bool {
 			return p.X < 0 || p.X >= dimX || p.Y < 0 || p.Y >= dimY
 		}
-		blocked = func(p image.Point) bool {
+		blocked = func(p image.Point, extraBlock *image.Point) bool {
+			if extraBlock != nil && p.X == extraBlock.X && p.Y == extraBlock.Y {
+				return true
+			}
 			return puzzle.grid[p.Y][p.X] == block
 		}
-		visited = make(map[image.Point]bool, dimX*dimY)
 	)
 
-	for !off(pos) {
-		p2 := pos.Add(dir)
-		if off(p2) || !blocked(p2) {
-			pos = p2
-			visited[pos] = true
-		} else {
-			dir = image.Point{-dir.Y, dir.X} // Y goes down
+	if part1 {
+		// Part 1: Count distinct positions visited
+		dir := image.Point{0, -1}
+		pos := start
+		visited := make(map[image.Point]bool, dimX*dimY)
+
+		for !off(pos) {
+			p2 := pos.Add(dir)
+			if off(p2) || !blocked(p2, nil) {
+				pos = p2
+				visited[pos] = true
+			} else {
+				dir = image.Point{-dir.Y, dir.X} // Y goes down
+			}
+		}
+		return uint(len(visited)) - 1 // do not count the last step off the grid
+	}
+
+	// Part 2: Count positions where adding obstruction causes loop
+	simulate := func(obst image.Point) bool {
+		dir := image.Point{0, -1}
+		pos := start
+		// Track visited states (position + direction)
+		type state struct{ p, d image.Point }
+		seen := make(map[state]struct{}, dimX*dimY*4)
+
+		for !off(pos) {
+			s := state{pos, dir}
+			if _, exists := seen[s]; exists {
+				return true // Loop detected
+			}
+			seen[s] = struct{}{}
+
+			p2 := pos.Add(dir)
+			if off(p2) || !blocked(p2, &obst) {
+				pos = p2
+			} else {
+				dir = image.Point{-dir.Y, dir.X} // Y goes down
+			}
+		}
+		return false // Guard left the grid
+	}
+
+	count := uint(0)
+	for y := 0; y < dimY; y++ {
+		for x := 0; x < dimX; x++ {
+			obst := image.Point{x, y}
+			// Can't place obstruction at guard's starting position or existing blocks
+			if obst == start || puzzle.grid[y][x] == block {
+				continue
+			}
+			if simulate(obst) {
+				count++
+			}
 		}
 	}
-	return uint(len(visited)) - 1 // do not count the last step off the grid
+	return count
 }
 
