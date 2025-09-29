@@ -56,6 +56,10 @@ func example3Filename(day uint8) string {
 	return exampleNFilename(day, 3)
 }
 
+func example4Filename(day uint8) string {
+	return exampleNFilename(day, 4)
+}
+
 func filename(day uint8) string {
 	return fmt.Sprintf("testdata/day%02d.txt", day)
 }
