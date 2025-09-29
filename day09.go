@@ -1,142 +1,123 @@
 package adventofcode2024
 
-type fa struct {
-	id     uint
-	length uint8
-	file   bool // true: file, false: empty
+type Day09Puzzle struct {
+	blocks []int // -1 = free space, >= 0 = file ID
 }
 
-func Day09(buf []byte, part1 bool) (checksum uint) {
-	var (
-		fat  = [20000]fa{}
-		last int
-
-		// ignore trailing empty blocks
-		trackback = func() {
-			last--
-			for !fat[last].file {
-				last--
+func NewDay09(buf []byte) Day09Puzzle {
+	// Parse into blocks - expand the compressed format
+	var blocks []int // -1 = free space, >= 0 = file ID
+	
+	fileId := 0
+	isFile := true
+	
+	for _, b := range buf {
+		if b < '0' || b > '9' {
+			continue // Skip non-digit characters (like newlines)
+		}
+		length := int(b - '0')
+		for i := 0; i < length; i++ {
+			if isFile {
+				blocks = append(blocks, fileId)
+			} else {
+				blocks = append(blocks, -1)
 			}
 		}
-
-		// create an empty fa at i by moving everything after i right
-		mkEmpty = func(i int, length uint8) {
-			last++
-			for j := last; j > i; j-- {
-				fat[j] = fat[j-1]
-			}
-			fat[i].id = 0
-			fat[i].length = length
-			fat[i].file = false
+		if isFile {
+			fileId++
 		}
-
-		toggle bool
-	)
-
-	for i := range buf {
-		// alternating file/empty
-		toggle = !toggle
-
-		length := buf[i] - '0'
-		if length == 0 {
-			continue
-		}
-
-		// store into FAT
-
-		if toggle {
-			fat[last].id = uint(i / 2)
-			fat[last].file = toggle
-		}
-		fat[last].length = uint8(length)
-		last++
+		isFile = !isFile
 	}
-	trackback()
+	
+	return Day09Puzzle{blocks: blocks}
+}
 
+func Day09(puzzle Day09Puzzle, part1 bool) (checksum uint) {
+	// Make a copy of blocks to avoid modifying the original
+	blocks := make([]int, len(puzzle.blocks))
+	copy(blocks, puzzle.blocks)
+	
 	if part1 {
-		// Part 1: Move individual blocks
-		for i := 0; i <= last; i++ {
-			if fat[i].file {
-				continue
+		// Part 1: Move individual blocks from right to left
+		left, right := 0, len(blocks)-1
+		
+		for left < right {
+			// Find next free space from left
+			for left < len(blocks) && blocks[left] != -1 {
+				left++
 			}
-
-			free := fat[i].length
-			avail := fat[last].length
-
-			if free == avail {
-				fat[i] = fat[last]
-				trackback()
-			} else if free < avail {
-				fat[i].id = fat[last].id
-				fat[i].file = true
-				fat[last].length -= free
-			} else { // free > avail
-				fat[i].id = fat[last].id
-				fat[i].length = avail
-				fat[i].file = true
-				mkEmpty(i+1, free-avail)
-				trackback()
+			// Find next file block from right
+			for right >= 0 && blocks[right] == -1 {
+				right--
+			}
+			
+			if left < right {
+				blocks[left] = blocks[right]
+				blocks[right] = -1
+				left++
+				right--
 			}
 		}
 	} else {
-		// Part 2: Move whole files in decreasing file ID order
-		maxFileId := uint(0)
-		for i := 0; i <= last; i++ {
-			if fat[i].file && fat[i].id > maxFileId {
-				maxFileId = fat[i].id
+		// Part 2: Move whole files from highest ID to lowest
+		maxFileId := 0
+		for _, block := range blocks {
+			if block > maxFileId {
+				maxFileId = block
 			}
 		}
-
-		// Try to move each file from highest ID to lowest
-		for fileId := maxFileId; fileId > 0; fileId-- {
-			// Find the file with this ID
-			filePos := -1
-			var fileLength uint8
-			for i := 0; i <= last; i++ {
-				if fat[i].file && fat[i].id == fileId {
-					filePos = i
-					fileLength = fat[i].length
-					break
+		
+		for currentFileId := maxFileId; currentFileId >= 1; currentFileId-- {
+			// Find the file's position and size
+			fileStart := -1
+			fileSize := 0
+			
+			for i, block := range blocks {
+				if block == currentFileId {
+					if fileStart == -1 {
+						fileStart = i
+					}
+					fileSize++
+				} else if fileStart != -1 {
+					break // Found end of file
 				}
 			}
 			
-			if filePos == -1 {
-				continue // File not found
+			if fileStart == -1 || fileSize == 0 {
+				continue
 			}
-
-			// Find leftmost free space that can fit this file
-			for i := 0; i < filePos; i++ {
-				if !fat[i].file && fat[i].length >= fileLength {
-					// Move the file here
-					if fat[i].length == fileLength {
-						// Exact fit
-						fat[i].id = fileId
-						fat[i].file = true
-					} else {
-						// Split the free space
-						remaining := fat[i].length - fileLength
-						fat[i].id = fileId
-						fat[i].length = fileLength
-						fat[i].file = true
-						mkEmpty(i+1, remaining)
-						filePos++ // Adjust position due to insertion
+			
+			// Find leftmost contiguous free space that can fit this file
+			moved := false
+			for i := 0; i < fileStart && !moved; i++ {
+				if blocks[i] == -1 {
+					// Count contiguous free space starting at i
+					freeSize := 0
+					for j := i; j < len(blocks) && blocks[j] == -1; j++ {
+						freeSize++
 					}
 					
-					// Mark original position as free
-					fat[filePos].file = false
-					fat[filePos].id = 0
-					break
+					if freeSize >= fileSize {
+						// Found suitable contiguous space - move the file
+						for j := 0; j < fileSize; j++ {
+							blocks[i+j] = currentFileId
+							blocks[fileStart+j] = -1
+						}
+						moved = true
+					}
+					// Skip to end of this free space block
+					i += freeSize - 1 // -1 because loop will increment
 				}
 			}
 		}
 	}
-
-	var position uint
-	for i := 0; i <= last; i++ {
-		for range fat[i].length {
-			checksum += position * fat[i].id
-			position++
+	
+	// Calculate checksum
+	for i, block := range blocks {
+		if block >= 0 {
+			checksum += uint(i) * uint(block)
 		}
 	}
-	return
+	
+	return checksum
 }
