@@ -41,7 +41,7 @@ func TestDay13Part1Examples(t *testing.T) {
 				t.Fatalf("Expected 1 machine, got %d", len(puzzle.Machines))
 			}
 
-			got := Day13(puzzle)
+			got := Day13(puzzle, true)
 			if got != tt.want {
 				t.Errorf("Day13() = %v, want %v", got, tt.want)
 			}
@@ -53,7 +53,7 @@ func TestDay13Part1Example(t *testing.T) {
 	const want = 280 + 0 + 200 + 0
 	lines := linesFromFilename(t, exampleFilename(13))
 	puzzle := NewDay13(lines)
-	got := Day13(puzzle)
+	got := Day13(puzzle, true)
 	if got != want {
 		t.Errorf("Day13() = %v, want %v", got, want)
 	}
@@ -62,7 +62,27 @@ func TestDay13Part1Example(t *testing.T) {
 func TestDay13Part1(t *testing.T) {
 	const want = 25751
 	puzzle := NewDay13(linesFromFilename(t, filename(13)))
-	got := Day13(puzzle)
+	got := Day13(puzzle, true)
+	if want != got {
+		t.Fatalf("want %d but got %d", want, got)
+	}
+}
+
+func TestDay13Part2Example(t *testing.T) {
+	// According to Part 2 description: only machines 2 and 4 are solvable
+	const want = 459236326669 + 416082282239
+	lines := linesFromFilename(t, exampleFilename(13))
+	puzzle := NewDay13(lines)
+	got := Day13(puzzle, false)
+	if got != want {
+		t.Errorf("Day13() = %v, want %v", got, want)
+	}
+}
+
+func TestDay13Part2(t *testing.T) {
+	const want = 108528956728655
+	puzzle := NewDay13(linesFromFilename(t, filename(13)))
+	got := Day13(puzzle, false)
 	if want != got {
 		t.Fatalf("want %d but got %d", want, got)
 	}
@@ -71,6 +91,13 @@ func TestDay13Part1(t *testing.T) {
 func BenchmarkDay13Part1(b *testing.B) {
 	puzzle := NewDay13(linesFromFilename(b, filename(13)))
 	for range b.N {
-		_ = Day13(puzzle)
+		_ = Day13(puzzle, true)
+	}
+}
+
+func BenchmarkDay13Part2(b *testing.B) {
+	puzzle := NewDay13(linesFromFilename(b, filename(13)))
+	for range b.N {
+		_ = Day13(puzzle, false)
 	}
 }

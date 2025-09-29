@@ -57,20 +57,26 @@ func NewDay13(lines []string) Day13Puzzle {
 	return Day13Puzzle{Machines: machines}
 }
 
-func Day13(puzzle Day13Puzzle) int {
+func Day13(puzzle Day13Puzzle, part1 bool) int {
 	totalTokens := 0
 	
 	for _, machine := range puzzle.Machines {
-		tokens := solveMachine(machine)
+		tokens := solveMachine(machine, part1)
 		totalTokens += tokens
 	}
 	
 	return totalTokens
 }
 
-func solveMachine(machine ClawMachine) int {
+func solveMachine(machine ClawMachine, part1 bool) int {
 	prizeX := machine.Prize.X
 	prizeY := machine.Prize.Y
+	
+	if !part1 {
+		// Part 2: Add 10000000000000 to prize coordinates
+		prizeX += 10000000000000
+		prizeY += 10000000000000
+	}
 	
 	// System of linear equations:
 	// a * ButtonA.X + b * ButtonB.X = prizeX
@@ -102,8 +108,8 @@ func solveMachine(machine ClawMachine) int {
 		return 0
 	}
 	
-	// Check button press limit (Part 1 constraint)
-	if a > 100 || b > 100 {
+	// Part 1: Check button press limit
+	if part1 && (a > 100 || b > 100) {
 		return 0
 	}
 	
