@@ -38,6 +38,20 @@ func TestDay14Part1(t *testing.T) {
 	}
 }
 
+func TestDay14Part2(t *testing.T) {
+	buf, err := os.ReadFile(filename(14))
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := Day14(buf, 101, 103, 0, false) // seconds ignored for part2
+	t.Logf("Day 14 Part 2 result: %d", got)
+
+	// Sanity check - should be a reasonable number of seconds
+	if got == 0 || got > 20000 {
+		t.Errorf("Part 2 result %d seems unreasonable", got)
+	}
+}
+
 func BenchmarkDay14Part1(b *testing.B) {
 	buf, err := os.ReadFile(filename(14))
 	if err != nil {
@@ -45,5 +59,15 @@ func BenchmarkDay14Part1(b *testing.B) {
 	}
 	for range b.N {
 		_ = Day14(buf, 101, 103, 100, true)
+	}
+}
+
+func BenchmarkDay14Part2(b *testing.B) {
+	buf, err := os.ReadFile(filename(14))
+	if err != nil {
+		b.Fatal(err)
+	}
+	for range b.N {
+		_ = Day14(buf, 101, 103, 0, false) // seconds ignored for part2
 	}
 }
