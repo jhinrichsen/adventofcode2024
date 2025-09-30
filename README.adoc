@@ -877,6 +877,44 @@ Given that
 	p(t) = p~0~ + v×t
 	((a % n) + (b % n)) % n = (a+b) % n
 
-we can directly compute `p(100)` eliminating the seconds loop, reducing from O(t) to O(1).
+We can directly compute `p(100)` eliminating the seconds loop, reducing from O(t) to O(1).
+Then, compress the sector detection from `0..N` into `0..1` by dividing position by half size of field,
+inline the parser, remove the `Day14Puzzle` transporter Parser -> Solver:
 
+----
+goos: linux
+goarch: amd64
+pkg: gitlab.com/jhinrichsen/adventofcode2024
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics
+BenchmarkDay14Part1-16    	  114633	      9353 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDay14Part1-16    	  240643	      4791 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDay14Part1-16    	  238321	      4784 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDay14Part1-16    	  237918	      4799 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDay14Part1-16    	  232068	      4814 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDay14Part1-16    	  239653	      4794 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDay14Part1-16    	  240558	      4777 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDay14Part1-16    	  239126	      4803 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDay14Part1-16    	  235606	      4781 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDay14Part1-16    	  218532	      4763 ns/op	       0 B/op	       0 allocs/op
+----
+
+We're now down to using Go as a Macro Assembler, single digit microsecond runtime, no garbage allocation.
+
+----
+goos: linux
+goarch: amd64
+pkg: gitlab.com/jhinrichsen/adventofcode2024
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics
+              │     bench     │               bench1                │
+              │    sec/op     │   sec/op     vs base                │
+Day14Part1-16   273.051µ ± 1%   4.840µ ± 2%  -98.23% (p=0.000 n=10)
+
+              │    bench     │               bench1                │
+              │     B/op     │    B/op     vs base                 │
+Day14Part1-16   121.6Ki ± 0%   0.0Ki ± 0%  -100.00% (p=0.000 n=10)
+
+              │    bench    │                bench1                │
+              │  allocs/op  │  allocs/op   vs base                 │
+Day14Part1-16   1.146k ± 0%   0.000k ± 0%  -100.00% (p=0.000 n=10)
+----
 
