@@ -1,6 +1,7 @@
 package adventofcode2024
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -99,5 +100,80 @@ func BenchmarkDay13Part2(b *testing.B) {
 	puzzle := NewDay13(linesFromFilename(b, filename(13)))
 	for range b.N {
 		_ = Day13(puzzle, false)
+	}
+}
+
+func BenchmarkCramerVsBareiss(b *testing.B) {
+	// Use a typical machine from day13 for benchmarking
+	machine := ClawMachine{
+		ButtonA: Point{94, 34},
+		ButtonB: Point{22, 67},
+		Prize:   Point{8400, 5400},
+	}
+
+	eq1 := Eq{machine.ButtonA.X, machine.ButtonB.X, machine.Prize.X}
+	eq2 := Eq{machine.ButtonA.Y, machine.ButtonB.Y, machine.Prize.Y}
+	eqs := []Eq{eq1, eq2}
+
+	b.Run("Cramer", func(b *testing.B) {
+		for range b.N {
+			Cramer(eq1, eq2)
+		}
+	})
+
+	b.Run("Bareiss", func(b *testing.B) {
+		for range b.N {
+			Bareiss(eqs)
+		}
+	})
+}
+
+func TestCramerEquivalentToBareiss(t *testing.T) {
+	// Test that Cramer and Bareiss give identical results for day13 machines
+	lines := linesFromFilename(t, exampleFilename(13))
+	puzzle := NewDay13(lines)
+
+	for i, machine := range puzzle.Machines {
+		t.Run(fmt.Sprintf("machine_%d", i+1), func(t *testing.T) {
+			// Test both part1 and part2 scenarios
+			for _, part1 := range []bool{true, false} {
+				prizeX := machine.Prize.X
+				prizeY := machine.Prize.Y
+
+				if !part1 {
+					prizeX += 10000000000000
+					prizeY += 10000000000000
+				}
+
+				// Cramer solution
+				eq1 := Eq{machine.ButtonA.X, machine.ButtonB.X, prizeX}
+				eq2 := Eq{machine.ButtonA.Y, machine.ButtonB.Y, prizeY}
+				cramX, cramY, cramOk := Cramer(eq1, eq2)
+
+				// Bareiss solution
+				eqs := []Eq{eq1, eq2}
+				barSol, barOk := Bareiss(eqs)
+
+				// Both should have same success/failure
+				if cramOk != barOk {
+					t.Errorf("part1=%t: Cramer ok=%t, Bareiss ok=%t, should be equal",
+						part1, cramOk, barOk)
+					continue
+				}
+
+				// If both succeeded, solutions should match
+				if cramOk && barOk {
+					if len(barSol) != 2 {
+						t.Errorf("part1=%t: Bareiss returned %d solutions, want 2",
+							part1, len(barSol))
+						continue
+					}
+					if cramX != barSol[0] || cramY != barSol[1] {
+						t.Errorf("part1=%t: Cramer=(%d,%d), Bareiss=(%d,%d), should be equal",
+							part1, cramX, cramY, barSol[0], barSol[1])
+					}
+				}
+			}
+		})
 	}
 }
