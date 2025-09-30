@@ -47,7 +47,7 @@ Number of tries for a correct answer:
 | 11  |   2<1> |   1
 | 12  |   1    |   1
 | 13  |   1    |   1
-| 14  |        |
+| 14  |   1    |
 | 15  |        |
 | 16  |        |
 | 17  |        |
@@ -416,7 +416,7 @@ Performance improvement: ~266x faster runtime, ~104,000x less memory usage
 goos: linux
 goarch: amd64
 pkg: gitlab.com/jhinrichsen/adventofcode2024
-cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics     
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics
 BenchmarkDay07Part1-16              1312            916007 ns/op               0 B/op          0 allocs/op
 ----
 
@@ -426,7 +426,7 @@ BenchmarkDay07Part1-16              1312            916007 ns/op               0
 goos: linux
 goarch: amd64
 pkg: gitlab.com/jhinrichsen/adventofcode2024
-cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics     
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics
 BenchmarkDay07Part2-16                66          18897873 ns/op               0 B/op          0 allocs/op
 ----
 
@@ -674,7 +674,7 @@ This contrasts with `Bareiss(eqs []Eq)` which accepts any number of equations vi
 goos: linux
 goarch: amd64
 pkg: gitlab.com/jhinrichsen/adventofcode2024
-cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics     
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics
 BenchmarkDay13Part1-16            109476             10216 ns/op               1 B/op          0 allocs/op
 BenchmarkDay13Part2-16            105620             11266 ns/op               2 B/op          0 allocs/op
 ----
@@ -684,7 +684,7 @@ BenchmarkDay13Part2-16            105620             11266 ns/op               2
 goos: linux
 goarch: amd64
 pkg: gitlab.com/jhinrichsen/adventofcode2024
-cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics     
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics
 BenchmarkDay13Part1-16             87717             13299 ns/op               2 B/op          0 allocs/op
 BenchmarkDay13Part2-16             85485             13943 ns/op               2 B/op          0 allocs/op
 ----
@@ -733,10 +733,150 @@ Comparison of Cramer's rule vs Bareiss algorithm for 2×2 systems:
 goos: linux
 goarch: amd64
 pkg: gitlab.com/jhinrichsen/adventofcode2024
-cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics     
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics
 BenchmarkCramerVsBareiss/Cramer-16              44439138                26.80 ns/op
 BenchmarkCramerVsBareiss/Bareiss-16              2078890               577.5 ns/op
 ----
 
 Cramer's rule is ~21x faster than Bareiss for 2×2 systems, making it the optimal choice for this specific problem size.
+
+== Day 14: Restroom Redoubt
+
+----
+goos: linux
+goarch: amd64
+pkg: gitlab.com/jhinrichsen/adventofcode2024
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics
+BenchmarkDay14Part1-16    	    3807	    281629 ns/op	  124567 B/op	    1146 allocs/op
+BenchmarkDay14Part1-16    	    3806	    270840 ns/op	  124563 B/op	    1146 allocs/op
+BenchmarkDay14Part1-16    	    4398	    272542 ns/op	  124563 B/op	    1146 allocs/op
+BenchmarkDay14Part1-16    	    4167	    274931 ns/op	  124563 B/op	    1146 allocs/op
+BenchmarkDay14Part1-16    	    3675	    273548 ns/op	  124563 B/op	    1146 allocs/op
+BenchmarkDay14Part1-16    	    3879	    272872 ns/op	  124564 B/op	    1146 allocs/op
+BenchmarkDay14Part1-16    	    3878	    270117 ns/op	  124564 B/op	    1146 allocs/op
+BenchmarkDay14Part1-16    	    3709	    276097 ns/op	  124564 B/op	    1146 allocs/op
+BenchmarkDay14Part1-16    	    3718	    273230 ns/op	  124564 B/op	    1146 allocs/op
+BenchmarkDay14Part1-16    	    3981	    272449 ns/op	  124564 B/op	    1146 allocs/op
+----
+
+Lots of allocs, lets check where they come from:
+
+----
+      flat  flat%   sum%        cum   cum%
+   79.01MB 35.01% 35.01%   146.51MB 64.93%  regexp.(*Regexp).FindStringSubmatch
+   67.51MB 29.92% 64.93%    67.51MB 29.92%  regexp.(*Regexp).doOnePass
+   54.58MB 24.19% 89.11%   221.11MB 97.99%  gitlab.com/jhinrichsen/adventofcode2024.NewDay14
+    7.02MB  3.11% 92.22%     7.02MB  3.11%  regexp.onePassCopy
+       5MB  2.22% 94.44%        5MB  2.22%  regexp/syntax.(*compiler).inst (inline)
+       4MB  1.77% 96.21%        4MB  1.77%  regexp/syntax.(*parser).newRegexp (inline)
+    1.50MB  0.67% 96.88%     1.50MB  0.67%  runtime.allocm
+    1.50MB  0.67% 97.55%     2.50MB  1.11%  regexp.makeOnePass
+    1.16MB  0.51% 98.06%     1.16MB  0.51%  runtime/pprof.StartCPUProfile
+    0.50MB  0.22% 98.28%     5.50MB  2.44%  regexp/syntax.parse
+----
+
+Primarily in the parser, not the solver.
+Custom parser to the rescue:
+
+----
+goos: linux
+goarch: amd64
+pkg: gitlab.com/jhinrichsen/adventofcode2024
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics
+BenchmarkDay14Part1-16    	    3303	    329691 ns/op	   16385 B/op	       1 allocs/op
+BenchmarkDay14Part1-16    	    7905	    152471 ns/op	   16384 B/op	       1 allocs/op
+BenchmarkDay14Part1-16    	    7828	    151359 ns/op	   16384 B/op	       1 allocs/op
+BenchmarkDay14Part1-16    	    7762	    153447 ns/op	   16384 B/op	       1 allocs/op
+BenchmarkDay14Part1-16    	    7844	    152640 ns/op	   16384 B/op	       1 allocs/op
+BenchmarkDay14Part1-16    	    6765	    153720 ns/op	   16384 B/op	       1 allocs/op
+BenchmarkDay14Part1-16    	    7816	    152940 ns/op	   16384 B/op	       1 allocs/op
+BenchmarkDay14Part1-16    	    6735	    153580 ns/op	   16384 B/op	       1 allocs/op
+BenchmarkDay14Part1-16    	    7830	    153114 ns/op	   16384 B/op	       1 allocs/op
+BenchmarkDay14Part1-16    	    6556	    153674 ns/op	   16384 B/op	       1 allocs/op
+----
+
+- R4 struct is 32 bytes (4 × 8-byte ints)
+- Slice capacity is exactly 500 robots for part 1
+- 500 × 32 = 16,000 bytes ≈ 16KB
+
+And runtime drops 50%.
+
+The framework's AMD Ryzen 7 7840HS has
+
+- L1d cache: 256 KiB (8 instances) = 32 KiB per core
+- L1i cache: 256 KiB (8 instances) = 32 KiB per core
+
+But let's compress further, because our solution space is within 8 bits.
+Switching from `int` to `int8` shows expected memory reduction, plus a negligible runtime progression:
+
+goos: linux
+goarch: amd64
+pkg: gitlab.com/jhinrichsen/adventofcode2024
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics
+              │  bench16KB  │              bench2KB              │
+              │   sec/op    │   sec/op     vs base               │
+Day14Part1-16   153.3µ ± 1%   151.4µ ± 1%  -1.25% (p=0.007 n=10)
+
+              │   bench16KB   │               bench2KB               │
+              │     B/op      │     B/op      vs base                │
+Day14Part1-16   16.000Ki ± 0%   2.000Ki ± 0%  -87.50% (p=0.000 n=10)
+
+              │ bench16KB  │            bench2KB            │
+              │ allocs/op  │ allocs/op   vs base            │
+Day14Part1-16   1.000 ± 0%   1.000 ± 0%  ~ (p=1.000 n=10) ¹
+¹ all samples are equal
+
+Although the benchmark looks good, we still must use some `int` cases for additions before the modulo operation.
+Both position and velocity use the full range of two digits (-99..99), so the `int8` range is not large enough.
+`int16` is safe for all possible combination, and this is the sweet spot for our puzzle:
+
+----
+goos: linux
+goarch: amd64
+pkg: gitlab.com/jhinrichsen/adventofcode2024
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics
+              │  bench16KB   │              bench2KB               │              bench4KB               │
+              │    sec/op    │    sec/op     vs base               │   sec/op     vs base                │
+Day14Part1-16   153.28µ ± 1%   151.37µ ± 1%  -1.25% (p=0.007 n=10)   93.47µ ± 2%  -39.02% (p=0.001 n=10)
+
+              │   bench16KB   │               bench2KB               │               bench4KB               │
+              │     B/op      │     B/op      vs base                │     B/op      vs base                │
+Day14Part1-16   16.000Ki ± 0%   2.000Ki ± 0%  -87.50% (p=0.000 n=10)   4.000Ki ± 0%  -75.00% (p=0.000 n=10)
+
+              │ bench16KB  │            bench2KB            │            bench4KB            │
+              │ allocs/op  │ allocs/op   vs base            │ allocs/op   vs base            │
+Day14Part1-16   1.000 ± 0%   1.000 ± 0%  ~ (p=1.000 n=10) ¹   1.000 ± 0%  ~ (p=1.000 n=10) ¹
+¹ all samples are equal
+----
+
+
+Compared to our baseline, **huge** performance gains, although the Go `regexp` package is top notch.
+
+----
+goos: linux
+goarch: amd64
+pkg: gitlab.com/jhinrichsen/adventofcode2024
+cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics
+              │    bench     │              bench4KB               │
+              │    sec/op    │   sec/op     vs base                │
+Day14Part1-16   273.05µ ± 1%   93.47µ ± 2%  -65.77% (p=0.000 n=10)
+
+              │     bench      │               bench4KB               │
+              │      B/op      │     B/op      vs base                │
+Day14Part1-16   121.645Ki ± 0%   4.000Ki ± 0%  -96.71% (p=0.000 n=10)
+
+              │     bench     │              bench4KB              │
+              │   allocs/op   │ allocs/op   vs base                │
+Day14Part1-16   1146.000 ± 0%   1.000 ± 0%  -99.91% (p=0.000 n=10)
+----
+
+So, stepping back from our micro optimizations, let's try to use a different algorithm.
+
+Given that
+
+	p(t) = p~0~ + v×t
+	((a % n) + (b % n)) % n = (a+b) % n
+
+we can directly compute `p(100)` eliminating the seconds loop, reducing from O(t) to O(1).
+
 
