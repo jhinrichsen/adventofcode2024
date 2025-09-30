@@ -87,6 +87,5 @@ func Day14(p Day14Puzzle, seconds uint, part1 bool) uint {
 			panic("bad sector")
 		}
 	}
-	fmt.Printf("robots in sectors: %d, %d, %d, %d\n", sectors[1], sectors[2], sectors[3], sectors[4])
 	return sectors[1] * sectors[2] * sectors[3] * sectors[4]
 }
