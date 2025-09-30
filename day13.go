@@ -81,30 +81,12 @@ func solveMachine(machine ClawMachine, part1 bool) int {
 	// System of linear equations:
 	// a * ButtonA.X + b * ButtonB.X = prizeX
 	// a * ButtonA.Y + b * ButtonB.Y = prizeY
-	//
-	// Using Cramer's rule:
-	// det = ButtonA.X * ButtonB.Y - ButtonA.Y * ButtonB.X
-	// a = (prizeX * ButtonB.Y - prizeY * ButtonB.X) / det
-	// b = (ButtonA.X * prizeY - ButtonA.Y * prizeX) / det
+	eq1 := Eq{machine.ButtonA.X, machine.ButtonB.X, prizeX}
+	eq2 := Eq{machine.ButtonA.Y, machine.ButtonB.Y, prizeY}
 	
-	det := machine.ButtonA.X*machine.ButtonB.Y - machine.ButtonA.Y*machine.ButtonB.X
-	if det == 0 {
-		return 0 // No unique solution
-	}
+	a, b, hasIntSolution := Cramer(eq1, eq2)
 	
-	numeratorA := prizeX*machine.ButtonB.Y - prizeY*machine.ButtonB.X
-	numeratorB := machine.ButtonA.X*prizeY - machine.ButtonA.Y*prizeX
-	
-	// Check if solutions are integers
-	if numeratorA%det != 0 || numeratorB%det != 0 {
-		return 0 // No integer solution
-	}
-	
-	a := numeratorA / det
-	b := numeratorB / det
-	
-	// Check if solutions are non-negative
-	if a < 0 || b < 0 {
+	if !hasIntSolution || a < 0 || b < 0 {
 		return 0
 	}
 	
