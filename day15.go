@@ -2,7 +2,44 @@ package adventofcode2024
 
 import "fmt"
 
-func Day15(input []byte, part1 bool) (uint, error) {
+// widen transforms the warehouse map according to Part 2 rules:
+// # becomes ##, O becomes [], . becomes .., @ becomes @.
+// Accepts input with no trailing newline, one trailing newline (grid only),
+// or two trailing newlines (complete puzzle with moves section).
+// The into parameter must be large enough to hold the widened result.
+func widen(from []byte, into []byte) {
+	n := 0
+	for i, b := range from {
+		switch b {
+		case '#':
+			into[n] = '#'
+			into[n+1] = '#'
+			n += 2
+		case 'O':
+			into[n] = '['
+			into[n+1] = ']'
+			n += 2
+		case '.':
+			into[n] = '.'
+			into[n+1] = '.'
+			n += 2
+		case '@':
+			into[n] = '@'
+			into[n+1] = '.'
+			n += 2
+		default:
+			// Keep newlines and other characters as-is
+			into[n] = b
+			n++
+			// Stop at double newline (end of grid)
+			if b == '\n' && i+1 < len(from) && from[i+1] == '\n' {
+				return
+			}
+		}
+	}
+}
+
+func Day15(puzzle []byte, part1 bool) (uint, error) {
 	const (
 		robot   = '@'
 		empty   = '.'
@@ -14,32 +51,42 @@ func Day15(input []byte, part1 bool) (uint, error) {
 	var moves int
 	robotPos := -1
 
-	for i := 0; i < len(input)-1; i++ {
-		if input[i] == robot {
+	for i := 0; i < len(puzzle)-1; i++ {
+		if puzzle[i] == robot {
 			robotPos = i
 		}
 
-		if input[i] == newline {
+		if puzzle[i] == newline {
 			if dimX == 0 {
 				dimX = i
 			}
 			dimY++
 
-			if input[i+1] == newline {
+			if puzzle[i+1] == newline {
 				moves = i + 2
 				break
 			}
 		}
 	}
 
-
 	if robotPos == -1 {
 		return 0, fmt.Errorf("no robot found")
 	}
 
+	// Copy the grid to avoid modifying the original
+	gridSize := moves - 1
+	var grid []byte
+	if part1 {
+		grid = make([]byte, gridSize)
+		copy(grid, puzzle[:gridSize])
+	} else {
+		grid = make([]byte, gridSize*2)
+		widen(puzzle[:gridSize], grid)
+	}
+
 	commandCount := 0
-	for i := moves; i < len(input); i++ {
-		direction := input[i]
+	for i := moves; i < len(puzzle); i++ {
+		direction := puzzle[i]
 		if direction == newline {
 			continue
 		}
@@ -71,64 +118,81 @@ func Day15(input []byte, part1 bool) (uint, error) {
 
 		targetPos = targetY*(dimX+1) + targetX
 
-		targetChar = input[targetPos]
+		targetChar = grid[targetPos]
 
 		if targetChar == wall {
 			// Wall blocks movement - do nothing
 		} else if targetChar == empty {
-			input[robotPos] = empty
-			input[targetPos] = robot
+			grid[robotPos] = empty
+			grid[targetPos] = robot
 			robotPos = targetPos
-		} else if targetChar == box {
-			checkX := targetX
-			checkY := targetY
+		} else if targetChar == box || (!part1 && (targetChar == '[' || targetChar == ']')) {
+			if dx == 0 { // Vertical movement
+				if part1 {
+					// Narrow boxes vertical movement
+					if pushNarrow(grid, robotX, robotY, dx, dy, dimX, dimY, targetX, targetY) {
+						grid[robotPos] = empty
+						grid[targetPos] = robot
+						robotPos = targetPos
+					}
+				} else {
+					// Wide boxes vertical movement
+					if pushWide(grid, robotX, robotY, dy, dimX, dimY) {
+						grid[robotPos] = empty
+						grid[targetPos] = robot
+						robotPos = targetPos
+					}
+				}
+			} else { // Horizontal movement
+				checkX := targetX
+				checkY := targetY
 
-			for {
-				checkX += dx
-				checkY += dy
+				for {
+					checkX += dx
+					checkY += dy
 
-				if checkX < 0 || checkX >= dimX || checkY < 0 || checkY >= dimY {
-					goto blockedMove
+					if checkX < 0 || checkX >= dimX || checkY < 0 || checkY >= dimY {
+						goto blockedMove
+					}
+
+					checkPos := checkY*(dimX+1) + checkX
+					checkChar := grid[checkPos]
+
+					if checkChar == wall {
+						goto blockedMove
+					} else if checkChar == empty {
+						break
+					}
 				}
 
-				checkPos := checkY*(dimX+1) + checkX
-				checkChar := input[checkPos]
+				emptyPos := checkY*(dimX+1) + checkX
+				for checkX != targetX || checkY != targetY {
+					prevX := checkX - dx
+					prevY := checkY - dy
+					prevPos := prevY*(dimX+1) + prevX
 
-				if checkChar == wall {
-					goto blockedMove
-				} else if checkChar == empty {
-					break
+					grid[emptyPos] = grid[prevPos]
+					emptyPos = prevPos
+
+					checkX = prevX
+					checkY = prevY
 				}
+
+				grid[robotPos] = empty
+				grid[targetPos] = robot
+				robotPos = targetPos
 			}
-
-			emptyPos := checkY*(dimX+1) + checkX
-			for checkX != targetX || checkY != targetY {
-				prevX := checkX - dx
-				prevY := checkY - dy
-				prevPos := prevY*(dimX+1) + prevX
-
-				input[emptyPos] = input[prevPos]
-				emptyPos = prevPos
-
-				checkX = prevX
-				checkY = prevY
-			}
-
-			input[robotPos] = empty
-			input[targetPos] = robot
-			robotPos = targetPos
 		}
 
 	blockedMove:
 		if day15TestHook != nil {
-			day15TestHook(input[:moves-1])
+			day15TestHook(grid[:moves-1])
 		}
 	}
 
-
 	var total uint
 	for i := 0; i < moves-1; i++ {
-		if input[i] == box {
+		if (part1 && grid[i] == box) || (!part1 && grid[i] == '[') {
 			y := i / (dimX + 1)
 			x := i % (dimX + 1)
 			total += uint(100*y + x)
@@ -136,4 +200,140 @@ func Day15(input []byte, part1 bool) (uint, error) {
 	}
 
 	return total, nil
+}
+
+// pushNarrow handles vertical movement of narrow boxes in Part 1
+func pushNarrow(input []byte, robotX, robotY, dx, dy, dimX, dimY, targetX, targetY int) bool {
+	const (
+		empty = '.'
+		wall  = '#'
+	)
+
+	checkX := targetX
+	checkY := targetY
+
+	for {
+		checkX += dx
+		checkY += dy
+
+		if checkX < 0 || checkX >= dimX || checkY < 0 || checkY >= dimY {
+			return false
+		}
+
+		checkPos := checkY*(dimX+1) + checkX
+		checkChar := input[checkPos]
+
+		if checkChar == wall {
+			return false
+		} else if checkChar == empty {
+			break
+		}
+	}
+
+	emptyPos := checkY*(dimX+1) + checkX
+	for checkX != targetX || checkY != targetY {
+		prevX := checkX - dx
+		prevY := checkY - dy
+		prevPos := prevY*(dimX+1) + prevX
+
+		input[emptyPos] = input[prevPos]
+		emptyPos = prevPos
+
+		checkX = prevX
+		checkY = prevY
+	}
+
+	return true
+}
+
+// pushWide handles vertical movement of wide boxes in Part 2
+func pushWide(grid []byte, robotX, robotY, dy, dimX, dimY int) bool {
+	const (
+		empty    = '.'
+		wall     = '#'
+		boxLeft  = '['
+		boxRight = ']'
+	)
+
+	// Collect all boxes that need to move with their original characters
+	type boxMove struct {
+		pos      int
+		original byte
+	}
+
+	var boxesToMove []boxMove
+	var toCheck []int
+	visited := make(map[int]bool)
+
+	targetY := robotY + dy
+	targetPos := targetY*(dimX+1) + robotX
+	targetChar := grid[targetPos]
+
+	// Start with the box the robot is pushing
+	if targetChar == boxLeft {
+		toCheck = append(toCheck, targetPos, targetPos+1) // Both parts of the box
+	} else if targetChar == boxRight {
+		toCheck = append(toCheck, targetPos-1, targetPos) // Both parts of the box
+	}
+
+	// Find all connected boxes that need to move
+	for len(toCheck) > 0 {
+		pos := toCheck[0]
+		toCheck = toCheck[1:]
+
+		if visited[pos] || pos < 0 || pos >= len(grid) {
+			continue
+		}
+		visited[pos] = true
+
+		char := grid[pos]
+		if char != boxLeft && char != boxRight {
+			continue
+		}
+
+		boxesToMove = append(boxesToMove, boxMove{pos: pos, original: char})
+
+		// Check the position this box would move to
+		nextY := (pos / (dimX + 1)) + dy
+		nextX := pos % (dimX + 1)
+
+		if nextY < 0 || nextY >= dimY {
+			return false // Out of bounds
+		}
+
+		nextPos := nextY*(dimX+1) + nextX
+		if nextPos < 0 || nextPos >= len(grid) {
+			return false
+		}
+
+		nextChar := grid[nextPos]
+
+		if nextChar == wall {
+			return false // Blocked by wall
+		} else if nextChar == boxLeft && !visited[nextPos] {
+			toCheck = append(toCheck, nextPos, nextPos+1)
+		} else if nextChar == boxRight && !visited[nextPos] {
+			toCheck = append(toCheck, nextPos-1, nextPos)
+		}
+	}
+
+	// Move all boxes
+	// First clear all box positions
+	for _, box := range boxesToMove {
+		grid[box.pos] = empty
+	}
+
+	// Then place boxes in new positions
+	for _, box := range boxesToMove {
+		oldY := box.pos / (dimX + 1)
+		oldX := box.pos % (dimX + 1)
+		newY := oldY + dy
+		newPos := newY*(dimX+1) + oldX
+
+		if newPos >= 0 && newPos < len(grid) {
+			grid[newPos] = box.original
+		}
+	}
+
+	return true
 }

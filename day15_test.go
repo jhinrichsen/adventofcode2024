@@ -112,12 +112,12 @@ func TestDay15Part1Example(t *testing.T) {
 
 			input, err := os.ReadFile(tt.file)
 			if err != nil {
-				t.Fatalf("Failed to read file %s: %v", tt.file, err)
+				t.Fatal(err)
 			}
 
 			got, err := Day15(input, true)
 			if err != nil {
-				t.Fatalf("Day15() error = %v", err)
+				t.Fatal(err)
 			}
 
 			// Check final state for example1
@@ -138,7 +138,7 @@ func TestDay15Part1Example(t *testing.T) {
 			}
 
 			if tt.want != got {
-				t.Errorf("Day15() = %v, want %v", got, tt.want)
+				t.Errorf("want %v, got %v", tt.want, got)
 			}
 		})
 	}
@@ -215,17 +215,89 @@ func generateAllSteps(t *testing.T, filename string, outputDir string) {
 func TestDay15Part1(t *testing.T) {
 	const want = 1451928
 
-	input := file(t, 15)
-	got, err := Day15(input, true)
+	got, err := Day15(file(t, 15), true)
 	if err != nil {
-		t.Fatalf("Day15() error = %v", err)
+		t.Fatal(err)
 	}
 
-	if got != want {
-		t.Errorf("Day15() = %v, want %v", got, want)
+	if want != got {
+		t.Errorf("want %v, got %v", want, got)
 	}
 }
 
 func TestDay15GenerateSteps(t *testing.T) {
 	generateAllSteps(t, example1Filename(15), "me")
+}
+
+func TestDay15Scaled(t *testing.T) {
+	// Test with example1 and compare against the scaled version from spec
+	input, err := os.ReadFile(example1Filename(15))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected, err := os.ReadFile("testdata/day15_example1_scaled.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	result := make([]byte, len(input)*2)
+	widen(input, result)
+
+	// Extract just the grid portion (before the blank line)
+	resultLines := strings.Split(string(result), "\n")
+	expectedLines := strings.Split(string(expected), "\n")
+
+	// Compare grid portions
+	minLines := min(len(resultLines), len(expectedLines))
+	for i := 0; i < minLines; i++ {
+		if resultLines[i] != expectedLines[i] {
+			t.Errorf("Line %d mismatch:\nwant: %s\ngot:  %s", i, expectedLines[i], resultLines[i])
+		}
+	}
+}
+
+func TestDay15Part2Example(t *testing.T) {
+	const want = 9021 // From spec
+
+	input, err := os.ReadFile(example1Filename(15))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	got, err := Day15(input, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if want != got {
+		t.Errorf("want %v, got %v", want, got)
+	}
+}
+
+func TestDay15Part2(t *testing.T) {
+	const want = 1462788
+
+	got, err := Day15(file(t, 15), false)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if want != got {
+		t.Errorf("want %v, got %v", want, got)
+	}
+}
+
+func BenchmarkDay15Part1(b *testing.B) {
+	input := file(b, 15)
+	for range b.N {
+		_, _ = Day15(input, true)
+	}
+}
+
+func BenchmarkDay15Part2(b *testing.B) {
+	input := file(b, 15)
+	for range b.N {
+		_, _ = Day15(input, false)
+	}
 }
