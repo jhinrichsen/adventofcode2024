@@ -212,6 +212,20 @@ func generateAllSteps(t *testing.T, filename string, outputDir string) {
 	fmt.Printf("Final result: %d\n", result)
 }
 
+func TestDay15Part1(t *testing.T) {
+	const want = 1451928
+
+	input := file(t, 15)
+	got, err := Day15(input, true)
+	if err != nil {
+		t.Fatalf("Day15() error = %v", err)
+	}
+
+	if got != want {
+		t.Errorf("Day15() = %v, want %v", got, want)
+	}
+}
+
 func TestDay15GenerateSteps(t *testing.T) {
 	generateAllSteps(t, example1Filename(15), "me")
 }
