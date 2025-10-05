@@ -63,7 +63,7 @@ Number of tries for a correct answer:
 | 12  |   1    |   1
 | 13  |   1    |   1
 | 14  |   1    |
-| 15  |        |
+| 15  |   1    |   1
 | 16  |        |
 | 17  |        |
 | 18  |        |
@@ -972,4 +972,36 @@ Densest area around (62,58) with 221 robots in 20x20 window
 #.............................
 #.............................
 ----
+
+== Day 16: Reindeer Maze
+
+Day 16 presents a maze navigation problem with **state-dependent movement costs**:
+
+- Forward movement: 1 point per tile
+- 90-degree rotation: 1000 points per turn
+- Start facing East, find lowest score path to end
+
+=== Algorithm Choice: Dijkstra's
+
+**Recommended: Dijkstra's Algorithm**
+
+Characteristics:
+- **Non-negative edge weights**: All costs (movement=1, rotation=1000) are positive
+- **State-dependent graph**: Position + direction create the state space
+- **Single-source shortest path**: Find minimum cost from start to end
+- **Optimal substructure**: Shortest path property holds
+
+Why not alternatives:
+
+- **BFS**: Inadequate - uniform edge weights assumption violated (1 vs 1000 costs)
+- **A***: Overkill - requires heuristic design, Dijkstra sufficient for unweighted optimization
+- **DFS**: Suboptimal - no guarantee of shortest path
+
+Implementation considerations:
+- State representation: `(x, y, direction)` tuples
+- Priority queue: Min-heap ordered by cumulative cost
+- Visited tracking: Mark `(position, direction)` pairs to avoid cycles
+- Cost function: `cost = steps + (turns × 1000)`
+
+Expected complexity: O((V + E) log V) where V = positions × 4 directions
 
