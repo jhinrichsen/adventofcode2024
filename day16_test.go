@@ -173,3 +173,23 @@ func TestDay16NoSolutionErrorDetails(t *testing.T) {
 		t.Errorf("End position = %v, want %v", noSolErr.End, end)
 	}
 }
+
+func BenchmarkDay16Part1(b *testing.B) {
+	input := file(b, 16)
+	for range b.N {
+		_, err := Day16(input, true)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkDay16Part2(b *testing.B) {
+	input := file(b, 16)
+	for range b.N {
+		_, err := Day16(input, false)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}

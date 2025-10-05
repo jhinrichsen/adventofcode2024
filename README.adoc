@@ -40,7 +40,7 @@ compliant format, you get code quality in merge requests (all editions):
 image::img/code-quality.png[]
 
 Unfortunately, the code quality dashboard, Gitlab calls it the
-https://docs.gitlab.com/ee/ci/testing/code_quality.html#project-quality-view[Project quality view], 
+https://docs.gitlab.com/ee/ci/testing/code_quality.html#project-quality-view[Project quality view],
 is only available in Gitlab Ultimate.
 
 == Overview
@@ -62,9 +62,9 @@ Number of tries for a correct answer:
 | 11  |   2<1> |   1
 | 12  |   1    |   1
 | 13  |   1    |   1
-| 14  |   1    |
+| 14  |   1    |   1
 | 15  |   1    |   1
-| 16  |        |
+| 16  |   1    |   1
 | 17  |        |
 | 18  |        |
 | 19  |        |
@@ -1005,3 +1005,32 @@ Implementation considerations:
 
 Expected complexity: O((V + E) log V) where V = positions × 4 directions
 
+=== Performance Results
+
+----
+goos: linux
+goarch: amd64
+pkg: gitlab.com/jhinrichsen/adventofcode2024
+cpu: Intel(R) Core(TM) i7-14700K
+BenchmarkDay16Part1-28    	      10	 100309101 ns/op	29003684 B/op	  488817 allocs/op
+BenchmarkDay16Part1-28    	      12	  97076521 ns/op	29003665 B/op	  488817 allocs/op
+BenchmarkDay16Part1-28    	      13	 100633463 ns/op	29003675 B/op	  488817 allocs/op
+BenchmarkDay16Part1-28    	      12	 101567947 ns/op	29003656 B/op	  488817 allocs/op
+BenchmarkDay16Part1-28    	      13	 104575342 ns/op	29003712 B/op	  488818 allocs/op
+BenchmarkDay16Part1-28    	      10	 112985890 ns/op	29003686 B/op	  488817 allocs/op
+BenchmarkDay16Part1-28    	      12	 111309220 ns/op	29003696 B/op	  488817 allocs/op
+BenchmarkDay16Part1-28    	      12	 106102885 ns/op	29003664 B/op	  488817 allocs/op
+BenchmarkDay16Part1-28    	      12	 100597466 ns/op	29003632 B/op	  488817 allocs/op
+BenchmarkDay16Part1-28    	      10	 114607734 ns/op	29003732 B/op	  488818 allocs/op
+BenchmarkDay16Part2-28    	       9	 113297370 ns/op	29214856 B/op	  490496 allocs/op
+BenchmarkDay16Part2-28    	      12	 112791667 ns/op	29214872 B/op	  490496 allocs/op
+BenchmarkDay16Part2-28    	      10	 107404384 ns/op	29214888 B/op	  490497 allocs/op
+BenchmarkDay16Part2-28    	      13	 104006267 ns/op	29214858 B/op	  490496 allocs/op
+BenchmarkDay16Part2-28    	      13	 108982748 ns/op	29214880 B/op	  490496 allocs/op
+BenchmarkDay16Part2-28    	       9	 115011110 ns/op	29214898 B/op	  490497 allocs/op
+BenchmarkDay16Part2-28    	      12	 115122870 ns/op	29214880 B/op	  490496 allocs/op
+BenchmarkDay16Part2-28    	      13	 118729444 ns/op	29214843 B/op	  490496 allocs/op
+BenchmarkDay16Part2-28    	      10	 114593633 ns/op	29214897 B/op	  490497 allocs/op
+BenchmarkDay16Part2-28    	      10	 115151624 ns/op	29214830 B/op	  490496 allocs/op
+PASS
+----
