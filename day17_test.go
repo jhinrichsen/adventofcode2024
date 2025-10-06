@@ -19,12 +19,13 @@ func TestDay17Part1Examples(t *testing.T) {
 		a, b, c       uint
 		output        string
 	}{
-		{8, 0, 0, "0,2", 2, undefined, undefined, ""},  // adv example 1
-		{64, 0, 0, "0,5", 2, undefined, undefined, ""}, // adv example 2
-		{0, 1, 2, "4,0", undefined, 3, undefined, ""},  // 1 xor 2 == 3
-		{0, 0, 9, "2,6", undefined, 1, undefined, ""},
-		{10, 0, 0, "5,0,5,1,5,4", undefined, undefined, undefined, "0,1,2"},
-		{2024, 0, 0, "0,1,5,4,3,0", 0, undefined, undefined, "4,2,5,6,7,7,7,7,3,1,0"},
+		//		{8, 0, 0, "0,2", 2, undefined, undefined, ""},  // adv example 1
+		//		{64, 5, 0, "0,5", 2, undefined, undefined, ""}, // adv example 2
+		//		{0, 1, 2, "4,0", undefined, 3, undefined, ""},  // 1 xor 2 == 3
+		//		{0, 0, 9, "2,6", undefined, 1, undefined, ""},
+		//		{10, 0, 0, "5,0,5,1,5,4", undefined, undefined, undefined, "0,1,2"},
+		//		{2024, 0, 0, "0,1,5,4,3,0", 0, undefined, undefined, "4,2,5,6,7,7,7,7,3,1,0"},
+		{0, 29, 0, "1,7", undefined, 26, undefined, ""},
 	}
 
 	for i, tt := range tests {

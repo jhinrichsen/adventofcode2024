@@ -17,14 +17,12 @@ func Day17(lines []string, part1 bool) (uint, uint, uint, string) {
 		return n
 	}
 	a, b, c := parse(lines[0]), parse(lines[1]), parse(lines[2])
-	fmt.Println("[ a =", a, "b =", b, "c =", c, "]")
 	cmd := lines[4][9:]
 	fmt.Println("command", cmd)
 
 	var output strings.Builder
 	for pc := 0; pc < len(cmd)-2; {
 		opcode, operand := cmd[pc]-'0', cmd[pc+2]-'0'
-		fmt.Println("opcode =", opcode, " operand =", operand)
 
 		var combo uint
 		switch operand {
@@ -47,12 +45,12 @@ func Day17(lines []string, part1 bool) (uint, uint, uint, string) {
 		default:
 			panic(fmt.Sprintf("illegal operand %d", operand))
 		}
-		fmt.Printf("combo=%d\n", combo)
+		fmt.Println("[ a =", a, "b =", b, "c =", c, "]", "opcode =", opcode, " operand =", operand, "combo =", combo, "output = ", output.String())
 
 		switch opcode {
 		case 0: // adv
-			fmt.Println("adv", 2<<combo)
-			a = a / (2 << combo)
+			fmt.Println("adv", 1<<combo)
+			a = a / (1 << combo)
 			pc += 4
 		case 1: // bxl
 			fmt.Println("todo bxl")
@@ -66,7 +64,7 @@ func Day17(lines []string, part1 bool) (uint, uint, uint, string) {
 				fmt.Println("jnz (a=0)")
 				pc += 4
 			} else {
-				pc = int(opcode) * 2
+				pc = int(operand) * 2
 				fmt.Println("jnz", pc, "(", cmd, ")")
 			}
 		case 4: // bxc
