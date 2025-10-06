@@ -2,15 +2,16 @@ package adventofcode2024
 
 import (
 	"fmt"
+	"log"
 	"strings"
 )
 
 func Day17(lines []string, part1 bool) (uint, uint, uint, string) {
-	fmt.Println()
+	log.Println()
 	// registers are not limited to 3 bits but can hold positive numbers of arbitrary length
 	parse := func(s string) uint {
 		var n, e uint = 0, 1
-		for i := len(s) - 1 - 1; s[i] >= '0' && s[i] <= '9'; i-- {
+		for i := len(s) - 1; s[i] >= '0' && s[i] <= '9'; i-- {
 			n += uint(s[i]-'0') * e
 			e *= 10
 		}
@@ -18,7 +19,7 @@ func Day17(lines []string, part1 bool) (uint, uint, uint, string) {
 	}
 	a, b, c := parse(lines[0]), parse(lines[1]), parse(lines[2])
 	cmd := lines[4][9:]
-	fmt.Println("command", cmd)
+	log.Println("command", cmd)
 
 	var output strings.Builder
 	for pc := 0; pc < len(cmd)-2; {
@@ -45,50 +46,57 @@ func Day17(lines []string, part1 bool) (uint, uint, uint, string) {
 		default:
 			panic(fmt.Sprintf("illegal operand %d", operand))
 		}
-		fmt.Println("[ a =", a, "b =", b, "c =", c, "]", "opcode =", opcode, " operand =", operand, "combo =", combo, "output = ", output.String())
+		log.Println("[ a =", a, "b =", b, "c =", c, "]", "opcode =", opcode, " operand =", operand, "combo =", combo, "output = ", output.String())
 
 		switch opcode {
 		case 0: // adv
-			fmt.Println("adv", 1<<combo)
-			a = a / (1 << combo)
+			x := a / (1 << combo)
+			log.Println("adv", 1<<combo)
+			a = x
 			pc += 4
 		case 1: // bxl
-			fmt.Println("todo bxl")
+			x := b ^ uint(operand)
+			log.Println("bxl", x)
+			b = x
 			pc += 4
 		case 2: // bst
 			b = combo % 8
-			fmt.Printf("b=%d\n", b)
+			log.Printf("b=%d\n", b)
 			pc += 4
 		case 3: // jnz
 			if a == 0 {
-				fmt.Println("jnz (a=0)")
+				log.Println("jnz (a=0)")
 				pc += 4
 			} else {
 				pc = int(operand) * 2
-				fmt.Println("jnz", pc, "(", cmd, ")")
+				log.Println("jnz", pc, "(", cmd, ")")
 			}
 		case 4: // bxc
-			fmt.Println("bxc", b^c)
+			log.Println("bxc", b^c)
 			b = b ^ c
 			pc += 4
 		case 5: // out
 			b := byte((combo % 8) + '0')
-			fmt.Println("out", string(b))
+			log.Println("out", string(b))
 			if output.Len() > 0 {
 				output.WriteByte(',')
 			}
 			output.WriteByte(b)
 			pc += 4
 		case 6: // bdv
-			fmt.Println("todo bdv")
+			x := a / (1 << combo)
+			log.Println("bdv", x)
+			b = x
 			pc += 4
 		case 7: // cdv
-			fmt.Println("todo cdv")
+			x := a / (1 << combo)
+			log.Println("cdv", x)
+			c = x
 			pc += 4
 		default:
 			panic(fmt.Sprintf("illegal opcode %d", opcode))
 		}
 	}
-	fmt.Println("[ a =", a, "b =", b, "c =", c, "output = ", output.String(), "]")
+	log.Println("[ a =", a, "b =", b, "c =", c, "output = ", output.String(), "]")
 	return a, b, c, output.String()
 }

@@ -19,21 +19,22 @@ func TestDay17Part1Examples(t *testing.T) {
 		a, b, c       uint
 		output        string
 	}{
-		//		{8, 0, 0, "0,2", 2, undefined, undefined, ""},  // adv example 1
-		//		{64, 5, 0, "0,5", 2, undefined, undefined, ""}, // adv example 2
-		//		{0, 1, 2, "4,0", undefined, 3, undefined, ""},  // 1 xor 2 == 3
-		//		{0, 0, 9, "2,6", undefined, 1, undefined, ""},
-		//		{10, 0, 0, "5,0,5,1,5,4", undefined, undefined, undefined, "0,1,2"},
-		//		{2024, 0, 0, "0,1,5,4,3,0", 0, undefined, undefined, "4,2,5,6,7,7,7,7,3,1,0"},
+		{8, 0, 0, "0,2", 2, undefined, undefined, ""},  // adv example 1
+		{64, 5, 0, "0,5", 2, undefined, undefined, ""}, // adv example 2
+		{0, 1, 2, "4,0", undefined, 3, undefined, ""},  // 1 xor 2 == 3
+		{0, 0, 9, "2,6", undefined, 1, undefined, ""},
+		{10, 0, 0, "5,0,5,1,5,4", undefined, undefined, undefined, "0,1,2"},
+		{2024, 0, 0, "0,1,5,4,3,0", 0, undefined, undefined, "4,2,5,6,7,7,7,7,3,1,0"},
 		{0, 29, 0, "1,7", undefined, 26, undefined, ""},
+		{0, 2024, 43690, "4,0", undefined, 44354, undefined, ""},
 	}
 
 	for i, tt := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
 			a, b, c, output := Day17([]string{
-				fmt.Sprintf("Register A: %d\n", tt.inA),
-				fmt.Sprintf("Register B: %d\n", tt.inB),
-				fmt.Sprintf("Register C: %d\n", tt.inC),
+				fmt.Sprintf("Register A: %d", tt.inA),
+				fmt.Sprintf("Register B: %d", tt.inB),
+				fmt.Sprintf("Register C: %d", tt.inC),
 				"",
 				fmt.Sprintf("Program: %s", tt.commands),
 			}, true)
@@ -66,7 +67,7 @@ func TestDay17Part2Example(t *testing.T) {
 }
 
 func TestDay17Part1(t *testing.T) {
-	const want = ""
+	const want = "7,3,5,7,5,7,4,3,0"
 	lines := linesFromFilename(t, filename(17))
 	_, _, _, got := Day17(lines, true)
 	if want != got {
