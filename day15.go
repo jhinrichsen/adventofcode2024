@@ -10,6 +10,12 @@ import "fmt"
 func widen(from []byte, into []byte) {
 	n := 0
 	for i, b := range from {
+		// Stop at double newline (end of grid)
+		if b == '\n' && i+1 < len(from) && from[i+1] == '\n' {
+			into[n] = b
+			return
+		}
+
 		switch b {
 		case '#':
 			into[n] = '#'
@@ -31,10 +37,6 @@ func widen(from []byte, into []byte) {
 			// Keep newlines and other characters as-is
 			into[n] = b
 			n++
-			// Stop at double newline (end of grid)
-			if b == '\n' && i+1 < len(from) && from[i+1] == '\n' {
-				return
-			}
 		}
 	}
 }
@@ -76,12 +78,26 @@ func Day15(puzzle []byte, part1 bool) (uint, error) {
 	// Copy the grid to avoid modifying the original
 	gridSize := moves - 1
 	var grid []byte
+	var gridDimX int
 	if part1 {
 		grid = make([]byte, gridSize)
 		copy(grid, puzzle[:gridSize])
+		gridDimX = dimX
 	} else {
 		grid = make([]byte, gridSize*2)
 		widen(puzzle[:gridSize], grid)
+		gridDimX = dimX * 2
+		// Find robot position in widened grid
+		robotPos = -1
+		for i, b := range grid {
+			if b == robot {
+				robotPos = i
+				break
+			}
+		}
+		if robotPos == -1 {
+			return 0, fmt.Errorf("no robot found in widened grid")
+		}
 	}
 
 	commandCount := 0
@@ -110,13 +126,13 @@ func Day15(puzzle []byte, part1 bool) (uint, error) {
 			return 0, fmt.Errorf("invalid direction: %c", direction)
 		}
 
-		robotY = robotPos / (dimX + 1)
-		robotX = robotPos % (dimX + 1)
+		robotY = robotPos / (gridDimX + 1)
+		robotX = robotPos % (gridDimX + 1)
 
 		targetX = robotX + dx
 		targetY = robotY + dy
 
-		targetPos = targetY*(dimX+1) + targetX
+		targetPos = targetY*(gridDimX+1) + targetX
 
 		targetChar = grid[targetPos]
 
@@ -130,14 +146,14 @@ func Day15(puzzle []byte, part1 bool) (uint, error) {
 			if dx == 0 { // Vertical movement
 				if part1 {
 					// Narrow boxes vertical movement
-					if pushNarrow(grid, robotX, robotY, dx, dy, dimX, dimY, targetX, targetY) {
+					if pushNarrow(grid, robotX, robotY, dx, dy, gridDimX, dimY, targetX, targetY) {
 						grid[robotPos] = empty
 						grid[targetPos] = robot
 						robotPos = targetPos
 					}
 				} else {
 					// Wide boxes vertical movement
-					if pushWide(grid, robotX, robotY, dy, dimX, dimY) {
+					if pushWide(grid, robotX, robotY, dy, gridDimX, dimY) {
 						grid[robotPos] = empty
 						grid[targetPos] = robot
 						robotPos = targetPos
@@ -151,11 +167,11 @@ func Day15(puzzle []byte, part1 bool) (uint, error) {
 					checkX += dx
 					checkY += dy
 
-					if checkX < 0 || checkX >= dimX || checkY < 0 || checkY >= dimY {
+					if checkX < 0 || checkX >= gridDimX || checkY < 0 || checkY >= dimY {
 						goto blockedMove
 					}
 
-					checkPos := checkY*(dimX+1) + checkX
+					checkPos := checkY*(gridDimX+1) + checkX
 					checkChar := grid[checkPos]
 
 					if checkChar == wall {
@@ -165,11 +181,11 @@ func Day15(puzzle []byte, part1 bool) (uint, error) {
 					}
 				}
 
-				emptyPos := checkY*(dimX+1) + checkX
+				emptyPos := checkY*(gridDimX+1) + checkX
 				for checkX != targetX || checkY != targetY {
 					prevX := checkX - dx
 					prevY := checkY - dy
-					prevPos := prevY*(dimX+1) + prevX
+					prevPos := prevY*(gridDimX+1) + prevX
 
 					grid[emptyPos] = grid[prevPos]
 					emptyPos = prevPos
@@ -191,11 +207,17 @@ func Day15(puzzle []byte, part1 bool) (uint, error) {
 	}
 
 	var total uint
-	for i := 0; i < moves-1; i++ {
+	gridLimit := len(grid)
+	for i := 0; i < gridLimit; i++ {
 		if (part1 && grid[i] == box) || (!part1 && grid[i] == '[') {
-			y := i / (dimX + 1)
-			x := i % (dimX + 1)
-			total += uint(100*y + x)
+			y := i / (gridDimX + 1)
+			x := i % (gridDimX + 1)
+			if part1 {
+				total += uint(100*y + x)
+			} else {
+				// For Part 2, use coordinates in the widened grid
+				total += uint(100*y + x)
+			}
 		}
 	}
 
@@ -203,7 +225,7 @@ func Day15(puzzle []byte, part1 bool) (uint, error) {
 }
 
 // pushNarrow handles vertical movement of narrow boxes in Part 1
-func pushNarrow(input []byte, robotX, robotY, dx, dy, dimX, dimY, targetX, targetY int) bool {
+func pushNarrow(input []byte, robotX, robotY, dx, dy, gridDimX, dimY, targetX, targetY int) bool {
 	const (
 		empty = '.'
 		wall  = '#'
@@ -216,11 +238,11 @@ func pushNarrow(input []byte, robotX, robotY, dx, dy, dimX, dimY, targetX, targe
 		checkX += dx
 		checkY += dy
 
-		if checkX < 0 || checkX >= dimX || checkY < 0 || checkY >= dimY {
+		if checkX < 0 || checkX >= gridDimX || checkY < 0 || checkY >= dimY {
 			return false
 		}
 
-		checkPos := checkY*(dimX+1) + checkX
+		checkPos := checkY*(gridDimX+1) + checkX
 		checkChar := input[checkPos]
 
 		if checkChar == wall {
@@ -230,11 +252,11 @@ func pushNarrow(input []byte, robotX, robotY, dx, dy, dimX, dimY, targetX, targe
 		}
 	}
 
-	emptyPos := checkY*(dimX+1) + checkX
+	emptyPos := checkY*(gridDimX+1) + checkX
 	for checkX != targetX || checkY != targetY {
 		prevX := checkX - dx
 		prevY := checkY - dy
-		prevPos := prevY*(dimX+1) + prevX
+		prevPos := prevY*(gridDimX+1) + prevX
 
 		input[emptyPos] = input[prevPos]
 		emptyPos = prevPos
@@ -247,7 +269,7 @@ func pushNarrow(input []byte, robotX, robotY, dx, dy, dimX, dimY, targetX, targe
 }
 
 // pushWide handles vertical movement of wide boxes in Part 2
-func pushWide(grid []byte, robotX, robotY, dy, dimX, dimY int) bool {
+func pushWide(grid []byte, robotX, robotY, dy, gridDimX, dimY int) bool {
 	const (
 		empty    = '.'
 		wall     = '#'
@@ -266,7 +288,7 @@ func pushWide(grid []byte, robotX, robotY, dy, dimX, dimY int) bool {
 	visited := make(map[int]bool)
 
 	targetY := robotY + dy
-	targetPos := targetY*(dimX+1) + robotX
+	targetPos := targetY*(gridDimX+1) + robotX
 	targetChar := grid[targetPos]
 
 	// Start with the box the robot is pushing
@@ -294,14 +316,14 @@ func pushWide(grid []byte, robotX, robotY, dy, dimX, dimY int) bool {
 		boxesToMove = append(boxesToMove, boxMove{pos: pos, original: char})
 
 		// Check the position this box would move to
-		nextY := (pos / (dimX + 1)) + dy
-		nextX := pos % (dimX + 1)
+		nextY := (pos / (gridDimX + 1)) + dy
+		nextX := pos % (gridDimX + 1)
 
 		if nextY < 0 || nextY >= dimY {
 			return false // Out of bounds
 		}
 
-		nextPos := nextY*(dimX+1) + nextX
+		nextPos := nextY*(gridDimX+1) + nextX
 		if nextPos < 0 || nextPos >= len(grid) {
 			return false
 		}
@@ -325,10 +347,10 @@ func pushWide(grid []byte, robotX, robotY, dy, dimX, dimY int) bool {
 
 	// Then place boxes in new positions
 	for _, box := range boxesToMove {
-		oldY := box.pos / (dimX + 1)
-		oldX := box.pos % (dimX + 1)
+		oldY := box.pos / (gridDimX + 1)
+		oldX := box.pos % (gridDimX + 1)
 		newY := oldY + dy
-		newPos := newY*(dimX+1) + oldX
+		newPos := newY*(gridDimX+1) + oldX
 
 		if newPos >= 0 && newPos < len(grid) {
 			grid[newPos] = box.original
