@@ -1057,4 +1057,149 @@ BenchmarkDay17Part1-28    	 5808722	       189.6 ns/op	      56 B/op	       3 al
 ----
 
 That's faster than 190 ns, or inverse, 5.3 MHz.
-Memory allocations are from `strings.Builder` that handles output.
+
+=== Optimization step #1
+
+Memory allocations are from `strings.Builder` that handles output, replacing with a simple `[]byte`:
+
+----
+goos: linux
+goarch: amd64
+pkg: gitlab.com/jhinrichsen/adventofcode2024
+cpu: Intel(R) Core(TM) i7-14700K
+              │     b0      │                 b1                  │
+              │   sec/op    │   sec/op     vs base                │
+Day17Part1-28   190.1n ± 1%   166.1n ± 1%  -12.67% (p=0.000 n=10)
+
+              │     b0     │                 b1                 │
+              │    B/op    │    B/op     vs base                │
+Day17Part1-28   56.00 ± 0%   24.00 ± 0%  -57.14% (p=0.000 n=10)
+
+              │     b0     │                 b1                 │
+              │ allocs/op  │ allocs/op   vs base                │
+Day17Part1-28   3.000 ± 0%   1.000 ± 0%  -66.67% (p=0.000 n=10)
+----
+
+166.1 ns is equivalent to 6.02 MHz.
+
+=== Optimization step #2
+
+The operand to combo transformation right now looks like this:
+
+----
+switch operand {
+case 0:
+        combo = 0
+case 1:
+        combo = 1
+case 2:
+        combo = 2
+case 3:
+        combo = 3
+case 4:
+        combo = a
+case 5:
+        combo = b
+case 6:
+        combo = c
+case 7:
+        // NOP
+default:
+        panic(fmt.Sprintf("illegal operand %d", operand))
+}
+----
+
+We can treat these as registers directly, with register 0-3 holding fixed values as in https://en.wikipedia.org/wiki/RISC-V#Register_sets[RISC-V].
+
+----
+const REGISTER_A = 4 <1>
+
+registers := [8]uint{0, 1, 2, 3, 0, 0, 0, 0} <2>
+
+parse(lines[1], REGISTER_B) <3>
+
+combo := registers[operand] <4>
+----
+<1> index into registers
+<2> mix of fixed values [0..3] and registers [4..]
+<3> parse input program directly into register
+<4> single indirection effectively removes a large portion of branch mispredictions, which will always clear the CPU pipeline
+
+----
+goos: linux
+goarch: amd64
+pkg: gitlab.com/jhinrichsen/adventofcode2024
+cpu: Intel(R) Core(TM) i7-14700K
+              │     b0      │                 b1                  │                 b2                  │
+              │   sec/op    │   sec/op     vs base                │   sec/op     vs base                │
+Day17Part1-28   190.1n ± 1%   166.1n ± 1%  -12.67% (p=0.000 n=10)   112.4n ± 4%  -40.89% (p=0.000 n=10)
+
+              │     b0     │                 b1                 │                 b2                 │
+              │    B/op    │    B/op     vs base                │    B/op     vs base                │
+Day17Part1-28   56.00 ± 0%   24.00 ± 0%  -57.14% (p=0.000 n=10)   24.00 ± 0%  -57.14% (p=0.000 n=10)
+
+              │     b0     │                 b1                 │                 b2                 │
+              │ allocs/op  │ allocs/op   vs base                │ allocs/op   vs base                │
+Day17Part1-28   3.000 ± 0%   1.000 ± 0%  -66.67% (p=0.000 n=10)   1.000 ± 0%  -66.67% (p=0.000 n=10)
+----
+
+Runtime is now down to 112.4 ns equivalent to 8.9 MHz.
+
+=== Optimization step #3
+
+One final micro-optimization for the `LEAQ` operation in the loop termination expression
+
+----
+	for pc := 0; pc < len(cmd)-2; {
+  0x20e5		4c8d49f5		LEAQ -0xb(CX), R9 <1>
+  0x20e9		4c39c8			CMPQ AX, R9
+  0x20ec		0f8d0e020000		JGE 0x2300
+----
+<1> load and compare for each loop iteration
+
+----
+	l := len(cmd) - 2
+	for pc := 0; pc < l; {
+----
+
+Now we keep the loop terminator in `R9`.
+
+----
+	l := len(cmd) - 2
+  0x211b		4c8d49f5		LEAQ -0xb(CX), R9 <1>
+  0x211f		31c0			XORL AX, AX
+  0x2121		31c9			XORL CX, CX
+  0x2123		6690			NOPW
+	for pc := 0; pc < l; {
+  0x2125		eb06			JMP 0x212d
+  0x2127		4c89d8			MOVQ R11, AX
+			if idx > 0 {
+  0x212a		4889d9			MOVQ BX, CX
+	for pc := 0; pc < l; {
+  0x212d		4c39c8			CMPQ AX, R9 <2>
+----
+<1> load once
+<2> compare against R9
+
+----
+goos: linux
+goarch: amd64
+pkg: gitlab.com/jhinrichsen/adventofcode2024
+cpu: Intel(R) Core(TM) i7-14700K
+              │     b2      │                 b3                 │
+              │   sec/op    │   sec/op     vs base               │
+Day17Part1-28   112.4n ± 4%   108.9n ± 2%  -3.11% (p=0.045 n=10) <1>
+
+              │     b2     │               b3               │
+              │    B/op    │    B/op     vs base            │
+Day17Part1-28   24.00 ± 0%   24.00 ± 0%  ~ (p=1.000 n=10) ¹
+¹ all samples are equal
+
+              │     b2     │               b3               │
+              │ allocs/op  │ allocs/op   vs base            │
+Day17Part1-28   1.000 ± 0%   1.000 ± 0%  ~ (p=1.000 n=10) ¹
+¹ all samples are equal
+----
+<1> another 3% gain
+
+All in all we're down to 108.9 ns ≙ 9.2 MHz.

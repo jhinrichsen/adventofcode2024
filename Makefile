@@ -116,3 +116,8 @@ peg: grammar.go
 totalruntime:
 	go test -run=^$$ -bench='Day..Part.$$' -benchmem | tee benches/all.txt
 	awk -f total.awk < benches/all.txt
+
+.PHONY: disasm
+disasm:
+	$(GO) build -o day17_binary day17.go
+	$(GO) tool objdump -S day17_binary
