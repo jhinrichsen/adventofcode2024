@@ -59,54 +59,92 @@ func Day09(puzzle Day09Puzzle, part1 bool) (checksum uint) {
 			}
 		}
 	} else {
-		// Part 2: Move whole files from highest ID to lowest
+		// Part 2: Move whole files from highest ID to lowest (optimized)
 		maxFileId := 0
 		for _, block := range blocks {
 			if block > maxFileId {
 				maxFileId = block
 			}
 		}
-		
-		for currentFileId := maxFileId; currentFileId >= 1; currentFileId-- {
-			// Find the file's position and size
-			fileStart := -1
-			fileSize := 0
-			
-			for i, block := range blocks {
-				if block == currentFileId {
-					if fileStart == -1 {
-						fileStart = i
-					}
-					fileSize++
-				} else if fileStart != -1 {
-					break // Found end of file
+
+		// Pre-compute file positions and sizes to avoid repeated scanning
+		fileInfos := make(map[int][2]int, maxFileId+1) // fileId -> [start, size]
+		for i, block := range blocks {
+			if block >= 0 {
+				if info, exists := fileInfos[block]; exists {
+					fileInfos[block] = [2]int{info[0], info[1] + 1} // increment size
+				} else {
+					fileInfos[block] = [2]int{i, 1} // start position, size 1
 				}
 			}
-			
-			if fileStart == -1 || fileSize == 0 {
+		}
+
+		// Pre-compute free space segments for faster lookup
+		type freeSegment struct {
+			start, size int
+		}
+		var freeSegments []freeSegment
+		i := 0
+		for i < len(blocks) {
+			if blocks[i] == -1 {
+				start := i
+				size := 0
+				for i < len(blocks) && blocks[i] == -1 {
+					size++
+					i++
+				}
+				freeSegments = append(freeSegments, freeSegment{start, size})
+			} else {
+				i++
+			}
+		}
+
+		for currentFileId := maxFileId; currentFileId >= 1; currentFileId-- {
+			info, exists := fileInfos[currentFileId]
+			if !exists {
 				continue
 			}
-			
-			// Find leftmost contiguous free space that can fit this file
-			moved := false
-			for i := 0; i < fileStart && !moved; i++ {
-				if blocks[i] == -1 {
-					// Count contiguous free space starting at i
-					freeSize := 0
-					for j := i; j < len(blocks) && blocks[j] == -1; j++ {
-						freeSize++
+			fileStart, fileSize := info[0], info[1]
+
+			// Find leftmost suitable free segment
+			for segIdx, seg := range freeSegments {
+				if seg.start >= fileStart {
+					break // Only consider segments to the left
+				}
+				if seg.size >= fileSize {
+					// Move the file
+					for j := 0; j < fileSize; j++ {
+						blocks[seg.start+j] = currentFileId
+						blocks[fileStart+j] = -1
 					}
-					
-					if freeSize >= fileSize {
-						// Found suitable contiguous space - move the file
-						for j := 0; j < fileSize; j++ {
-							blocks[i+j] = currentFileId
-							blocks[fileStart+j] = -1
+
+					// Update free segments list
+					if seg.size == fileSize {
+						// Remove the segment entirely
+						freeSegments = append(freeSegments[:segIdx], freeSegments[segIdx+1:]...)
+					} else {
+						// Shrink the segment
+						freeSegments[segIdx] = freeSegment{seg.start + fileSize, seg.size - fileSize}
+					}
+
+					// Add new free segment where file was (merge with adjacent if possible)
+					newFreeStart := fileStart
+					newFreeSize := fileSize
+
+					// Simple approach: just add the new free segment without complex merging
+					// The algorithm still works correctly without merging
+					inserted := false
+					for j := range freeSegments {
+						if freeSegments[j].start > newFreeStart {
+							freeSegments = append(freeSegments[:j], append([]freeSegment{{newFreeStart, newFreeSize}}, freeSegments[j:]...)...)
+							inserted = true
+							break
 						}
-						moved = true
 					}
-					// Skip to end of this free space block
-					i += freeSize - 1 // -1 because loop will increment
+					if !inserted {
+						freeSegments = append(freeSegments, freeSegment{newFreeStart, newFreeSize})
+					}
+					break
 				}
 			}
 		}
