@@ -114,5 +114,5 @@ peg: grammar.go
 
 .PHONY: totalruntime
 totalruntime:
-	go test -run=^$$ -bench=Day -benchmem | tee benches/all.txt
+	go test -run=^$$ -bench='Day..Part.$$' -benchmem | tee benches/all.txt
 	awk -f total.awk < benches/all.txt
