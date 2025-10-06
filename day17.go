@@ -1,9 +1,5 @@
 package adventofcode2024
 
-import (
-	"fmt"
-)
-
 func Day17(lines []string, part1 bool) (uint, uint, uint, string) {
 	const (
 		REGISTER_A = 4 // index into registers
@@ -71,7 +67,7 @@ func Day17(lines []string, part1 bool) (uint, uint, uint, string) {
 			registers[REGISTER_C] = x
 			pc += 4
 		default:
-			panic(fmt.Sprintf("illegal opcode %d", opcode))
+			panic([]any{"illegal opcode", opcode})
 		}
 	}
 	return registers[REGISTER_A], registers[REGISTER_B], registers[REGISTER_C], string(output[:idx])
