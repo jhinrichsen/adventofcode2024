@@ -1037,7 +1037,7 @@ PASS
 
 == Day17: Chronospatial Computer
 
-This is by far too wonderful to let an AI agent work on it.
+Again one of these wonderful CPU emulators, by far too lovely to let an AI agent work on it.
 
 ----
 goos: linux
