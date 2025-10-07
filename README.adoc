@@ -1253,3 +1253,33 @@ BenchmarkDay17Part2-28    	     978	   1217073 ns/op	  270112 B/op	    7569 allo
 BenchmarkDay17Part2-28    	     985	   1211364 ns/op	  270112 B/op	    7569 allocs/op
 ----
 
+
+== Day 18: RAM Run
+
+----
+goos: linux
+goarch: amd64
+pkg: gitlab.com/jhinrichsen/adventofcode2024
+cpu: Intel(R) Core(TM) i7-14700K
+BenchmarkDay18Part1-28    	    2473	    458787 ns/op	  278610 B/op	    1698 allocs/op
+BenchmarkDay18Part1-28    	    2286	    444758 ns/op	  278608 B/op	    1698 allocs/op
+BenchmarkDay18Part1-28    	    2270	    454123 ns/op	  278608 B/op	    1698 allocs/op
+BenchmarkDay18Part1-28    	    2398	    453164 ns/op	  278608 B/op	    1698 allocs/op
+BenchmarkDay18Part1-28    	    2324	    436174 ns/op	  278608 B/op	    1698 allocs/op
+BenchmarkDay18Part1-28    	    3490	    462440 ns/op	  278608 B/op	    1698 allocs/op
+BenchmarkDay18Part1-28    	    2221	    456343 ns/op	  278608 B/op	    1698 allocs/op
+BenchmarkDay18Part1-28    	    2491	    457380 ns/op	  278608 B/op	    1698 allocs/op
+BenchmarkDay18Part1-28    	    2906	    411055 ns/op	  278610 B/op	    1698 allocs/op
+BenchmarkDay18Part1-28    	    5712	    444132 ns/op	  278608 B/op	    1698 allocs/op
+BenchmarkDay18Part2-28    	     676	   1492453 ns/op	  820612 B/op	   12702 allocs/op
+BenchmarkDay18Part2-28    	     747	   1675504 ns/op	  820601 B/op	   12702 allocs/op
+BenchmarkDay18Part2-28    	     770	   1561894 ns/op	  820588 B/op	   12702 allocs/op
+BenchmarkDay18Part2-28    	     721	   1460933 ns/op	  820600 B/op	   12702 allocs/op
+BenchmarkDay18Part2-28    	     757	   1483607 ns/op	  820605 B/op	   12702 allocs/op
+BenchmarkDay18Part2-28    	     762	   1323630 ns/op	  820603 B/op	   12702 allocs/op
+BenchmarkDay18Part2-28    	     937	   1505310 ns/op	  820600 B/op	   12702 allocs/op
+BenchmarkDay18Part2-28    	     957	   1432006 ns/op	  820609 B/op	   12702 allocs/op
+BenchmarkDay18Part2-28    	     804	   1363031 ns/op	  820596 B/op	   12702 allocs/op
+BenchmarkDay18Part2-28    	     735	   1524734 ns/op	  820592 B/op	   12702 allocs/op
+----
+
