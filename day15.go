@@ -2,6 +2,8 @@ package adventofcode2024
 
 import "fmt"
 
+var day15TestHook func(gridBytes []byte)
+
 // widen transforms the warehouse map according to Part 2 rules:
 // # becomes ##, O becomes [], . becomes .., @ becomes @.
 // Accepts input with no trailing newline, one trailing newline (grid only),

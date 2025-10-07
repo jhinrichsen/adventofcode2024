@@ -19,10 +19,10 @@ bench:
 	$(GO) test -bench=. -run="" -benchmem
 
 .PHONY: tidy
-tidy: | dep-staticcheck
+tidy:
 	test -z $(gofmt -l .)
 	$(GO) vet
-	staticcheck
+	$(GO) run honnef.co/go/tools/cmd/staticcheck@latest
 
 .PHONY: test
 test:
@@ -33,8 +33,7 @@ dependencies: \
 	dep-gitlab-code-quality-report \
 	dep-go-junit-report \
 	dep-gocover-cobertura \
-	dep-govulncheck \
-	dep-staticcheck
+	dep-govulncheck
 
 .PHONY: dep-gitlab-code-quality-report
 dep-gitlab-code-quality-report:
@@ -55,11 +54,6 @@ dep-gocover-cobertura:
 dep-govulncheck:
 	which govulncheck || $(GO) install golang.org/x/vuln/cmd/govulncheck@latest
 	govulncheck -version
-
-.PHONY: dep-staticcheck
-dep-staticcheck:
-	which staticcheck || $(GO) install honnef.co/go/tools/cmd/staticcheck@latest
-	staticcheck -version
 
 .PHONY: reports
 reports: $(REPORTS)
@@ -89,7 +83,7 @@ gl-code-quality-report.json: govet.json staticcheck.json
 	gitlab-code-quality-report -govet $< -staticcheck staticcheck.json > $@
 
 staticcheck.json:
-	-staticcheck -f json > $@
+	-$(GO) run honnef.co/go/tools/cmd/staticcheck@latest -f json > $@
 
 .SUFFIXES: .peg .go
 

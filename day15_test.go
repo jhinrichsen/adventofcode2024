@@ -8,24 +8,6 @@ import (
 	"testing"
 )
 
-var day15TestHook func(gridBytes []byte)
-
-func formatGrid(gridBytes []byte, dimX, dimY int) string {
-	var result []byte
-	for i := 0; i < len(gridBytes); i++ {
-		if i > 0 && i%(dimX+1) == dimX {
-			continue
-		}
-		result = append(result, gridBytes[i])
-		if (i+1)%(dimX+1) == dimX {
-			result = append(result, '\n')
-		}
-	}
-	if len(result) > 0 && result[len(result)-1] == '\n' {
-		result = result[:len(result)-1]
-	}
-	return string(result)
-}
 
 func TestDay15Part1Example(t *testing.T) {
 	tests := []struct {

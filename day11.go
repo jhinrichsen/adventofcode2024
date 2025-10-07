@@ -56,17 +56,6 @@ func evenNumberOfDigits(n uint64) bool {
 	return digits_branchless(n)%2 == 0
 }
 
-func countDigits(n uint64) int {
-	if n == 0 {
-		return 1
-	}
-	count := 0
-	for n > 0 {
-		n /= 10
-		count++
-	}
-	return count
-}
 
 // Branchless digit counting using bit manipulation
 // Each comparison is O(1) and branchless, covering uint64 range up to 10^19

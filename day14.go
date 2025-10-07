@@ -161,55 +161,6 @@ func solvePart2(robots [][4]int, dimX, dimY int) uint {
 	return uint(bestTime)
 }
 
-func calculateClusterScore(robots [][4]int, dimX, dimY, seconds int) int {
-	// Create a grid to count robot positions
-	grid := make([][]int, dimY)
-	for y := range grid {
-		grid[y] = make([]int, dimX)
-	}
-
-	// Place robots on grid
-	for _, robot := range robots {
-		px, py, vx, vy := robot[0], robot[1], robot[2], robot[3]
-
-		finalX := (px + vx*seconds) % dimX
-		finalY := (py + vy*seconds) % dimY
-
-		if finalX < 0 {
-			finalX += dimX
-		}
-		if finalY < 0 {
-			finalY += dimY
-		}
-
-		grid[finalY][finalX]++
-	}
-
-	// Calculate clustering score - count robots with neighbors
-	score := 0
-	for y := 0; y < dimY; y++ {
-		for x := 0; x < dimX; x++ {
-			if grid[y][x] > 0 {
-				// Count neighbors
-				neighbors := 0
-				for dy := -1; dy <= 1; dy++ {
-					for dx := -1; dx <= 1; dx++ {
-						if dy == 0 && dx == 0 {
-							continue
-						}
-						ny, nx := y+dy, x+dx
-						if ny >= 0 && ny < dimY && nx >= 0 && nx < dimX && grid[ny][nx] > 0 {
-							neighbors++
-						}
-					}
-				}
-				score += neighbors * grid[y][x]
-			}
-		}
-	}
-
-	return score
-}
 
 func calculateClusterScoreUltra(robots [][4]int, dimX, dimY, seconds int, occupied map[[2]int]bool, robotPositions [][2]int) int {
 	// Clear the reused map - much faster than allocating new map
@@ -252,44 +203,3 @@ func calculateClusterScoreUltra(robots [][4]int, dimX, dimY, seconds int, occupi
 	return score
 }
 
-func calculateClusterScoreOptimized(robots [][4]int, dimX, dimY, seconds int) int {
-	// Use a map for sparse representation - only track occupied cells
-	occupied := make(map[[2]int]bool, len(robots))
-	robotPositions := make([][2]int, 0, len(robots))
-
-	// Calculate robot positions and mark occupied cells
-	for _, robot := range robots {
-		px, py, vx, vy := robot[0], robot[1], robot[2], robot[3]
-
-		finalX := (px + vx*seconds) % dimX
-		finalY := (py + vy*seconds) % dimY
-
-		if finalX < 0 {
-			finalX += dimX
-		}
-		if finalY < 0 {
-			finalY += dimY
-		}
-
-		pos := [2]int{finalX, finalY}
-		occupied[pos] = true
-		robotPositions = append(robotPositions, pos)
-	}
-
-	// Count clustering using map lookups (faster for sparse data)
-	score := 0
-	for _, pos := range robotPositions {
-		x, y := pos[0], pos[1]
-
-		// Count neighbors using map lookups (4 cardinal directions)
-		neighbors := 0
-		if occupied[[2]int{x-1, y}] { neighbors++ }
-		if occupied[[2]int{x+1, y}] { neighbors++ }
-		if occupied[[2]int{x, y-1}] { neighbors++ }
-		if occupied[[2]int{x, y+1}] { neighbors++ }
-
-		score += neighbors
-	}
-
-	return score
-}
