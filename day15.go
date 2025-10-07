@@ -7,13 +7,14 @@ import "fmt"
 // Accepts input with no trailing newline, one trailing newline (grid only),
 // or two trailing newlines (complete puzzle with moves section).
 // The into parameter must be large enough to hold the widened result.
-func widen(from []byte, into []byte) {
+func widen(from []byte, into []byte) int {
 	n := 0
 	for i, b := range from {
 		// Stop at double newline (end of grid)
 		if b == '\n' && i+1 < len(from) && from[i+1] == '\n' {
 			into[n] = b
-			return
+			n++
+			return n
 		}
 
 		switch b {
@@ -39,6 +40,7 @@ func widen(from []byte, into []byte) {
 			n++
 		}
 	}
+	return n
 }
 
 func Day15(puzzle []byte, part1 bool) (uint, error) {
@@ -85,7 +87,8 @@ func Day15(puzzle []byte, part1 bool) (uint, error) {
 		gridDimX = dimX
 	} else {
 		grid = make([]byte, gridSize*2)
-		widen(puzzle[:gridSize], grid)
+		actualSize := widen(puzzle[:gridSize], grid)
+		grid = grid[:actualSize]
 		gridDimX = dimX * 2
 		// Find robot position in widened grid
 		robotPos = -1

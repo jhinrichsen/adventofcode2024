@@ -144,74 +144,6 @@ func TestDay15Part1Example(t *testing.T) {
 	}
 }
 
-func generateAllSteps(t *testing.T, filename string, outputDir string) {
-	originalInput, err := os.ReadFile(filename)
-	if err != nil {
-		t.Fatalf("Failed to read file: %v", err)
-	}
-
-	// Make a copy for Day15 to modify
-	input := make([]byte, len(originalInput))
-	copy(input, originalInput)
-
-	dimX := 0
-	for i := 0; i < len(input); i++ {
-		if input[i] == '\n' {
-			dimX = i
-			break
-		}
-	}
-
-	dimY := 0
-	for i := 0; i < len(input); i++ {
-		if input[i] == '\n' {
-			dimY++
-			if i+1 < len(input) && input[i+1] == '\n' {
-				break
-			}
-		}
-	}
-
-	stepCount := 1
-
-	day15TestHook = func(gridBytes []byte) {
-		formatted := formatGrid(gridBytes, dimX, dimY)
-		filename := fmt.Sprintf("%s/step%d.txt", outputDir, stepCount)
-		err := os.WriteFile(filename, []byte(formatted), 0644)
-		if err != nil {
-			t.Fatalf("Failed to write step file %s: %v", filename, err)
-		}
-		stepCount++
-		if stepCount%50 == 0 {
-			fmt.Printf("Generated step %d\n", stepCount)
-		}
-	}
-	defer func() { day15TestHook = nil }()
-
-	var gridEnd int
-	for i := 0; i < len(input)-1; i++ {
-		if input[i] == '\n' && input[i+1] == '\n' {
-			gridEnd = i // Grid ends at the first newline of the blank line
-			break
-		}
-	}
-
-	// Create initial state BEFORE calling Day15 - use original input
-	initialFormatted := string(originalInput[:gridEnd])
-	err = os.WriteFile(fmt.Sprintf("%s/step0.txt", outputDir), []byte(initialFormatted), 0644)
-	if err != nil {
-		t.Fatalf("Failed to write initial step file: %v", err)
-	}
-
-	result, err := Day15(input, true)
-	if err != nil {
-		t.Fatalf("Day15() error = %v", err)
-	}
-
-	fmt.Printf("Generated %d step files in %s/ directory\n", stepCount, outputDir)
-	fmt.Printf("Final result: %d\n", result)
-}
-
 func TestDay15Part1(t *testing.T) {
 	const want = 1451928
 
@@ -223,10 +155,6 @@ func TestDay15Part1(t *testing.T) {
 	if want != got {
 		t.Errorf("want %v, got %v", want, got)
 	}
-}
-
-func TestDay15GenerateSteps(t *testing.T) {
-	generateAllSteps(t, example1Filename(15), "me")
 }
 
 func TestDay15Scaled(t *testing.T) {
@@ -242,7 +170,8 @@ func TestDay15Scaled(t *testing.T) {
 	}
 
 	result := make([]byte, len(input)*2)
-	widen(input, result)
+	actualSize := widen(input, result)
+	result = result[:actualSize]
 
 	// Extract just the grid portion (before the blank line)
 	resultLines := strings.Split(string(result), "\n")
@@ -252,7 +181,7 @@ func TestDay15Scaled(t *testing.T) {
 	minLines := min(len(resultLines), len(expectedLines))
 	for i := 0; i < minLines; i++ {
 		if resultLines[i] != expectedLines[i] {
-			t.Errorf("Line %d mismatch:\nwant: %s\ngot:  %s", i, expectedLines[i], resultLines[i])
+			t.Errorf("Line %d mismatch:\nwant: %q\ngot:  %q", i, expectedLines[i], resultLines[i])
 		}
 	}
 }
