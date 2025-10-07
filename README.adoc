@@ -65,7 +65,7 @@ Number of tries for a correct answer:
 | 14  |   1    |   1
 | 15  |   1    |   1
 | 16  |   1    |   1
-| 17  |   1    |
+| 17  |   1    |   1
 | 18  |        |
 | 19  |        |
 | 20  |        |
@@ -1203,3 +1203,53 @@ Day17Part1-28   1.000 ± 0%   1.000 ± 0%  ~ (p=1.000 n=10) ¹
 <1> another 3% gain
 
 All in all we're down to 108.9 ns ≙ 9.2 MHz.
+
+=== Part 2
+
+By looking at the number of digits, our cmd has length 31 (including separator), and the program function is monotonically increasing:
+
+----
+1 31 1
+10 31 3
+100 31 5
+1000 31 7
+10000 31 9
+100000 31 11
+1000000 31 13
+10000000 31 15
+100000000 31 17
+1000000000 31 19
+10000000000 31 23
+100000000000 31 25
+1000000000000 31 27
+10000000000000 31 29
+100000000000000 31 31
+1000000000000000 31 33
+10000000000000000 31 35
+100000000000000000 31 37
+1000000000000000000 31 39
+10000000000000000000 31 43
+----
+
+So we should start digging deeper starting from 100000000000000, that's 1e14.
+
+in addition, the output changes its front continuously, while the back stays more stable.
+Exactly the opposite of our counting system, where the front is stable, and the back changes quickly.
+
+----
+goos: linux
+goarch: amd64
+pkg: gitlab.com/jhinrichsen/adventofcode2024
+cpu: Intel(R) Core(TM) i7-14700K
+BenchmarkDay17Part2-28    	     928	   1229557 ns/op	  270112 B/op	    7569 allocs/op
+BenchmarkDay17Part2-28    	     938	   1266436 ns/op	  270112 B/op	    7569 allocs/op
+BenchmarkDay17Part2-28    	     992	   1231424 ns/op	  270112 B/op	    7569 allocs/op
+BenchmarkDay17Part2-28    	     979	   1220102 ns/op	  270112 B/op	    7569 allocs/op
+BenchmarkDay17Part2-28    	     880	   1229319 ns/op	  270112 B/op	    7569 allocs/op
+BenchmarkDay17Part2-28    	     980	   1231827 ns/op	  270112 B/op	    7569 allocs/op
+BenchmarkDay17Part2-28    	     960	   1214826 ns/op	  270112 B/op	    7569 allocs/op
+BenchmarkDay17Part2-28    	     984	   1218044 ns/op	  270112 B/op	    7569 allocs/op
+BenchmarkDay17Part2-28    	     978	   1217073 ns/op	  270112 B/op	    7569 allocs/op
+BenchmarkDay17Part2-28    	     985	   1211364 ns/op	  270112 B/op	    7569 allocs/op
+----
+

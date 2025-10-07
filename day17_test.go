@@ -53,16 +53,22 @@ func TestDay17Part1Example(t *testing.T) {
 	lines := linesFromFilename(t, exampleFilename(17))
 	_, _, _, got := Day17(lines, true)
 	if want != got {
-		t.Fatalf("want %s but got %s", want, got)
+		t.Fatalf("want %q but got %q", want, got)
 	}
 }
 
 func TestDay17Part2Example(t *testing.T) {
-	const want = ""
-	lines := linesFromFilename(t, exampleFilename(17))
-	_, _, _, got := Day17(lines, false)
+	const (
+		wantA = 117440
+		want  = "0,3,5,4,3,0"
+	)
+	lines := linesFromFilename(t, example2Filename(17))
+	gotA, _, _, got := Day17(lines, false)
+	if gotA != wantA {
+		t.Fatalf("want %d but got %d", wantA, gotA)
+	}
 	if want != got {
-		t.Fatalf("want %s but got %s", want, got)
+		t.Fatalf("want %q but got %q", want, got)
 	}
 }
 
@@ -71,16 +77,22 @@ func TestDay17Part1(t *testing.T) {
 	lines := linesFromFilename(t, filename(17))
 	_, _, _, got := Day17(lines, true)
 	if want != got {
-		t.Fatalf("want %s but got %s", want, got)
+		t.Fatalf("want %q but got %q", want, got)
 	}
 }
 
 func TestDay17Part2(t *testing.T) {
-	const want = ""
+	const (
+		want  = "2,4,1,5,7,5,4,3,1,6,0,3,5,5,3,0"
+		wantA = 105734774294938
+	)
 	lines := linesFromFilename(t, filename(17))
-	_, _, _, got := Day17(lines, false)
+	gotA, _, _, got := Day17(lines, false)
+	if wantA != gotA {
+		t.Fatalf("want %d but got %d", wantA, gotA)
+	}
 	if want != got {
-		t.Fatalf("want %s but got %s", want, got)
+		t.Fatalf("want %q but got %q", want, got)
 	}
 }
 
