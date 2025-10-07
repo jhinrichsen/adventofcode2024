@@ -1,6 +1,5 @@
 package adventofcode2024
 
-
 func NewDay11(input string) []uint64 {
 	stones := make([]uint64, 0, len(input)/2) // worst case: single digits separated by one space
 	var n uint64
@@ -51,11 +50,9 @@ func Day11(stones []uint64, part1 bool) uint64 {
 	return total
 }
 
-
 func evenNumberOfDigits(n uint64) bool {
 	return digits_branchless(n)%2 == 0
 }
-
 
 // Branchless digit counting using bit manipulation
 // Each comparison is O(1) and branchless, covering uint64 range up to 10^19

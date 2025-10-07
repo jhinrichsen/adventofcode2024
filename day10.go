@@ -33,7 +33,7 @@ func Day10(puzzle Day10Puzzle, part1 bool) uint {
 	type distinctTrail struct {
 		start, end image.Point
 	}
-	
+
 	var (
 		dimX  = len(puzzle.grid[0])
 		dimY  = len(puzzle.grid)
@@ -97,4 +97,3 @@ func Day10(puzzle Day10Puzzle, part1 bool) uint {
 	}
 	return uint(len(m))
 }
-

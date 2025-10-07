@@ -8,7 +8,6 @@ import (
 	"testing"
 )
 
-
 func TestDay15Part1Example(t *testing.T) {
 	tests := []struct {
 		name        string

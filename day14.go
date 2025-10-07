@@ -146,7 +146,9 @@ func solvePart2(robots [][4]int, dimX, dimY int) uint {
 
 				// Fine-tune around the best found time
 				for fine := max(1, t-4); fine <= min(maxTime-1, t+4); fine++ {
-					if fine == t { continue }
+					if fine == t {
+						continue
+					}
 					fineScore := calculateClusterScoreUltra(robots, dimX, dimY, fine, occupied, robotPositions)
 					if fineScore > maxClusterScore {
 						maxClusterScore = fineScore
@@ -160,7 +162,6 @@ func solvePart2(robots [][4]int, dimX, dimY int) uint {
 
 	return uint(bestTime)
 }
-
 
 func calculateClusterScoreUltra(robots [][4]int, dimX, dimY, seconds int, occupied map[[2]int]bool, robotPositions [][2]int) int {
 	// Clear the reused map - much faster than allocating new map
@@ -194,12 +195,19 @@ func calculateClusterScoreUltra(robots [][4]int, dimX, dimY, seconds int, occupi
 		x, y := pos[0], pos[1]
 
 		// Count neighbors using map lookups (4 cardinal directions)
-		if occupied[[2]int{x-1, y}] { score++ }
-		if occupied[[2]int{x+1, y}] { score++ }
-		if occupied[[2]int{x, y-1}] { score++ }
-		if occupied[[2]int{x, y+1}] { score++ }
+		if occupied[[2]int{x - 1, y}] {
+			score++
+		}
+		if occupied[[2]int{x + 1, y}] {
+			score++
+		}
+		if occupied[[2]int{x, y - 1}] {
+			score++
+		}
+		if occupied[[2]int{x, y + 1}] {
+			score++
+		}
 	}
 
 	return score
 }
-

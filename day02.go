@@ -17,7 +17,7 @@ func NewDay02(filename string) Day02Puzzle {
 	if err != nil {
 		panic(err) // This will be called from tests with proper error handling
 	}
-	
+
 	var dim uint
 	for i := range buf {
 		if buf[i] == '\n' {
@@ -50,7 +50,7 @@ func NewDay02(filename string) Day02Puzzle {
 			i++
 		}
 	}
-	
+
 	return Day02Puzzle{reports: reports}
 }
 

@@ -7,10 +7,10 @@ type Day09Puzzle struct {
 func NewDay09(buf []byte) Day09Puzzle {
 	// Parse into blocks - expand the compressed format
 	var blocks []int // -1 = free space, >= 0 = file ID
-	
+
 	fileId := 0
 	isFile := true
-	
+
 	for _, b := range buf {
 		if b < '0' || b > '9' {
 			continue // Skip non-digit characters (like newlines)
@@ -28,7 +28,7 @@ func NewDay09(buf []byte) Day09Puzzle {
 		}
 		isFile = !isFile
 	}
-	
+
 	return Day09Puzzle{blocks: blocks}
 }
 
@@ -36,11 +36,11 @@ func Day09(puzzle Day09Puzzle, part1 bool) (checksum uint) {
 	// Make a copy of blocks to avoid modifying the original
 	blocks := make([]int, len(puzzle.blocks))
 	copy(blocks, puzzle.blocks)
-	
+
 	if part1 {
 		// Part 1: Move individual blocks from right to left
 		left, right := 0, len(blocks)-1
-		
+
 		for left < right {
 			// Find next free space from left
 			for left < len(blocks) && blocks[left] != -1 {
@@ -50,7 +50,7 @@ func Day09(puzzle Day09Puzzle, part1 bool) (checksum uint) {
 			for right >= 0 && blocks[right] == -1 {
 				right--
 			}
-			
+
 			if left < right {
 				blocks[left] = blocks[right]
 				blocks[right] = -1
@@ -149,13 +149,13 @@ func Day09(puzzle Day09Puzzle, part1 bool) (checksum uint) {
 			}
 		}
 	}
-	
+
 	// Calculate checksum
 	for i, block := range blocks {
 		if block >= 0 {
 			checksum += uint(i) * uint(block)
 		}
 	}
-	
+
 	return checksum
 }

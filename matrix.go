@@ -96,7 +96,7 @@ func Bareiss(eqs []Eq) ([]int, bool) {
 		if matrix[i][i] == 0 {
 			return nil, false // Zero on diagonal
 		}
-		
+
 		sum := matrix[i][n]
 		for j := i + 1; j < n; j++ {
 			sum -= matrix[i][j] * solution[j]

@@ -4,7 +4,6 @@ import (
 	"image"
 )
 
-
 // Day04Puzzle represents the parsed Day 4 puzzle data
 type Day04Puzzle struct {
 	grid [][]byte
@@ -114,4 +113,3 @@ func Day04(puzzle Day04Puzzle, part1 bool) uint {
 	}
 	return n
 }
-

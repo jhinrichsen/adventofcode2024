@@ -20,7 +20,7 @@ bench:
 
 .PHONY: tidy
 tidy:
-	test -z $(gofmt -l .)
+	test -z $(gofmt -s -l .)
 	$(GO) vet
 	$(GO) run honnef.co/go/tools/cmd/staticcheck@latest
 
@@ -85,26 +85,12 @@ gl-code-quality-report.json: govet.json staticcheck.json
 staticcheck.json:
 	-$(GO) run honnef.co/go/tools/cmd/staticcheck@latest -f json > $@
 
-.SUFFIXES: .peg .go
-
-.peg.go:
-	peg -noast -switch -inline -strict -output $@ $<
-
-peg: grammar.go
-
 cpu.profile:
 	$(GO) test -run=^$ -bench=Day10Part1$ -benchmem -memprofile mem.profile -cpuprofile $@
 
 .PHONY: prof
 prof: cpu.profile
 	$(GO) tool pprof $^
-
-.SUFFIXES: .peg .go
-
-.peg.go:
-	peg -noast -switch -inline -strict -output $@ $<
-
-peg: grammar.go
 
 .PHONY: totalruntime
 totalruntime:

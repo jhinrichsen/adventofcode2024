@@ -16,7 +16,7 @@ func NewDay12(lines []string) Day12Puzzle {
 			validLines = append(validLines, line)
 		}
 	}
-	
+
 	dimY := len(validLines)
 	if dimY == 0 {
 		return Day12Puzzle{}
@@ -159,19 +159,19 @@ func countCorners(puzzle Day12Puzzle, regionCells []image.Point, plantType byte)
 	}
 
 	var corners uint
-	
+
 	// For each cell in the region, count corners
 	for _, cell := range regionCells {
 		y, x := cell.Y, cell.X
-		
+
 		// Check all 4 possible corner positions around this cell
 		// A corner exists when we have a specific pattern of region/non-region cells
-		
+
 		// Top-left corner
 		up := regionSet[image.Point{X: x, Y: y - 1}]
 		left := regionSet[image.Point{X: x - 1, Y: y}]
 		upLeft := regionSet[image.Point{X: x - 1, Y: y - 1}]
-		
+
 		// External corner: neither up nor left are in region
 		if !up && !left {
 			corners++
@@ -180,32 +180,32 @@ func countCorners(puzzle Day12Puzzle, regionCells []image.Point, plantType byte)
 		if up && left && !upLeft {
 			corners++
 		}
-		
+
 		// Top-right corner
 		right := regionSet[image.Point{X: x + 1, Y: y}]
 		upRight := regionSet[image.Point{X: x + 1, Y: y - 1}]
-		
+
 		if !up && !right {
 			corners++
 		}
 		if up && right && !upRight {
 			corners++
 		}
-		
+
 		// Bottom-left corner
 		down := regionSet[image.Point{X: x, Y: y + 1}]
 		downLeft := regionSet[image.Point{X: x - 1, Y: y + 1}]
-		
+
 		if !down && !left {
 			corners++
 		}
 		if down && left && !downLeft {
 			corners++
 		}
-		
+
 		// Bottom-right corner
 		downRight := regionSet[image.Point{X: x + 1, Y: y + 1}]
-		
+
 		if !down && !right {
 			corners++
 		}
@@ -213,6 +213,6 @@ func countCorners(puzzle Day12Puzzle, regionCells []image.Point, plantType byte)
 			corners++
 		}
 	}
-	
+
 	return corners
 }

@@ -4,7 +4,6 @@ import (
 	"image"
 )
 
-
 // Day06Puzzle represents the parsed Day 6 puzzle data
 type Day06Puzzle struct {
 	grid [][]byte
@@ -33,8 +32,8 @@ func Day06(puzzle Day06Puzzle, part1 bool) uint {
 		guard = '^'
 	)
 	var (
-		dimX = puzzle.dimX
-		dimY = puzzle.dimY
+		dimX  = puzzle.dimX
+		dimY  = puzzle.dimY
 		start = func() image.Point {
 			for y := range dimY {
 				for x := range dimX {
@@ -92,21 +91,25 @@ func Day06(puzzle Day06Puzzle, part1 bool) uint {
 
 	dirToInt := func(d image.Point) int {
 		switch d {
-		case image.Point{0, -1}: return 0 // up
-		case image.Point{1, 0}:  return 1 // right
-		case image.Point{0, 1}:  return 2 // down
-		case image.Point{-1, 0}: return 3 // left
+		case image.Point{0, -1}:
+			return 0 // up
+		case image.Point{1, 0}:
+			return 1 // right
+		case image.Point{0, 1}:
+			return 2 // down
+		case image.Point{-1, 0}:
+			return 3 // left
 		}
 		return -1
 	}
 
 	visited := make([]bool, dimX*dimY*4)
-	
+
 	simulate := func(obst image.Point) bool {
 		for i := range visited {
 			visited[i] = false
 		}
-		
+
 		dir := image.Point{0, -1}
 		pos := start
 
@@ -138,4 +141,3 @@ func Day06(puzzle Day06Puzzle, part1 bool) uint {
 	}
 	return count
 }
-
