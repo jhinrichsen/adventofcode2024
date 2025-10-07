@@ -68,7 +68,7 @@ Number of tries for a correct answer:
 | 17  |   1    |   1
 | 18  |   1    |   1
 | 19  |   1    |   1
-| 20  |        |
+| 20  |   1    |   1
 | 21  |        |
 | 22  |        |
 | 23  |        |
@@ -1328,4 +1328,68 @@ Performance Analysis:
 - Scalability: Handles large design sets efficiently through DP optimization
 
 The iterative DP approach successfully avoids recursion while maintaining optimal algorithmic complexity for both possibility checking and combination counting.
+
+== Day 20: Race Condition
+
+Day 20 involves pathfinding with cheating mechanics in a race track maze. Given a race track with walls, find cheats that save significant time by temporarily passing through walls.
+
+=== Part 1
+
+The challenge is to find 2-step cheats that save at least 100 picoseconds. A cheat allows passing through walls for exactly 2 steps using Manhattan distance, then returning to the normal track.
+
+=== Part 2
+
+Part 2 extends cheating to up to 20 steps using Manhattan distance, significantly increasing the number of possible cheats and time savings.
+
+=== Algorithm: BFS with Distance Precomputation
+
+Approach: Breadth-First Search + Manhattan Distance Analysis
+
+Key considerations:
+- Pathfinding: Use BFS to calculate shortest distances from start and end points
+- Cheat detection: For each valid position, check all Manhattan distance positions within cheat limit
+- Time savings: Calculate `startDist + cheatDist + endDist` vs normal path time
+
+Implementation:
+- Pre-compute distance arrays from start and end positions using BFS
+- For each track position, enumerate all possible cheat endpoints within Manhattan distance
+- Count cheats where time savings ≥ threshold (100 picoseconds)
+
+Performance characteristics:
+- Time complexity: O(n² × d²) where n=grid size, d=max cheat distance
+- Space complexity: O(n²) for distance arrays and grid storage
+- Zero recursion: Pure iterative BFS with explicit queue
+
+----
+goos: linux
+goarch: amd64
+pkg: gitlab.com/jhinrichsen/adventofcode2024
+cpu: Intel(R) Core(TM) i7-14700K
+BenchmarkDay20Part1-28    	     554	   1978202 ns/op	  974736 B/op	   28900 allocs/op
+BenchmarkDay20Part1-28    	     694	   1967717 ns/op	  974736 B/op	   28900 allocs/op
+BenchmarkDay20Part1-28    	     565	   2105806 ns/op	  974736 B/op	   28900 allocs/op
+BenchmarkDay20Part1-28    	     744	   2046385 ns/op	  974737 B/op	   28900 allocs/op
+BenchmarkDay20Part1-28    	     589	   2022717 ns/op	  974736 B/op	   28900 allocs/op
+BenchmarkDay20Part1-28    	     616	   2084424 ns/op	  974737 B/op	   28900 allocs/op
+BenchmarkDay20Part1-28    	     625	   2061980 ns/op	  974737 B/op	   28900 allocs/op
+BenchmarkDay20Part1-28    	     654	   1950040 ns/op	  974736 B/op	   28900 allocs/op
+BenchmarkDay20Part1-28    	     567	   2130696 ns/op	  974737 B/op	   28900 allocs/op
+BenchmarkDay20Part1-28    	     690	   1839666 ns/op	  974737 B/op	   28900 allocs/op
+BenchmarkDay20Part2-28    	      31	  36397607 ns/op	  974736 B/op	   28900 allocs/op
+BenchmarkDay20Part2-28    	      32	  36467974 ns/op	  974736 B/op	   28900 allocs/op
+BenchmarkDay20Part2-28    	      32	  36496322 ns/op	  974736 B/op	   28900 allocs/op
+BenchmarkDay20Part2-28    	      32	  36454697 ns/op	  974736 B/op	   28900 allocs/op
+BenchmarkDay20Part2-28    	      32	  36650177 ns/op	  974736 B/op	   28900 allocs/op
+BenchmarkDay20Part2-28    	      31	  36563463 ns/op	  974739 B/op	   28900 allocs/op
+BenchmarkDay20Part2-28    	      32	  36436764 ns/op	  974739 B/op	   28900 allocs/op
+BenchmarkDay20Part2-28    	      32	  36745732 ns/op	  974736 B/op	   28900 allocs/op
+----
+
+Performance Analysis:
+- Part 1: ~2.0ms - 2-step cheat detection with 5×5 search area per position
+- Part 2: ~36.5ms - 20-step cheat detection with 41×41 search area per position
+- Scalability: Algorithm scales as O(d²) with cheat distance; Part 2 is ~100x larger search space
+- Memory efficiency: Consistent ~975KB memory usage regardless of cheat distance
+
+The BFS + Manhattan distance approach provides optimal pathfinding while efficiently enumerating all possible cheats within the given constraints.
 
