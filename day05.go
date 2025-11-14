@@ -78,7 +78,8 @@ func Day05(lines []string, part1 bool) (sum uint) {
 		if part1 && ordered {
 			middle := numbers[nNumbers/2]
 			sum += uint(middle)
-		} else if !part1 && !ordered {
+		}
+		if !part1 && !ordered {
 			slices.SortFunc(numbers[:nNumbers], func(x, y uint8) int {
 				for _, rule := range sortRules {
 					// ascending or descending does not really matter, because we pick the middle element at the end
