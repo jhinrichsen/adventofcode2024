@@ -5,11 +5,7 @@ import (
 )
 
 func TestDay21Part1Example(t *testing.T) {
-	const want = 126384
-	got := Day21(linesFromFilename(t, exampleFilename(21)), true)
-	if got != want {
-		t.Fatalf("want %d but got %d", want, got)
-	}
+	testLines(t, 21, exampleFilename, true, Day21, 126384)
 }
 
 func TestDay21Part1Example029A(t *testing.T) {
@@ -45,16 +41,9 @@ func TestDay21Part1ExampleOthers(t *testing.T) {
 }
 
 func TestDay21Part1(t *testing.T) {
-	const want = 161468
-	got := Day21(linesFromFilename(t, filename(21)), true)
-	if got != want {
-		t.Fatalf("want %d but got %d", want, got)
-	}
+	testLines(t, 21, filename, true, Day21, 161468)
 }
 
 func BenchmarkDay21Part1(b *testing.B) {
-	lines := linesFromFilename(b, filename(21))
-	for range b.N {
-		Day21(lines, true)
-	}
+	benchLines(b, 21, true, Day21)
 }
