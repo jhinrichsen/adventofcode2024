@@ -166,9 +166,11 @@ func findSwappedWires(puzzle Day24Puzzle) []string {
 
 	// For a ripple-carry adder, check rules:
 	// 1. All z outputs (except last) must be from XOR gates
-	// 2. XOR gates with x,y inputs must feed into another XOR (for z) or AND (for carry), not z directly (except z00)
+	// 2. XOR gates with x,y inputs should not output to z (except z00)
 	// 3. AND gates (except x00,y00) must feed into OR gates
 	// 4. XOR gates (except x,y inputs) must output to z wires
+	// 5. OR gates should not output to z wires (except possibly final carry)
+	// 6. XOR with x,y inputs must feed into both XOR and AND gates
 
 	for i := range puzzle.gates {
 		gate := &puzzle.gates[i]
@@ -222,6 +224,29 @@ func findSwappedWires(puzzle Day24Puzzle) []string {
 		// Rule 5: OR gates should not output to z wires (except possibly the final carry)
 		if op == "OR" && strings.HasPrefix(out, "z") && out != maxZ {
 			swappedSet[out] = true
+		}
+
+		// Rule 6: XOR with x,y inputs (except z00) must feed into both XOR and AND
+		if op == "XOR" && out != "z00" {
+			isXYInput := (strings.HasPrefix(in1, "x") || strings.HasPrefix(in1, "y")) &&
+				(strings.HasPrefix(in2, "x") || strings.HasPrefix(in2, "y"))
+			if isXYInput {
+				feedsXOR := false
+				feedsAND := false
+				for j := range puzzle.gates {
+					if puzzle.gates[j].input1 == out || puzzle.gates[j].input2 == out {
+						if puzzle.gates[j].op == "XOR" {
+							feedsXOR = true
+						}
+						if puzzle.gates[j].op == "AND" {
+							feedsAND = true
+						}
+					}
+				}
+				if !feedsXOR || !feedsAND {
+					swappedSet[out] = true
+				}
+			}
 		}
 	}
 
