@@ -1,6 +1,9 @@
 package adventofcode2024
 
-import "testing"
+import (
+	"os"
+	"testing"
+)
 
 // testWithParser is a generic test helper for day part tests using a parser and solver.
 func testWithParser[P any, R comparable](
@@ -34,7 +37,10 @@ func testSolver[R comparable](
 	want R,
 ) {
 	t.Helper()
-	buf := fileFromFilename(t, filenameFunc, day)
+	buf, err := os.ReadFile(filenameFunc(day))
+	if err != nil {
+		t.Fatal(err)
+	}
 	got, err := solver(buf, part1)
 	if err != nil {
 		t.Fatal(err)
