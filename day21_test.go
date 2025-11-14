@@ -27,7 +27,7 @@ func TestDay21Part1ExampleIndividual(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.code, func(t *testing.T) {
-			gotSeqLength := uint(len(findShortestSequence(tt.code)))
+			gotSeqLength := solveCode(tt.code, 2)
 			gotComplexity := gotSeqLength * extractNumericValue(tt.code)
 
 			if gotSeqLength != tt.wantSeqLength {
@@ -48,9 +48,24 @@ func TestDay21Part1(t *testing.T) {
 	}
 }
 
+func TestDay21Part2(t *testing.T) {
+	const want = 197015606336332
+	got := Day21(NewDay21(linesFromFilename(t, filename(21))), false)
+	if got != want {
+		t.Fatalf("want %d but got %d", want, got)
+	}
+}
+
 func BenchmarkDay21Part1(b *testing.B) {
 	lines := linesFromFilename(b, filename(21))
 	for range b.N {
 		Day21(NewDay21(lines), true)
+	}
+}
+
+func BenchmarkDay21Part2(b *testing.B) {
+	lines := linesFromFilename(b, filename(21))
+	for range b.N {
+		Day21(NewDay21(lines), false)
 	}
 }

@@ -21,42 +21,32 @@ func NewDay21(lines []string) Day21Puzzle {
 }
 
 func Day21(puzzle Day21Puzzle, part1 bool) uint {
-	if part1 {
-		return calculateComplexity(puzzle)
+	robots := 2
+	if !part1 {
+		robots = 25
 	}
-	return 0
-}
 
-func calculateComplexity(puzzle Day21Puzzle) uint {
 	var totalComplexity uint
-
 	for _, code := range puzzle.codes {
-		sequence := findShortestSequence(code)
+		length := solveCode(code, robots)
 		numericValue := extractNumericValue(code)
-		complexity := uint(len(sequence)) * numericValue
+		complexity := length * numericValue
 		totalComplexity += complexity
 	}
 
 	return totalComplexity
 }
 
-func findShortestSequence(code string) string {
-	// First robot (directional) controls second robot (directional) controls third robot (numeric)
-	// We work backwards: numeric -> directional -> directional
-
-	// Step 1: Get sequence needed for numeric keypad
-	numericSeq := getNumericKeypadSequence(code)
-
-	// Step 2: Get sequence needed for first directional keypad to input numericSeq
-	dirSeq1 := getDirectionalKeypadSequence(numericSeq)
-
-	// Step 3: Get sequence needed for second directional keypad to input dirSeq1
-	dirSeq2 := getDirectionalKeypadSequence(dirSeq1)
-
-	return dirSeq2
+// Cache for directional keypad transitions at different depths
+type transitionKey struct {
+	from  byte
+	to    byte
+	depth int
 }
 
-func getNumericKeypadSequence(code string) string {
+var transitionCache = make(map[transitionKey]uint)
+
+func solveCode(code string, depth int) uint {
 	numericKeypad := map[byte]image.Point{
 		'7': {0, 0}, '8': {1, 0}, '9': {2, 0},
 		'4': {0, 1}, '5': {1, 1}, '6': {2, 1},
@@ -64,38 +54,63 @@ func getNumericKeypadSequence(code string) string {
 		'0': {1, 3}, 'A': {2, 3},
 	}
 
-	var result strings.Builder
-	currentPos := numericKeypad['A'] // Start at A
+	var totalLength uint
+	currentKey := byte('A')
 
 	for i := range code {
-		targetPos := numericKeypad[code[i]]
-		path := findPathNumeric(currentPos, targetPos)
-		result.WriteString(path)
-		result.WriteByte('A') // Press the button
-		currentPos = targetPos
+		targetKey := code[i]
+		fromPos := numericKeypad[currentKey]
+		toPos := numericKeypad[targetKey]
+		path := findPathNumeric(fromPos, toPos) + "A"
+
+		// Count cost of typing this path through 'depth' directional keypads
+		if depth == 0 {
+			totalLength += uint(len(path))
+		} else {
+			subKey := byte('A')
+			for j := range path {
+				subTarget := path[j]
+				totalLength += solveDirectionalTransition(subKey, subTarget, depth)
+				subKey = subTarget
+			}
+		}
+		currentKey = targetKey
 	}
 
-	return result.String()
+	return totalLength
 }
 
-func getDirectionalKeypadSequence(sequence string) string {
+func solveDirectionalTransition(from, to byte, depth int) uint {
+	key := transitionKey{from, to, depth}
+	if cached, ok := transitionCache[key]; ok {
+		return cached
+	}
+
 	directionalKeypad := map[byte]image.Point{
 		'^': {1, 0}, 'A': {2, 0},
 		'<': {0, 1}, 'v': {1, 1}, '>': {2, 1},
 	}
 
-	var result strings.Builder
-	currentPos := directionalKeypad['A'] // Start at A
+	fromPos := directionalKeypad[from]
+	toPos := directionalKeypad[to]
+	path := findPathDirectional(fromPos, toPos) + "A"
 
-	for i := range sequence {
-		targetPos := directionalKeypad[sequence[i]]
-		path := findPathDirectional(currentPos, targetPos)
-		result.WriteString(path)
-		result.WriteByte('A') // Press the button
-		currentPos = targetPos
+	var length uint
+	if depth == 1 {
+		// Base case: just count the path length
+		length = uint(len(path))
+	} else {
+		// Recursive case: count cost of typing path at next depth level
+		currentKey := byte('A')
+		for i := range path {
+			targetKey := path[i]
+			length += solveDirectionalTransition(currentKey, targetKey, depth-1)
+			currentKey = targetKey
+		}
 	}
 
-	return result.String()
+	transitionCache[key] = length
+	return length
 }
 
 func findPathNumeric(from, to image.Point) string {
