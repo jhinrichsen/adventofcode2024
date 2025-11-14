@@ -62,9 +62,32 @@ func TestDay22Part1(t *testing.T) {
 	}
 }
 
+func TestDay22Part2Example(t *testing.T) {
+	const want = 23
+	got := Day22(NewDay22(linesFromFilename(t, example2Filename(22))), false)
+	if got != want {
+		t.Fatalf("want %d but got %d", want, got)
+	}
+}
+
+func TestDay22Part2(t *testing.T) {
+	const want = 1455
+	got := Day22(NewDay22(linesFromFilename(t, filename(22))), false)
+	if got != want {
+		t.Fatalf("want %d but got %d", want, got)
+	}
+}
+
 func BenchmarkDay22Part1(b *testing.B) {
 	lines := linesFromFilename(b, filename(22))
 	for range b.N {
 		Day22(NewDay22(lines), true)
+	}
+}
+
+func BenchmarkDay22Part2(b *testing.B) {
+	lines := linesFromFilename(b, filename(22))
+	for range b.N {
+		Day22(NewDay22(lines), false)
 	}
 }
