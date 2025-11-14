@@ -63,7 +63,10 @@ func Day24(puzzle Day24Puzzle, part1 bool) string {
 		result := simulateCircuit(puzzle)
 		return strconv.FormatUint(result, 10)
 	}
-	return "0"
+	// Part 2: Find swapped wires in the adder circuit
+	swapped := findSwappedWires(puzzle)
+	slices.Sort(swapped)
+	return strings.Join(swapped, ",")
 }
 
 func simulateCircuit(puzzle Day24Puzzle) uint64 {
@@ -145,5 +148,87 @@ func simulateCircuit(puzzle Day24Puzzle) uint64 {
 		}
 	}
 
+	return result
+}
+
+func findSwappedWires(puzzle Day24Puzzle) []string {
+	swappedSet := make(map[string]bool)
+
+	// Find the highest z wire (final carry bit)
+	maxZ := ""
+	for i := range puzzle.gates {
+		if strings.HasPrefix(puzzle.gates[i].output, "z") {
+			if maxZ == "" || puzzle.gates[i].output > maxZ {
+				maxZ = puzzle.gates[i].output
+			}
+		}
+	}
+
+	// For a ripple-carry adder, check rules:
+	// 1. All z outputs (except last) must be from XOR gates
+	// 2. XOR gates with x,y inputs must feed into another XOR (for z) or AND (for carry), not z directly (except z00)
+	// 3. AND gates (except x00,y00) must feed into OR gates
+	// 4. XOR gates (except x,y inputs) must output to z wires
+
+	for i := range puzzle.gates {
+		gate := &puzzle.gates[i]
+		out := gate.output
+		op := gate.op
+		in1 := gate.input1
+		in2 := gate.input2
+
+		// Rule 1: z outputs (except last) must be from XOR
+		if strings.HasPrefix(out, "z") && out != maxZ {
+			if op != "XOR" {
+				swappedSet[out] = true
+			}
+		}
+
+		// Rule 2: XOR with x,y inputs should not output to z (except z00)
+		if op == "XOR" {
+			isXYInput := (strings.HasPrefix(in1, "x") || strings.HasPrefix(in1, "y")) &&
+				(strings.HasPrefix(in2, "x") || strings.HasPrefix(in2, "y"))
+			if isXYInput && strings.HasPrefix(out, "z") && out != "z00" {
+				swappedSet[out] = true
+			}
+		}
+
+		// Rule 3: AND outputs (except x00 AND y00) must feed into OR
+		if op == "AND" && !(in1 == "x00" && in2 == "y00") && !(in1 == "y00" && in2 == "x00") {
+			// Check if this output feeds into an OR gate
+			feedsOR := false
+			for j := range puzzle.gates {
+				if puzzle.gates[j].op == "OR" {
+					if puzzle.gates[j].input1 == out || puzzle.gates[j].input2 == out {
+						feedsOR = true
+						break
+					}
+				}
+			}
+			if !feedsOR {
+				swappedSet[out] = true
+			}
+		}
+
+		// Rule 4: XOR gates without x,y direct inputs must output to z
+		if op == "XOR" {
+			isXYInput := (strings.HasPrefix(in1, "x") || strings.HasPrefix(in1, "y")) &&
+				(strings.HasPrefix(in2, "x") || strings.HasPrefix(in2, "y"))
+			if !isXYInput && !strings.HasPrefix(out, "z") {
+				swappedSet[out] = true
+			}
+		}
+
+		// Rule 5: OR gates should not output to z wires (except possibly the final carry)
+		if op == "OR" && strings.HasPrefix(out, "z") && out != maxZ {
+			swappedSet[out] = true
+		}
+	}
+
+	// Convert set to list
+	var result []string
+	for wire := range swappedSet {
+		result = append(result, wire)
+	}
 	return result
 }
