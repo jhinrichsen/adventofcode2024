@@ -41,7 +41,7 @@ func TestDay21Part1ExampleIndividual(t *testing.T) {
 }
 
 func TestDay21Part1(t *testing.T) {
-	const want = 161468
+	const want = 157892
 	got := Day21(NewDay21(linesFromFilename(t, filename(21))), true)
 	if got != want {
 		t.Fatalf("want %d but got %d", want, got)

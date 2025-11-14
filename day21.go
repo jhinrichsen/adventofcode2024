@@ -100,61 +100,47 @@ func getDirectionalKeypadSequence(sequence string) string {
 
 func findPathNumeric(from, to image.Point) string {
 	// Avoid the empty space at (0, 3)
+	// Optimal move order: < v ^ > (minimize expensive moves on directional keypad)
 	dx := to.X - from.X
 	dy := to.Y - from.Y
 
 	var moves strings.Builder
 
-	// Strategy: Try to avoid going through (0, 3)
-	// If we're at (0, 3) or going to (0, 3), be careful about order
+	// Check if path would go through gap at (0, 3)
+	goingThroughGap := (from.X == 0 && to.Y == 3) || (from.Y == 3 && to.X == 0)
 
-	if from.X == 0 && to.Y == 3 {
-		// Moving from left column to bottom row - go right first
-		for range dx {
-			if dx > 0 {
+	if goingThroughGap {
+		// Avoid gap: if starting from left column going to bottom row, go horizontal first
+		if from.X == 0 && to.Y == 3 {
+			// Right then down/up
+			for range dx {
 				moves.WriteByte('>')
 			}
-		}
-		for range dy {
-			if dy > 0 {
+			for range dy {
 				moves.WriteByte('v')
-			} else if dy < 0 {
+			}
+		} else {
+			// Up then left
+			for range -dy {
 				moves.WriteByte('^')
 			}
-		}
-	} else if from.Y == 3 && to.X == 0 {
-		// Moving from bottom row to left column - go up first
-		for range -dy {
-			if dy < 0 {
-				moves.WriteByte('^')
-			}
-		}
-		for range -dx {
-			if dx < 0 {
+			for range -dx {
 				moves.WriteByte('<')
 			}
 		}
 	} else {
-		// Normal case - prefer left/right first, then up/down
+		// Optimal order: < v ^ >
 		for range -dx {
-			if dx < 0 {
-				moves.WriteByte('<')
-			}
-		}
-		for range dx {
-			if dx > 0 {
-				moves.WriteByte('>')
-			}
-		}
-		for range -dy {
-			if dy < 0 {
-				moves.WriteByte('^')
-			}
+			moves.WriteByte('<')
 		}
 		for range dy {
-			if dy > 0 {
-				moves.WriteByte('v')
-			}
+			moves.WriteByte('v')
+		}
+		for range -dy {
+			moves.WriteByte('^')
+		}
+		for range dx {
+			moves.WriteByte('>')
 		}
 	}
 
@@ -163,59 +149,47 @@ func findPathNumeric(from, to image.Point) string {
 
 func findPathDirectional(from, to image.Point) string {
 	// Avoid the empty space at (0, 0)
+	// Optimal move order: < v ^ > (minimize distance from A button)
 	dx := to.X - from.X
 	dy := to.Y - from.Y
 
 	var moves strings.Builder
 
-	// Strategy: Try to avoid going through (0, 0)
-	// If we're at (0, 0) or going to (0, 0), be careful about order
+	// Check if path would go through gap at (0, 0)
+	goingThroughGap := (from.X == 0 && to.Y == 0) || (from.Y == 0 && to.X == 0)
 
-	if from.X == 0 && to.Y == 0 {
-		// Moving from left to top row - go right first
-		for range dx {
-			if dx > 0 {
+	if goingThroughGap {
+		// Avoid gap: prioritize moves that don't go through (0,0)
+		if from.X == 0 && to.Y == 0 {
+			// Right then up
+			for range dx {
 				moves.WriteByte('>')
 			}
-		}
-		for range -dy {
-			if dy < 0 {
+			for range -dy {
 				moves.WriteByte('^')
 			}
-		}
-	} else if from.Y == 0 && to.X == 0 {
-		// Moving from top row to left - go down first
-		for range dy {
-			if dy > 0 {
+		} else {
+			// Down then left
+			for range dy {
 				moves.WriteByte('v')
 			}
-		}
-		for range -dx {
-			if dx < 0 {
+			for range -dx {
 				moves.WriteByte('<')
 			}
 		}
 	} else {
-		// Normal case - prefer left/right first, then up/down
+		// Optimal order: < v ^ >
 		for range -dx {
-			if dx < 0 {
-				moves.WriteByte('<')
-			}
-		}
-		for range dx {
-			if dx > 0 {
-				moves.WriteByte('>')
-			}
-		}
-		for range -dy {
-			if dy < 0 {
-				moves.WriteByte('^')
-			}
+			moves.WriteByte('<')
 		}
 		for range dy {
-			if dy > 0 {
-				moves.WriteByte('v')
-			}
+			moves.WriteByte('v')
+		}
+		for range -dy {
+			moves.WriteByte('^')
+		}
+		for range dx {
+			moves.WriteByte('>')
 		}
 	}
 

@@ -69,13 +69,14 @@ Number of tries for a correct answer:
 | 18  |   1    |   1
 | 19  |   1    |   1
 | 20  |   1    |   1
-| 21  |        |
+| 21  |   2<2> |
 | 22  |        |
 | 23  |        |
 | 24  |        |
 | 25  |        |
 |===
 <1> error in bit shifting logic determining number of digits in a number
+<2> suboptimal move ordering in path finding - used horizontal-first heuristic instead of optimal `< v ^ >` ordering that minimizes expensive `<` moves on directional keypads
 
 Total runtime so far:
 
