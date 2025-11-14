@@ -94,6 +94,21 @@ func exampleFile(tb testing.TB, day uint8) []byte {
 	return buf
 }
 
+func fileFromFilename(tb testing.TB, filenameFunc func(uint8) string, day uint8) []byte {
+	tb.Helper()
+	buf, err := os.ReadFile(filenameFunc(day))
+	if err != nil {
+		tb.Fatal(err)
+	}
+
+	// Reset timer if this is a benchmark
+	if b, ok := tb.(*testing.B); ok {
+		b.ResetTimer()
+	}
+
+	return buf
+}
+
 const (
 	MagicMaxLines    = 3999  // maximum number of lines for any puzzle input
 	MagicLongestLine = 19999 // longest line of any puzzle input

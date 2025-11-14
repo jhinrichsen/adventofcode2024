@@ -20,7 +20,7 @@ type Day13Puzzle struct {
 	Machines []ClawMachine
 }
 
-func NewDay13(lines []string) Day13Puzzle {
+func NewDay13(lines []string) (Day13Puzzle, error) {
 	var machines []ClawMachine
 	var current ClawMachine
 
@@ -54,7 +54,7 @@ func NewDay13(lines []string) Day13Puzzle {
 		}
 	}
 
-	return Day13Puzzle{Machines: machines}
+	return Day13Puzzle{Machines: machines}, nil
 }
 
 func Day13(puzzle Day13Puzzle, part1 bool) int {
@@ -69,13 +69,13 @@ func Day13(puzzle Day13Puzzle, part1 bool) int {
 }
 
 func solveMachine(machine ClawMachine, part1 bool) int {
-	prizeX := machine.Prize.X
-	prizeY := machine.Prize.Y
+	// Part 2 default: Add 10000000000000 to prize coordinates
+	prizeX := machine.Prize.X + 10000000000000
+	prizeY := machine.Prize.Y + 10000000000000
 
-	if !part1 {
-		// Part 2: Add 10000000000000 to prize coordinates
-		prizeX += 10000000000000
-		prizeY += 10000000000000
+	if part1 {
+		prizeX = machine.Prize.X
+		prizeY = machine.Prize.Y
 	}
 
 	// System of linear equations:

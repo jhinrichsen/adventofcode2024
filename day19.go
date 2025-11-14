@@ -9,7 +9,7 @@ type Day19Puzzle struct {
 	designs  []string
 }
 
-func NewDay19(lines []string) Day19Puzzle {
+func NewDay19(lines []string) (Day19Puzzle, error) {
 	var p Day19Puzzle
 
 	// First line contains available patterns (comma-separated)
@@ -24,7 +24,7 @@ func NewDay19(lines []string) Day19Puzzle {
 		}
 	}
 
-	return p
+	return p, nil
 }
 
 func Day19(puzzle Day19Puzzle, part1 bool) (uint, string) {

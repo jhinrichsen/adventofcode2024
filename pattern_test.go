@@ -78,7 +78,10 @@ func benchWithParser[P any, R any](
 	b.Helper()
 	lines := linesFromFilename(b, filename(day))
 	for b.Loop() {
-		puzzle, _ := parser(lines)
+		puzzle, err := parser(lines)
+		if err != nil {
+			b.Fatal(err)
+		}
 		_ = solver(puzzle, part1)
 	}
 }

@@ -10,7 +10,7 @@ type Day25Puzzle struct {
 	keys  [][]int // each key is [5]int of tooth heights
 }
 
-func NewDay25(lines []string) Day25Puzzle {
+func NewDay25(lines []string) (Day25Puzzle, error) {
 	var locks [][]int
 	var keys [][]int
 
@@ -65,7 +65,7 @@ func NewDay25(lines []string) Day25Puzzle {
 		}
 	}
 
-	return Day25Puzzle{locks: locks, keys: keys}
+	return Day25Puzzle{locks: locks, keys: keys}, nil
 }
 
 func Day25(puzzle Day25Puzzle) string {

@@ -12,11 +12,11 @@ func Day03(program string, part1 bool) (sum uint) {
 			}
 			return
 		}
-		pattern = `mul\((\d{1,3}),(\d{1,3})\)`
+		pattern = `mul\((\d{1,3}),(\d{1,3})\)|do\(\)|don't\(\)`
 		enabled = true
 	)
-	if !part1 {
-		pattern += `|do\(\)|don't\(\)`
+	if part1 {
+		pattern = `mul\((\d{1,3}),(\d{1,3})\)`
 	}
 
 	re := regexp.MustCompile(pattern)

@@ -10,14 +10,14 @@ type Day21Puzzle struct {
 	codes []string
 }
 
-func NewDay21(lines []string) Day21Puzzle {
+func NewDay21(lines []string) (Day21Puzzle, error) {
 	codes := make([]string, 0, len(lines))
 	for _, line := range lines {
 		if line := strings.TrimSpace(line); line != "" {
 			codes = append(codes, line)
 		}
 	}
-	return Day21Puzzle{codes: codes}
+	return Day21Puzzle{codes: codes}, nil
 }
 
 func Day21(puzzle Day21Puzzle, part1 bool) uint {

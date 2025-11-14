@@ -12,7 +12,7 @@ type Day20Puzzle struct {
 	end   image.Point
 }
 
-func NewDay20(lines []string) Day20Puzzle {
+func NewDay20(lines []string) (Day20Puzzle, error) {
 	dimY := len(lines)
 	grid := make([][]byte, dimY)
 	var start, end image.Point
@@ -36,7 +36,7 @@ func NewDay20(lines []string) Day20Puzzle {
 		dimX:  len(lines[0]),
 		start: start,
 		end:   end,
-	}
+	}, nil
 }
 
 func Day20(puzzle Day20Puzzle, part1 bool) uint {

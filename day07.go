@@ -8,7 +8,7 @@ type Day07Equation struct {
 
 type Day07Puzzle []Day07Equation
 
-func NewDay07(lines []string) Day07Puzzle {
+func NewDay07(lines []string) (Day07Puzzle, error) {
 	puzzle := make(Day07Puzzle, len(lines))
 
 	for i, line := range lines {
@@ -51,7 +51,7 @@ func NewDay07(lines []string) Day07Puzzle {
 		}
 	}
 
-	return puzzle
+	return puzzle, nil
 }
 
 func Day07(puzzle Day07Puzzle, part1 bool) (sum uint) {

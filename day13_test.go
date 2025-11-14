@@ -36,7 +36,10 @@ func TestDay13Part1Examples(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			lines := linesFromFilename(t, tt.file)
-			puzzle := NewDay13(lines)
+			puzzle, err := NewDay13(lines)
+			if err != nil {
+				t.Fatal(err)
+			}
 
 			if len(puzzle.Machines) != 1 {
 				t.Fatalf("Expected 1 machine, got %d", len(puzzle.Machines))
@@ -51,56 +54,27 @@ func TestDay13Part1Examples(t *testing.T) {
 }
 
 func TestDay13Part1Example(t *testing.T) {
-	const want = 280 + 0 + 200 + 0
-	lines := linesFromFilename(t, exampleFilename(13))
-	puzzle := NewDay13(lines)
-	got := Day13(puzzle, true)
-	if got != want {
-		t.Errorf("Day13() = %v, want %v", got, want)
-	}
+	testWithParser(t, 13, exampleFilename, true, NewDay13, Day13, 480)
 }
 
 func TestDay13Part1(t *testing.T) {
-	const want = 25751
-	puzzle := NewDay13(linesFromFilename(t, filename(13)))
-	got := Day13(puzzle, true)
-	if want != got {
-		t.Fatalf("want %d but got %d", want, got)
-	}
+	testWithParser(t, 13, filename, true, NewDay13, Day13, 25751)
 }
 
 func TestDay13Part2Example(t *testing.T) {
-	// According to Part 2 description: only machines 2 and 4 are solvable
-	const want = 459236326669 + 416082282239
-	lines := linesFromFilename(t, exampleFilename(13))
-	puzzle := NewDay13(lines)
-	got := Day13(puzzle, false)
-	if got != want {
-		t.Errorf("Day13() = %v, want %v", got, want)
-	}
+	testWithParser(t, 13, exampleFilename, false, NewDay13, Day13, 875318608908)
 }
 
 func TestDay13Part2(t *testing.T) {
-	const want = 108528956728655
-	puzzle := NewDay13(linesFromFilename(t, filename(13)))
-	got := Day13(puzzle, false)
-	if want != got {
-		t.Fatalf("want %d but got %d", want, got)
-	}
+	testWithParser(t, 13, filename, false, NewDay13, Day13, 108528956728655)
 }
 
 func BenchmarkDay13Part1(b *testing.B) {
-	puzzle := NewDay13(linesFromFilename(b, filename(13)))
-	for range b.N {
-		_ = Day13(puzzle, true)
-	}
+	benchWithParser(b, 13, true, NewDay13, Day13)
 }
 
 func BenchmarkDay13Part2(b *testing.B) {
-	puzzle := NewDay13(linesFromFilename(b, filename(13)))
-	for range b.N {
-		_ = Day13(puzzle, false)
-	}
+	benchWithParser(b, 13, false, NewDay13, Day13)
 }
 
 func BenchmarkCramerVsBareiss(b *testing.B) {
@@ -131,18 +105,22 @@ func BenchmarkCramerVsBareiss(b *testing.B) {
 func TestCramerEquivalentToBareiss(t *testing.T) {
 	// Test that Cramer and Bareiss give identical results for day13 machines
 	lines := linesFromFilename(t, exampleFilename(13))
-	puzzle := NewDay13(lines)
+	puzzle, err := NewDay13(lines)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	for i, machine := range puzzle.Machines {
 		t.Run(fmt.Sprintf("machine_%d", i+1), func(t *testing.T) {
 			// Test both part1 and part2 scenarios
 			for _, part1 := range []bool{true, false} {
-				prizeX := machine.Prize.X
-				prizeY := machine.Prize.Y
+				// Part 2 default: Add offset
+				prizeX := machine.Prize.X + 10000000000000
+				prizeY := machine.Prize.Y + 10000000000000
 
-				if !part1 {
-					prizeX += 10000000000000
-					prizeY += 10000000000000
+				if part1 {
+					prizeX = machine.Prize.X
+					prizeY = machine.Prize.Y
 				}
 
 				// Cramer solution

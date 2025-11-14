@@ -5,11 +5,7 @@ import (
 )
 
 func TestDay21Part1Example(t *testing.T) {
-	const want = 126384
-	got := Day21(NewDay21(linesFromFilename(t, exampleFilename(21))), true)
-	if got != want {
-		t.Fatalf("want %d but got %d", want, got)
-	}
+	testWithParser(t, 21, exampleFilename, true, NewDay21, Day21, 126384)
 }
 
 func TestDay21Part1ExampleIndividual(t *testing.T) {
@@ -41,31 +37,17 @@ func TestDay21Part1ExampleIndividual(t *testing.T) {
 }
 
 func TestDay21Part1(t *testing.T) {
-	const want = 157892
-	got := Day21(NewDay21(linesFromFilename(t, filename(21))), true)
-	if got != want {
-		t.Fatalf("want %d but got %d", want, got)
-	}
+	testWithParser(t, 21, filename, true, NewDay21, Day21, 157892)
 }
 
 func TestDay21Part2(t *testing.T) {
-	const want = 197015606336332
-	got := Day21(NewDay21(linesFromFilename(t, filename(21))), false)
-	if got != want {
-		t.Fatalf("want %d but got %d", want, got)
-	}
+	testWithParser(t, 21, filename, false, NewDay21, Day21, 197015606336332)
 }
 
 func BenchmarkDay21Part1(b *testing.B) {
-	lines := linesFromFilename(b, filename(21))
-	for range b.N {
-		Day21(NewDay21(lines), true)
-	}
+	benchWithParser(b, 21, true, NewDay21, Day21)
 }
 
 func BenchmarkDay21Part2(b *testing.B) {
-	lines := linesFromFilename(b, filename(21))
-	for range b.N {
-		Day21(NewDay21(lines), false)
-	}
+	benchWithParser(b, 21, false, NewDay21, Day21)
 }
