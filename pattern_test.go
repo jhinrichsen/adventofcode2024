@@ -24,6 +24,25 @@ func testWithParser[P any, R comparable](
 	}
 }
 
+// testWithParserNoErr is for parsers that don't return errors.
+func testWithParserNoErr[P any, R comparable](
+	t *testing.T,
+	day uint8,
+	filenameFunc func(uint8) string,
+	part1 bool,
+	parser func([]string) P,
+	solver func(P, bool) R,
+	want R,
+) {
+	t.Helper()
+	lines := linesFromFilename(t, filenameFunc(day))
+	puzzle := parser(lines)
+	got := solver(puzzle, part1)
+	if want != got {
+		t.Fatalf("want %v but got %v", want, got)
+	}
+}
+
 // testSolver is a generic test helper for day part tests that work directly with []byte.
 func testSolver[R comparable](
 	t *testing.T,
@@ -73,6 +92,22 @@ func benchWithParser[P any, R any](
 	lines := linesFromFilename(b, filename(day))
 	for b.Loop() {
 		puzzle, _ := parser(lines)
+		_ = solver(puzzle, part1)
+	}
+}
+
+// benchWithParserNoErr is for parsers that don't return errors.
+func benchWithParserNoErr[P any, R any](
+	b *testing.B,
+	day uint8,
+	part1 bool,
+	parser func([]string) P,
+	solver func(P, bool) R,
+) {
+	b.Helper()
+	lines := linesFromFilename(b, filename(day))
+	for b.Loop() {
+		puzzle := parser(lines)
 		_ = solver(puzzle, part1)
 	}
 }

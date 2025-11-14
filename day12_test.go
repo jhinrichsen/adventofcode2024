@@ -29,12 +29,7 @@ func TestDay12Part1Example(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			lines := linesFromFilename(t, tt.file)
-			puzzle := NewDay12(lines)
-			got := Day12(puzzle, true)
-			if got != tt.want {
-				t.Errorf("Day12() = %v, want %v", got, tt.want)
-			}
+			testWithParserNoErr(t, 12, func(uint8) string { return tt.file }, true, NewDay12, Day12, tt.want)
 		})
 	}
 }
@@ -64,43 +59,23 @@ func TestDay12Part2Example(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			lines := linesFromFilename(t, tt.file)
-			puzzle := NewDay12(lines)
-			got := Day12(puzzle, false)
-			if got != tt.want {
-				t.Errorf("Day12() = %v, want %v", got, tt.want)
-			}
+			testWithParserNoErr(t, 12, func(uint8) string { return tt.file }, false, NewDay12, Day12, tt.want)
 		})
 	}
 }
 
 func TestDay12Part1(t *testing.T) {
-	const want = 1361494
-	got := Day12(NewDay12(linesFromFilename(t, filename(12))), true)
-	if want != got {
-		t.Fatalf("want %d but got %d", want, got)
-	}
+	testWithParserNoErr(t, 12, filename, true, NewDay12, Day12, 1361494)
 }
 
 func TestDay12Part2(t *testing.T) {
-	got := Day12(NewDay12(linesFromFilename(t, filename(12))), false)
-	t.Logf("Day 12 Part 2 result: %d", got)
-	const want = 830516 // Actual result from algorithm
-	if want != got {
-		t.Fatalf("want %d but got %d", want, got)
-	}
+	testWithParserNoErr(t, 12, filename, false, NewDay12, Day12, 830516)
 }
 
 func BenchmarkDay12Part1(b *testing.B) {
-	puzzle := NewDay12(linesFromFilename(b, filename(12)))
-	for range b.N {
-		_ = Day12(puzzle, true)
-	}
+	benchWithParserNoErr(b, 12, true, NewDay12, Day12)
 }
 
 func BenchmarkDay12Part2(b *testing.B) {
-	puzzle := NewDay12(linesFromFilename(b, filename(12)))
-	for range b.N {
-		_ = Day12(puzzle, false)
-	}
+	benchWithParserNoErr(b, 12, false, NewDay12, Day12)
 }
