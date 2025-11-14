@@ -2,6 +2,7 @@ package adventofcode2024
 
 import (
 	"slices"
+	"strconv"
 	"strings"
 )
 
@@ -40,33 +41,25 @@ func NewDay23(lines []string) Day23Puzzle {
 	}
 }
 
-func Day23(puzzle Day23Puzzle, part1 bool) uint {
+func Day23(puzzle Day23Puzzle, part1 bool) string {
 	if part1 {
-		return solveDay23Part1(puzzle)
-	}
-	// Part 2 returns string, not uint - return 0 and use Day23Part2Password() for actual result
-	return 0
-}
+		triangles := findTriangles(puzzle)
 
-// Day23Part2Password returns the password for the LAN party (largest clique, comma-separated)
-func Day23Part2Password(puzzle Day23Puzzle) string {
+		// Count triangles with at least one computer starting with 't'
+		var count uint
+		for triangle := range triangles {
+			if hasComputerStartingWithT(triangle) {
+				count++
+			}
+		}
+
+		return strconv.FormatUint(uint64(count), 10)
+	}
+
+	// Part 2: return password (largest clique, comma-separated)
 	maxClique := findMaximumClique(puzzle)
 	slices.Sort(maxClique)
 	return strings.Join(maxClique, ",")
-}
-
-func solveDay23Part1(puzzle Day23Puzzle) uint {
-	triangles := findTriangles(puzzle)
-
-	// Count triangles with at least one computer starting with 't'
-	var count uint
-	for triangle := range triangles {
-		if hasComputerStartingWithT(triangle) {
-			count++
-		}
-	}
-
-	return count
 }
 
 func findTriangles(puzzle Day23Puzzle) map[[3]string]bool {
