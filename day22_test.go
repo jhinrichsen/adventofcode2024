@@ -47,25 +47,25 @@ func TestDay22Part1Example(t *testing.T) {
 	}
 
 	// Test the full example
-	testWithParserNoErr(t, 22, exampleFilename, true, NewDay22, Day22, 37327623)
+	testWithParser(t, 22, exampleFilename, true, NewDay22, Day22, 37327623)
 }
 
 func TestDay22Part1(t *testing.T) {
-	testWithParserNoErr(t, 22, filename, true, NewDay22, Day22, 13004408787)
+	testWithParser(t, 22, filename, true, NewDay22, Day22, 13004408787)
 }
 
 func TestDay22Part2Example(t *testing.T) {
-	testWithParserNoErr(t, 22, example2Filename, false, NewDay22, Day22, 23)
+	testWithParser(t, 22, example2Filename, false, NewDay22, Day22, 23)
 }
 
 func TestDay22Part2(t *testing.T) {
-	testWithParserNoErr(t, 22, filename, false, NewDay22, Day22, 1455)
+	testWithParser(t, 22, filename, false, NewDay22, Day22, 1455)
 }
 
 func BenchmarkDay22Part1(b *testing.B) {
-	benchWithParserNoErr(b, 22, true, NewDay22, Day22)
+	benchWithParser(b, 22, true, NewDay22, Day22)
 }
 
 func BenchmarkDay22Part2(b *testing.B) {
-	benchWithParserNoErr(b, 22, false, NewDay22, Day22)
+	benchWithParser(b, 22, false, NewDay22, Day22)
 }

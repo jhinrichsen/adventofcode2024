@@ -18,7 +18,7 @@ type Gate struct {
 	output string
 }
 
-func NewDay24(lines []string) Day24Puzzle {
+func NewDay24(lines []string) (Day24Puzzle, error) {
 	wires := make(map[string]int)
 	var gates []Gate
 
@@ -55,7 +55,7 @@ func NewDay24(lines []string) Day24Puzzle {
 		}
 	}
 
-	return Day24Puzzle{wires: wires, gates: gates}
+	return Day24Puzzle{wires: wires, gates: gates}, nil
 }
 
 func Day24(puzzle Day24Puzzle, part1 bool) string {

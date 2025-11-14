@@ -9,15 +9,18 @@ type Day22Puzzle struct {
 	secrets []uint
 }
 
-func NewDay22(lines []string) Day22Puzzle {
+func NewDay22(lines []string) (Day22Puzzle, error) {
 	secrets := make([]uint, 0, len(lines))
 	for _, line := range lines {
 		if line := strings.TrimSpace(line); line != "" {
-			val, _ := strconv.ParseUint(line, 10, 64)
+			val, err := strconv.ParseUint(line, 10, 64)
+			if err != nil {
+				return Day22Puzzle{}, err
+			}
 			secrets = append(secrets, uint(val))
 		}
 	}
-	return Day22Puzzle{secrets: secrets}
+	return Day22Puzzle{secrets: secrets}, nil
 }
 
 func Day22(puzzle Day22Puzzle, part1 bool) uint {

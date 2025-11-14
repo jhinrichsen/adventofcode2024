@@ -36,7 +36,10 @@ func TestDay13Part1Examples(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			lines := linesFromFilename(t, tt.file)
-			puzzle := NewDay13(lines)
+			puzzle, err := NewDay13(lines)
+			if err != nil {
+				t.Fatal(err)
+			}
 
 			if len(puzzle.Machines) != 1 {
 				t.Fatalf("Expected 1 machine, got %d", len(puzzle.Machines))
@@ -51,27 +54,27 @@ func TestDay13Part1Examples(t *testing.T) {
 }
 
 func TestDay13Part1Example(t *testing.T) {
-	testWithParserNoErr(t, 13, exampleFilename, true, NewDay13, Day13, 480)
+	testWithParser(t, 13, exampleFilename, true, NewDay13, Day13, 480)
 }
 
 func TestDay13Part1(t *testing.T) {
-	testWithParserNoErr(t, 13, filename, true, NewDay13, Day13, 25751)
+	testWithParser(t, 13, filename, true, NewDay13, Day13, 25751)
 }
 
 func TestDay13Part2Example(t *testing.T) {
-	testWithParserNoErr(t, 13, exampleFilename, false, NewDay13, Day13, 875318608908)
+	testWithParser(t, 13, exampleFilename, false, NewDay13, Day13, 875318608908)
 }
 
 func TestDay13Part2(t *testing.T) {
-	testWithParserNoErr(t, 13, filename, false, NewDay13, Day13, 108528956728655)
+	testWithParser(t, 13, filename, false, NewDay13, Day13, 108528956728655)
 }
 
 func BenchmarkDay13Part1(b *testing.B) {
-	benchWithParserNoErr(b, 13, true, NewDay13, Day13)
+	benchWithParser(b, 13, true, NewDay13, Day13)
 }
 
 func BenchmarkDay13Part2(b *testing.B) {
-	benchWithParserNoErr(b, 13, false, NewDay13, Day13)
+	benchWithParser(b, 13, false, NewDay13, Day13)
 }
 
 func BenchmarkCramerVsBareiss(b *testing.B) {
@@ -102,7 +105,10 @@ func BenchmarkCramerVsBareiss(b *testing.B) {
 func TestCramerEquivalentToBareiss(t *testing.T) {
 	// Test that Cramer and Bareiss give identical results for day13 machines
 	lines := linesFromFilename(t, exampleFilename(13))
-	puzzle := NewDay13(lines)
+	puzzle, err := NewDay13(lines)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	for i, machine := range puzzle.Machines {
 		t.Run(fmt.Sprintf("machine_%d", i+1), func(t *testing.T) {

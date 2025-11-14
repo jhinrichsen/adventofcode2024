@@ -5,7 +5,7 @@ import (
 )
 
 func TestDay21Part1Example(t *testing.T) {
-	testWithParserNoErr(t, 21, exampleFilename, true, NewDay21, Day21, 126384)
+	testWithParser(t, 21, exampleFilename, true, NewDay21, Day21, 126384)
 }
 
 func TestDay21Part1ExampleIndividual(t *testing.T) {
@@ -37,17 +37,17 @@ func TestDay21Part1ExampleIndividual(t *testing.T) {
 }
 
 func TestDay21Part1(t *testing.T) {
-	testWithParserNoErr(t, 21, filename, true, NewDay21, Day21, 157892)
+	testWithParser(t, 21, filename, true, NewDay21, Day21, 157892)
 }
 
 func TestDay21Part2(t *testing.T) {
-	testWithParserNoErr(t, 21, filename, false, NewDay21, Day21, 197015606336332)
+	testWithParser(t, 21, filename, false, NewDay21, Day21, 197015606336332)
 }
 
 func BenchmarkDay21Part1(b *testing.B) {
-	benchWithParserNoErr(b, 21, true, NewDay21, Day21)
+	benchWithParser(b, 21, true, NewDay21, Day21)
 }
 
 func BenchmarkDay21Part2(b *testing.B) {
-	benchWithParserNoErr(b, 21, false, NewDay21, Day21)
+	benchWithParser(b, 21, false, NewDay21, Day21)
 }

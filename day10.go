@@ -13,7 +13,7 @@ type Day10Puzzle struct {
 }
 
 // NewDay10 creates a Day10Puzzle from lines
-func NewDay10(lines []string) Day10Puzzle {
+func NewDay10(lines []string) (Day10Puzzle, error) {
 	dimY := len(lines)
 	grid := make([][]byte, dimY)
 	for y := range grid {
@@ -23,7 +23,7 @@ func NewDay10(lines []string) Day10Puzzle {
 		grid: grid,
 		dimY: dimY,
 		dimX: len(lines[0]),
-	}
+	}, nil
 }
 
 // Day10 solves Day 10 using the puzzle struct
