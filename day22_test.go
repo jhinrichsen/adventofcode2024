@@ -47,47 +47,25 @@ func TestDay22Part1Example(t *testing.T) {
 	}
 
 	// Test the full example
-	const want = 37327623
-	got := Day22(NewDay22(linesFromFilename(t, exampleFilename(22))), true)
-	if got != want {
-		t.Fatalf("want %d but got %d", want, got)
-	}
+	testWithParserNoErr(t, 22, exampleFilename, true, NewDay22, Day22, 37327623)
 }
 
 func TestDay22Part1(t *testing.T) {
-	const want = 13004408787
-	got := Day22(NewDay22(linesFromFilename(t, filename(22))), true)
-	if got != want {
-		t.Fatalf("want %d but got %d", want, got)
-	}
+	testWithParserNoErr(t, 22, filename, true, NewDay22, Day22, 13004408787)
 }
 
 func TestDay22Part2Example(t *testing.T) {
-	const want = 23
-	got := Day22(NewDay22(linesFromFilename(t, example2Filename(22))), false)
-	if got != want {
-		t.Fatalf("want %d but got %d", want, got)
-	}
+	testWithParserNoErr(t, 22, example2Filename, false, NewDay22, Day22, 23)
 }
 
 func TestDay22Part2(t *testing.T) {
-	const want = 1455
-	got := Day22(NewDay22(linesFromFilename(t, filename(22))), false)
-	if got != want {
-		t.Fatalf("want %d but got %d", want, got)
-	}
+	testWithParserNoErr(t, 22, filename, false, NewDay22, Day22, 1455)
 }
 
 func BenchmarkDay22Part1(b *testing.B) {
-	lines := linesFromFilename(b, filename(22))
-	for range b.N {
-		Day22(NewDay22(lines), true)
-	}
+	benchWithParserNoErr(b, 22, true, NewDay22, Day22)
 }
 
 func BenchmarkDay22Part2(b *testing.B) {
-	lines := linesFromFilename(b, filename(22))
-	for range b.N {
-		Day22(NewDay22(lines), false)
-	}
+	benchWithParserNoErr(b, 22, false, NewDay22, Day22)
 }
