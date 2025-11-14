@@ -11,7 +11,7 @@ type Day23Puzzle struct {
 	computers   []string
 }
 
-func NewDay23(lines []string) Day23Puzzle {
+func NewDay23(lines []string) (Day23Puzzle, error) {
 	connections := make(map[string][]string)
 	computerSet := make(map[string]bool)
 
@@ -38,7 +38,7 @@ func NewDay23(lines []string) Day23Puzzle {
 	return Day23Puzzle{
 		connections: connections,
 		computers:   computers,
-	}
+	}, nil
 }
 
 func Day23(puzzle Day23Puzzle, part1 bool) string {

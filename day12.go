@@ -8,7 +8,7 @@ type Day12Puzzle struct {
 	dimX int
 }
 
-func NewDay12(lines []string) Day12Puzzle {
+func NewDay12(lines []string) (Day12Puzzle, error) {
 	// Filter out empty lines
 	var validLines []string
 	for _, line := range lines {
@@ -19,7 +19,7 @@ func NewDay12(lines []string) Day12Puzzle {
 
 	dimY := len(validLines)
 	if dimY == 0 {
-		return Day12Puzzle{}
+		return Day12Puzzle{}, nil
 	}
 	dimX := len(validLines[0])
 
@@ -32,7 +32,7 @@ func NewDay12(lines []string) Day12Puzzle {
 		grid: grid,
 		dimY: dimY,
 		dimX: dimX,
-	}
+	}, nil
 }
 
 func Day12(puzzle Day12Puzzle, part1 bool) uint {

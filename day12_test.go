@@ -29,7 +29,7 @@ func TestDay12Part1Example(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			testWithParserNoErr(t, 12, func(uint8) string { return tt.file }, true, NewDay12, Day12, tt.want)
+			testWithParser(t, 12, func(uint8) string { return tt.file }, true, NewDay12, Day12, tt.want)
 		})
 	}
 }
@@ -59,23 +59,23 @@ func TestDay12Part2Example(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			testWithParserNoErr(t, 12, func(uint8) string { return tt.file }, false, NewDay12, Day12, tt.want)
+			testWithParser(t, 12, func(uint8) string { return tt.file }, false, NewDay12, Day12, tt.want)
 		})
 	}
 }
 
 func TestDay12Part1(t *testing.T) {
-	testWithParserNoErr(t, 12, filename, true, NewDay12, Day12, 1361494)
+	testWithParser(t, 12, filename, true, NewDay12, Day12, 1361494)
 }
 
 func TestDay12Part2(t *testing.T) {
-	testWithParserNoErr(t, 12, filename, false, NewDay12, Day12, 830516)
+	testWithParser(t, 12, filename, false, NewDay12, Day12, 830516)
 }
 
 func BenchmarkDay12Part1(b *testing.B) {
-	benchWithParserNoErr(b, 12, true, NewDay12, Day12)
+	benchWithParser(b, 12, true, NewDay12, Day12)
 }
 
 func BenchmarkDay12Part2(b *testing.B) {
-	benchWithParserNoErr(b, 12, false, NewDay12, Day12)
+	benchWithParser(b, 12, false, NewDay12, Day12)
 }

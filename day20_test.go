@@ -7,7 +7,10 @@ import (
 func TestDay20Part1Example(t *testing.T) {
 	// Test with lower threshold since example has smaller savings
 	lines := linesFromFilename(t, exampleFilename(20))
-	puzzle := NewDay20(lines)
+	puzzle, err := NewDay20(lines)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// Test normal path exists
 	normalTime := puzzle.findShortestPath(puzzle.start, puzzle.end)
@@ -45,7 +48,10 @@ func TestDay20Part1Example(t *testing.T) {
 
 func TestDay20Part2Example(t *testing.T) {
 	lines := linesFromFilename(t, exampleFilename(20))
-	puzzle := NewDay20(lines)
+	puzzle, err := NewDay20(lines)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// Debug: Print exact savings counts
 	savings := puzzle.countCheatsBySavings(20)
@@ -90,7 +96,10 @@ func TestDay20Part2Example(t *testing.T) {
 func TestDay20Part1(t *testing.T) {
 	const want = 1497
 	lines := linesFromFilename(t, filename(20))
-	puzzle := NewDay20(lines)
+	puzzle, err := NewDay20(lines)
+	if err != nil {
+		t.Fatal(err)
+	}
 	got := Day20(puzzle, true)
 	if got != want {
 		t.Fatalf("want %d but got %d", want, got)
@@ -100,7 +109,10 @@ func TestDay20Part1(t *testing.T) {
 func TestDay20Part2(t *testing.T) {
 	const want = 1030809
 	lines := linesFromFilename(t, filename(20))
-	puzzle := NewDay20(lines)
+	puzzle, err := NewDay20(lines)
+	if err != nil {
+		t.Fatal(err)
+	}
 	got := Day20(puzzle, false)
 	if got != want {
 		t.Fatalf("want %d but got %d", want, got)
@@ -111,7 +123,10 @@ func BenchmarkDay20Part1(b *testing.B) {
 	lines := linesFromFilename(b, filename(20))
 	b.ResetTimer()
 	for range b.N {
-		puzzle := NewDay20(lines)
+		puzzle, err := NewDay20(lines)
+		if err != nil {
+			b.Fatal(err)
+		}
 		Day20(puzzle, true)
 	}
 }
@@ -120,7 +135,10 @@ func BenchmarkDay20Part2(b *testing.B) {
 	lines := linesFromFilename(b, filename(20))
 	b.ResetTimer()
 	for range b.N {
-		puzzle := NewDay20(lines)
+		puzzle, err := NewDay20(lines)
+		if err != nil {
+			b.Fatal(err)
+		}
 		Day20(puzzle, false)
 	}
 }
