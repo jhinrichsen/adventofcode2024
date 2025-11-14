@@ -27,8 +27,11 @@ func TestDay24Part1(t *testing.T) {
 }
 
 func TestDay24Part2(t *testing.T) {
+	const want = "ctg,dmh,dvq,rpb,rpv,z11,z31,z38"
 	got := Day24(NewDay24(linesFromFilename(t, filename(24))), false)
-	t.Logf("Day 24 Part 2: %s", got)
+	if got != want {
+		t.Fatalf("want %q but got %q", want, got)
+	}
 }
 
 func BenchmarkDay24Part1(b *testing.B) {
