@@ -5,45 +5,67 @@ import (
 )
 
 func TestDay21Part1Example(t *testing.T) {
-	testLines(t, 21, exampleFilename, true, Day21, 126384)
-}
-
-func TestDay21Part1Example029A(t *testing.T) {
-	// From website: 029A produces 68-character sequence with complexity 1972
-	gotSeqLength := uint(len(findShortestSequence("029A")))
-	gotComplexity := gotSeqLength * extractNumericValue("029A")
-
-	wantSeqLength := uint(68)
-	wantComplexity := uint(1972) // 68 * 29 = 1972
-
-	if gotSeqLength != wantSeqLength {
-		t.Errorf("sequence length: want %d, got %d", wantSeqLength, gotSeqLength)
-	}
-	if gotComplexity != wantComplexity {
-		t.Errorf("complexity: want %d, got %d", wantComplexity, gotComplexity)
+	const want = 126384
+	got := Day21(NewDay21(linesFromFilename(t, exampleFilename(21))), true)
+	if got != want {
+		t.Fatalf("want %d but got %d", want, got)
 	}
 }
 
-func TestDay21Part1ExampleOthers(t *testing.T) {
-	// From website: total is 126384, and 029A is 1972
-	// So the other 4 codes must sum to: 126384 - 1972 = 124412
-	codes := []string{"980A", "179A", "456A", "379A"}
-
-	var totalComplexity uint
-	for _, code := range codes {
-		totalComplexity += uint(len(findShortestSequence(code))) * extractNumericValue(code)
+func TestDay21Part1ExampleIndividual(t *testing.T) {
+	tests := []struct {
+		code           string
+		wantSeqLength  uint
+		wantComplexity uint
+	}{
+		{"029A", 68, 1972},   // 68 * 29 = 1972
+		{"980A", 60, 58800},  // 60 * 980 = 58800
+		{"179A", 68, 12172},  // 68 * 179 = 12172
+		{"456A", 64, 29184},  // 64 * 456 = 29184
+		{"379A", 64, 24256},  // 64 * 379 = 24256
 	}
 
-	wantTotal := uint(124412) // 126384 - 1972 = 124412
-	if totalComplexity != wantTotal {
-		t.Errorf("sum of other 4 complexities: want %d, got %d", wantTotal, totalComplexity)
+	for _, tt := range tests {
+		t.Run(tt.code, func(t *testing.T) {
+			gotSeqLength := solveCode(tt.code, 2)
+			gotComplexity := gotSeqLength * extractNumericValue(tt.code)
+
+			if gotSeqLength != tt.wantSeqLength {
+				t.Errorf("sequence length: want %d, got %d", tt.wantSeqLength, gotSeqLength)
+			}
+			if gotComplexity != tt.wantComplexity {
+				t.Errorf("complexity: want %d, got %d", tt.wantComplexity, gotComplexity)
+			}
+		})
 	}
 }
 
 func TestDay21Part1(t *testing.T) {
-	testLines(t, 21, filename, true, Day21, 161468)
+	const want = 157892
+	got := Day21(NewDay21(linesFromFilename(t, filename(21))), true)
+	if got != want {
+		t.Fatalf("want %d but got %d", want, got)
+	}
+}
+
+func TestDay21Part2(t *testing.T) {
+	const want = 197015606336332
+	got := Day21(NewDay21(linesFromFilename(t, filename(21))), false)
+	if got != want {
+		t.Fatalf("want %d but got %d", want, got)
+	}
 }
 
 func BenchmarkDay21Part1(b *testing.B) {
-	benchLines(b, 21, true, Day21)
+	lines := linesFromFilename(b, filename(21))
+	for range b.N {
+		Day21(NewDay21(lines), true)
+	}
+}
+
+func BenchmarkDay21Part2(b *testing.B) {
+	lines := linesFromFilename(b, filename(21))
+	for range b.N {
+		Day21(NewDay21(lines), false)
+	}
 }
