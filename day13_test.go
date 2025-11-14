@@ -137,12 +137,13 @@ func TestCramerEquivalentToBareiss(t *testing.T) {
 		t.Run(fmt.Sprintf("machine_%d", i+1), func(t *testing.T) {
 			// Test both part1 and part2 scenarios
 			for _, part1 := range []bool{true, false} {
-				prizeX := machine.Prize.X
-				prizeY := machine.Prize.Y
+				// Part 2 default: Add offset
+				prizeX := machine.Prize.X + 10000000000000
+				prizeY := machine.Prize.Y + 10000000000000
 
-				if !part1 {
-					prizeX += 10000000000000
-					prizeY += 10000000000000
+				if part1 {
+					prizeX = machine.Prize.X
+					prizeY = machine.Prize.Y
 				}
 
 				// Cramer solution

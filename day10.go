@@ -81,19 +81,18 @@ func Day10(puzzle Day10Puzzle, part1 bool) uint {
 		}
 	}
 
-	// part 2: count all trails
-	if !part1 {
-		return uint(all.Len())
-	}
-
-	// multiple trails from 0 -> 9 count as 1 for the same 0 and 9
-
-	m := make(map[distinctTrail]bool, all.Len())
-	for e := all.Front(); e != nil; e = e.Next() {
-		if t, ok := e.Value.(trail); ok {
-			d := distinctTrail{t[0], t[9]}
-			m[d] = true
+	// part 1: count distinct (start, end) pairs
+	if part1 {
+		m := make(map[distinctTrail]bool, all.Len())
+		for e := all.Front(); e != nil; e = e.Next() {
+			if t, ok := e.Value.(trail); ok {
+				d := distinctTrail{t[0], t[9]}
+				m[d] = true
+			}
 		}
+		return uint(len(m))
 	}
-	return uint(len(m))
+
+	// part 2: count all trails
+	return uint(all.Len())
 }
