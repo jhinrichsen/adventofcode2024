@@ -5,57 +5,25 @@ import (
 )
 
 func TestDay04Part1Example(t *testing.T) {
-	const want = 18
-	lines := linesFromFilename(t, exampleFilename(4))
-	puzzle := NewDay04(lines)
-	got := Day04(puzzle, true)
-	if want != got {
-		t.Fatalf("want %d but got %d", want, got)
-	}
+	testWithParserNoErr(t, 4, exampleFilename, true, NewDay04, Day04, 18)
 }
 
 func TestDay04Part1(t *testing.T) {
-	const want = 2685
-	lines := linesFromFilename(t, filename(4))
-	puzzle := NewDay04(lines)
-	got := Day04(puzzle, true)
-	if want != got {
-		t.Fatalf("want %d but got %d", want, got)
-	}
+	testWithParserNoErr(t, 4, filename, true, NewDay04, Day04, 2685)
 }
 
 func BenchmarkDay04Part1(b *testing.B) {
-	lines := linesFromFilename(b, filename(4))
-	for range b.N {
-		puzzle := NewDay04(lines)
-		_ = Day04(puzzle, true)
-	}
+	benchWithParserNoErr(b, 4, true, NewDay04, Day04)
 }
 
 func TestDay04Part2Example(t *testing.T) {
-	const want = 9
-	lines := linesFromFilename(t, exampleFilename(4))
-	puzzle := NewDay04(lines)
-	got := Day04(puzzle, false)
-	if want != got {
-		t.Fatalf("want %d but got %d", want, got)
-	}
+	testWithParserNoErr(t, 4, exampleFilename, false, NewDay04, Day04, 9)
 }
 
 func TestDay04Part2(t *testing.T) {
-	const want = 2048
-	lines := linesFromFilename(t, filename(4))
-	puzzle := NewDay04(lines)
-	got := Day04(puzzle, false)
-	if want != got {
-		t.Fatalf("want %d but got %d", want, got)
-	}
+	testWithParserNoErr(t, 4, filename, false, NewDay04, Day04, 2048)
 }
 
 func BenchmarkDay04Part2(b *testing.B) {
-	lines := linesFromFilename(b, filename(4))
-	for range b.N {
-		puzzle := NewDay04(lines)
-		_ = Day04(puzzle, false)
-	}
+	benchWithParserNoErr(b, 4, false, NewDay04, Day04)
 }

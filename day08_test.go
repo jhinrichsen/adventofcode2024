@@ -5,51 +5,25 @@ import (
 )
 
 func TestDay08Part1Example(t *testing.T) {
-	const want = 14
-	lines := linesFromFilename(t, exampleFilename(8))
-	got := Day08(lines, true)
-	if want != got {
-		t.Fatalf("want %d but got %d", want, got)
-	}
+	testLines(t, 8, exampleFilename, true, Day08, 14)
 }
 
 func TestDay08Part2Example(t *testing.T) {
-	const want = 34
-	lines := linesFromFilename(t, exampleFilename(8))
-	got := Day08(lines, false)
-	if want != got {
-		t.Fatalf("want %d but got %d", want, got)
-	}
+	testLines(t, 8, exampleFilename, false, Day08, 34)
 }
 
 func TestDay08Part1(t *testing.T) {
-	const want = 291
-	lines := linesFromFilename(t, filename(8))
-	got := Day08(lines, true)
-	if want != got {
-		t.Fatalf("want %d but got %d", want, got)
-	}
+	testLines(t, 8, filename, true, Day08, 291)
 }
 
 func TestDay08Part2(t *testing.T) {
-	const want = 1015
-	lines := linesFromFilename(t, filename(8))
-	got := Day08(lines, false)
-	if want != got {
-		t.Fatalf("want %d but got %d", want, got)
-	}
+	testLines(t, 8, filename, false, Day08, 1015)
 }
 
 func BenchmarkDay08Part1(b *testing.B) {
-	lines := linesFromFilename(b, filename(8))
-	for range b.N {
-		_ = Day08(lines, true)
-	}
+	benchLines(b, 8, true, Day08)
 }
 
 func BenchmarkDay08Part2(b *testing.B) {
-	lines := linesFromFilename(b, filename(8))
-	for range b.N {
-		_ = Day08(lines, false)
-	}
+	benchLines(b, 8, false, Day08)
 }
