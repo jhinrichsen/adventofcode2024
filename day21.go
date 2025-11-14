@@ -22,17 +22,17 @@ func NewDay21(lines []string) Day21Puzzle {
 
 func Day21(puzzle Day21Puzzle, part1 bool) uint {
 	if part1 {
-		return puzzle.calculateComplexity()
+		return calculateComplexity(puzzle)
 	}
 	return 0
 }
 
-func (p Day21Puzzle) calculateComplexity() uint {
+func calculateComplexity(puzzle Day21Puzzle) uint {
 	var totalComplexity uint
 
-	for _, code := range p.codes {
-		sequence := p.findShortestSequence(code)
-		numericValue := p.extractNumericValue(code)
+	for _, code := range puzzle.codes {
+		sequence := findShortestSequence(code)
+		numericValue := extractNumericValue(code)
 		complexity := uint(len(sequence)) * numericValue
 		totalComplexity += complexity
 	}
@@ -40,23 +40,23 @@ func (p Day21Puzzle) calculateComplexity() uint {
 	return totalComplexity
 }
 
-func (p Day21Puzzle) findShortestSequence(code string) string {
+func findShortestSequence(code string) string {
 	// First robot (directional) controls second robot (directional) controls third robot (numeric)
 	// We work backwards: numeric -> directional -> directional
 
 	// Step 1: Get sequence needed for numeric keypad
-	numericSeq := p.getNumericKeypadSequence(code)
+	numericSeq := getNumericKeypadSequence(code)
 
 	// Step 2: Get sequence needed for first directional keypad to input numericSeq
-	dirSeq1 := p.getDirectionalKeypadSequence(numericSeq)
+	dirSeq1 := getDirectionalKeypadSequence(numericSeq)
 
 	// Step 3: Get sequence needed for second directional keypad to input dirSeq1
-	dirSeq2 := p.getDirectionalKeypadSequence(dirSeq1)
+	dirSeq2 := getDirectionalKeypadSequence(dirSeq1)
 
 	return dirSeq2
 }
 
-func (p Day21Puzzle) getNumericKeypadSequence(code string) string {
+func getNumericKeypadSequence(code string) string {
 	numericKeypad := map[byte]image.Point{
 		'7': {0, 0}, '8': {1, 0}, '9': {2, 0},
 		'4': {0, 1}, '5': {1, 1}, '6': {2, 1},
@@ -69,7 +69,7 @@ func (p Day21Puzzle) getNumericKeypadSequence(code string) string {
 
 	for i := range code {
 		targetPos := numericKeypad[code[i]]
-		path := p.findPathNumeric(currentPos, targetPos)
+		path := findPathNumeric(currentPos, targetPos)
 		result.WriteString(path)
 		result.WriteByte('A') // Press the button
 		currentPos = targetPos
@@ -78,7 +78,7 @@ func (p Day21Puzzle) getNumericKeypadSequence(code string) string {
 	return result.String()
 }
 
-func (p Day21Puzzle) getDirectionalKeypadSequence(sequence string) string {
+func getDirectionalKeypadSequence(sequence string) string {
 	directionalKeypad := map[byte]image.Point{
 		'^': {1, 0}, 'A': {2, 0},
 		'<': {0, 1}, 'v': {1, 1}, '>': {2, 1},
@@ -89,7 +89,7 @@ func (p Day21Puzzle) getDirectionalKeypadSequence(sequence string) string {
 
 	for i := range sequence {
 		targetPos := directionalKeypad[sequence[i]]
-		path := p.findPathDirectional(currentPos, targetPos)
+		path := findPathDirectional(currentPos, targetPos)
 		result.WriteString(path)
 		result.WriteByte('A') // Press the button
 		currentPos = targetPos
@@ -98,7 +98,7 @@ func (p Day21Puzzle) getDirectionalKeypadSequence(sequence string) string {
 	return result.String()
 }
 
-func (p Day21Puzzle) findPathNumeric(from, to image.Point) string {
+func findPathNumeric(from, to image.Point) string {
 	// Avoid the empty space at (0, 3)
 	dx := to.X - from.X
 	dy := to.Y - from.Y
@@ -161,7 +161,7 @@ func (p Day21Puzzle) findPathNumeric(from, to image.Point) string {
 	return moves.String()
 }
 
-func (p Day21Puzzle) findPathDirectional(from, to image.Point) string {
+func findPathDirectional(from, to image.Point) string {
 	// Avoid the empty space at (0, 0)
 	dx := to.X - from.X
 	dy := to.Y - from.Y
@@ -222,7 +222,7 @@ func (p Day21Puzzle) findPathDirectional(from, to image.Point) string {
 	return moves.String()
 }
 
-func (p Day21Puzzle) extractNumericValue(code string) uint {
+func extractNumericValue(code string) uint {
 	// Extract numeric part (remove 'A' suffix)
 	numStr := strings.TrimSuffix(code, "A")
 	val, _ := strconv.Atoi(numStr)

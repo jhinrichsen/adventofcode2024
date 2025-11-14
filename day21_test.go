@@ -12,36 +12,31 @@ func TestDay21Part1Example(t *testing.T) {
 	}
 }
 
-func TestDay21Part1Example029A(t *testing.T) {
-	// From website: 029A produces 68-character sequence with complexity 1972
-	puzzle := NewDay21([]string{"029A"})
-	gotSeqLength := uint(len(puzzle.findShortestSequence("029A")))
-	gotComplexity := gotSeqLength * puzzle.extractNumericValue("029A")
-
-	wantSeqLength := uint(68)
-	wantComplexity := uint(1972) // 68 * 29 = 1972
-
-	if gotSeqLength != wantSeqLength {
-		t.Errorf("sequence length: want %d, got %d", wantSeqLength, gotSeqLength)
-	}
-	if gotComplexity != wantComplexity {
-		t.Errorf("complexity: want %d, got %d", wantComplexity, gotComplexity)
-	}
-}
-
-func TestDay21Part1ExampleOthers(t *testing.T) {
-	// From website: total is 126384, and 029A is 1972
-	// So the other 4 codes must sum to: 126384 - 1972 = 124412
-	puzzle := NewDay21([]string{"980A", "179A", "456A", "379A"})
-
-	var totalComplexity uint
-	for _, code := range puzzle.codes {
-		totalComplexity += uint(len(puzzle.findShortestSequence(code))) * puzzle.extractNumericValue(code)
+func TestDay21Part1ExampleIndividual(t *testing.T) {
+	tests := []struct {
+		code           string
+		wantSeqLength  uint
+		wantComplexity uint
+	}{
+		{"029A", 68, 1972},   // 68 * 29 = 1972
+		{"980A", 60, 58800},  // 60 * 980 = 58800
+		{"179A", 68, 12172},  // 68 * 179 = 12172
+		{"456A", 64, 29184},  // 64 * 456 = 29184
+		{"379A", 64, 24256},  // 64 * 379 = 24256
 	}
 
-	wantTotal := uint(124412) // 126384 - 1972 = 124412
-	if totalComplexity != wantTotal {
-		t.Errorf("sum of other 4 complexities: want %d, got %d", wantTotal, totalComplexity)
+	for _, tt := range tests {
+		t.Run(tt.code, func(t *testing.T) {
+			gotSeqLength := uint(len(findShortestSequence(tt.code)))
+			gotComplexity := gotSeqLength * extractNumericValue(tt.code)
+
+			if gotSeqLength != tt.wantSeqLength {
+				t.Errorf("sequence length: want %d, got %d", tt.wantSeqLength, gotSeqLength)
+			}
+			if gotComplexity != tt.wantComplexity {
+				t.Errorf("complexity: want %d, got %d", tt.wantComplexity, gotComplexity)
+			}
+		})
 	}
 }
 
