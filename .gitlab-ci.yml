@@ -1,4 +1,4 @@
-image: golang:1.23
+image: golang:1.24
 
 # You can override the included template(s) by including variable overrides
 # SAST customization: https://docs.gitlab.com/ee/user/application_security/sast/#customizing-the-sast-settings
