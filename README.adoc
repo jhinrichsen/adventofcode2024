@@ -7,7 +7,7 @@ image:https://gitlab.com/jhinrichsen/adventofcode2024/badges/main/pipeline.svg[l
 image:https://gitlab.com/jhinrichsen/adventofcode2024/badges/main/coverage.svg[link="https://gitlab.com/jhinrichsen/adventofcode2024/badges/main/coverage.svg",title="coverage report"]
 
 
-image::img/dashboard.apng[]
+image::img/aoc_dashboard.apng[]
 
 My take on https://adventofcode.com/2024/ in Go. As usual, i don't particularly
 care if i provide my solutions _fast_, i try to be _correct_ on the first
