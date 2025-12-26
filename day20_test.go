@@ -13,7 +13,8 @@ func TestDay20Part1Example(t *testing.T) {
 	}
 
 	// Test normal path exists
-	normalTime := puzzle.findShortestPath(puzzle.start, puzzle.end)
+	distFromStart := bfsDistances(puzzle.grid, puzzle.dimX, puzzle.dimY, puzzle.startIdx)
+	normalTime := distFromStart[puzzle.endIdx]
 	if normalTime != 84 {
 		t.Fatalf("Expected normal time 84, got %d", normalTime)
 	}
@@ -38,7 +39,7 @@ func TestDay20Part1Example(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
-			got := puzzle.countCheats(tt.minSaving, 2)
+			got := countCheats(puzzle, tt.minSaving, 2)
 			if got != tt.want {
 				t.Errorf("countCheats(minSaving=%d, maxCheatDist=2) = %d, want %d", tt.minSaving, got, tt.want)
 			}
@@ -54,7 +55,7 @@ func TestDay20Part2Example(t *testing.T) {
 	}
 
 	// Debug: Print exact savings counts
-	savings := puzzle.countCheatsBySavings(20)
+	savings := countCheatsBySavings(puzzle, 20)
 	t.Logf("Exact savings counts for Part 2:")
 	for saving := uint(50); saving <= 76; saving += 2 {
 		if count, exists := savings[saving]; exists && count > 0 {

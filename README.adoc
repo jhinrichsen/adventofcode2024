@@ -1292,3 +1292,30 @@ Key optimizations:
 5. Ring buffer queue (head index instead of slice shifting)
 
 Note: Grid.go C4Indices was benchmarked but proved 3x slower due to neighbor table allocation overhead (16k allocs). Flat arrays with inline bounds checking are optimal for BFS pathfinding.
+
+== Day 20: Race Condition
+
+Refactored from `[][]byte` grid with `image.Point` to flat arrays with index arithmetic.
+
+=== Benchstat Comparison
+
+----
+              │   Original    │            Flat             │
+              │    sec/op     │   sec/op     vs base        │
+Day20Part1-16      1.54m         0.87m        -43.51%
+Day20Part2-16      46.0m         24.9m        -45.87%
+
+              │  Original  │          Flat           │
+              │ allocs/op  │ allocs/op   vs base     │
+Day20Part1-16    28894          11        -99.96%
+Day20Part2-16    28894          11        -99.96%
+----
+
+Key optimizations:
+
+1. Flat `[]byte` grid instead of `[][]byte`
+2. Flat `[]uint` distances instead of `[][]uint`
+3. Integer indices instead of `image.Point`
+4. Pre-computed direction offsets as `[4]int{-dimX, 1, dimX, -1}`
+5. Ring buffer queue (head index instead of slice shifting)
+6. Optimized manhattan distance iteration (skip invalid dx range)
