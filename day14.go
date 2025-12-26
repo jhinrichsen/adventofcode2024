@@ -102,112 +102,87 @@ func solvePart1(robots [][4]int, dimX, dimY, seconds int) uint {
 }
 
 func solvePart2(robots [][4]int, dimX, dimY int) uint {
-	// Pre-allocate reusable data structures to avoid allocations
-	occupied := make(map[[2]int]bool, len(robots))
-	robotPositions := make([][2]int, len(robots)) // Pre-sized slice
+	// X and Y coordinates move independently!
+	// X repeats every dimX steps, Y repeats every dimY steps
+	// Find time with minimum variance for each axis, then combine with CRT
 
-	maxClusterScore := 0
-	bestTime := 0
+	n := len(robots)
 
-	// Search through a reasonable range - robots repeat every LCM(dimX, dimY)
-	maxTime := dimX * dimY
-	if maxTime > 20000 {
-		maxTime = 20000 // Reasonable upper bound
-	}
-
-	// Check a smaller range first for quick patterns
-	quickSearchLimit := min(maxTime, 10000)
-
-	for t := 1; t < quickSearchLimit; t++ {
-		score := calculateClusterScoreUltra(robots, dimX, dimY, t, occupied, robotPositions)
-		if score > maxClusterScore {
-			maxClusterScore = score
-			bestTime = t
-
-			// Very aggressive early termination for obvious Christmas tree
-			if score > len(robots)*2 { // Most robots clustered
-				break
+	// Find time tx (0 to dimX-1) where X-coordinates have minimum variance
+	minVarX := int64(1 << 62)
+	bestTx := 0
+	for t := 0; t < dimX; t++ {
+		var sumX, sumX2 int64
+		for _, robot := range robots {
+			px, vx := robot[0], robot[2]
+			x := (px + vx*t) % dimX
+			if x < 0 {
+				x += dimX
 			}
+			sumX += int64(x)
+			sumX2 += int64(x) * int64(x)
 		}
-
-		// Skip iterations when score is very low (anti-clustering)
-		if t > 500 && score < maxClusterScore/3 {
-			t += 4 // Skip ahead when clearly no pattern
+		// Variance = E[X²] - E[X]² (scaled by n² to avoid division)
+		variance := int64(n)*sumX2 - sumX*sumX
+		if variance < minVarX {
+			minVarX = variance
+			bestTx = t
 		}
 	}
 
-	// If we didn't find a strong pattern, extend search
-	if maxClusterScore < len(robots) && quickSearchLimit < maxTime {
-		for t := quickSearchLimit; t < maxTime; t += 5 { // Sample every 5th iteration
-			score := calculateClusterScoreUltra(robots, dimX, dimY, t, occupied, robotPositions)
-			if score > maxClusterScore {
-				maxClusterScore = score
-				bestTime = t
-
-				// Fine-tune around the best found time
-				for fine := max(1, t-4); fine <= min(maxTime-1, t+4); fine++ {
-					if fine == t {
-						continue
-					}
-					fineScore := calculateClusterScoreUltra(robots, dimX, dimY, fine, occupied, robotPositions)
-					if fineScore > maxClusterScore {
-						maxClusterScore = fineScore
-						bestTime = fine
-					}
-				}
-				break
+	// Find time ty (0 to dimY-1) where Y-coordinates have minimum variance
+	minVarY := int64(1 << 62)
+	bestTy := 0
+	for t := 0; t < dimY; t++ {
+		var sumY, sumY2 int64
+		for _, robot := range robots {
+			py, vy := robot[1], robot[3]
+			y := (py + vy*t) % dimY
+			if y < 0 {
+				y += dimY
 			}
+			sumY += int64(y)
+			sumY2 += int64(y) * int64(y)
+		}
+		variance := int64(n)*sumY2 - sumY*sumY
+		if variance < minVarY {
+			minVarY = variance
+			bestTy = t
 		}
 	}
 
-	return uint(bestTime)
+	// Chinese Remainder Theorem: find t where t ≡ bestTx (mod dimX) and t ≡ bestTy (mod dimY)
+	// Since dimX=101 and dimY=103 are coprime, solution exists and is unique mod (dimX*dimY)
+	// t = bestTx + dimX * k, find k such that bestTx + dimX*k ≡ bestTy (mod dimY)
+	// dimX * k ≡ (bestTy - bestTx) (mod dimY)
+	// k ≡ (bestTy - bestTx) * modInverse(dimX, dimY) (mod dimY)
+
+	diff := bestTy - bestTx
+	for diff < 0 {
+		diff += dimY
+	}
+
+	// modInverse of dimX mod dimY using extended Euclidean algorithm
+	inv := modInverse(dimX, dimY)
+	k := (diff * inv) % dimY
+
+	result := bestTx + dimX*k
+	return uint(result)
 }
 
-func calculateClusterScoreUltra(robots [][4]int, dimX, dimY, seconds int, occupied map[[2]int]bool, robotPositions [][2]int) int {
-	// Clear the reused map - much faster than allocating new map
-	for k := range occupied {
-		delete(occupied, k)
+func modInverse(a, m int) int {
+	// Extended Euclidean algorithm
+	g, x, _ := extGCD(a, m)
+	if g != 1 {
+		return -1 // No inverse exists
 	}
+	return (x%m + m) % m
+}
 
-	// Calculate robot positions and mark occupied cells (reuse slice)
-	for i, robot := range robots {
-		px, py, vx, vy := robot[0], robot[1], robot[2], robot[3]
-
-		finalX := (px + vx*seconds) % dimX
-		finalY := (py + vy*seconds) % dimY
-
-		if finalX < 0 {
-			finalX += dimX
-		}
-		if finalY < 0 {
-			finalY += dimY
-		}
-
-		pos := [2]int{finalX, finalY}
-		occupied[pos] = true
-		robotPositions[i] = pos // Reuse pre-allocated slice
+func extGCD(a, b int) (g, x, y int) {
+	if a == 0 {
+		return b, 0, 1
 	}
-
-	// Count clustering - accept some double counting for speed
-	score := 0
-	for i := 0; i < len(robots); i++ {
-		pos := robotPositions[i]
-		x, y := pos[0], pos[1]
-
-		// Count neighbors using map lookups (4 cardinal directions)
-		if occupied[[2]int{x - 1, y}] {
-			score++
-		}
-		if occupied[[2]int{x + 1, y}] {
-			score++
-		}
-		if occupied[[2]int{x, y - 1}] {
-			score++
-		}
-		if occupied[[2]int{x, y + 1}] {
-			score++
-		}
-	}
-
-	return score
+	g, x1, y1 := extGCD(b%a, a)
+	return g, y1 - (b/a)*x1, x1
 }
