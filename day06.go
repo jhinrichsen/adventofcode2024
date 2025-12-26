@@ -118,7 +118,6 @@ func day06Part2(p Day06Puzzle) uint {
 			x, y := pos%dimX, pos/dimX
 			originalPath[pos] = true
 
-			// Check bounds
 			switch dir {
 			case 0:
 				if y == 0 {
@@ -153,10 +152,7 @@ func day06Part2(p Day06Puzzle) uint {
 
 	// Check if adding obstruction at obstIdx causes a loop
 	causesLoop := func(obstIdx int) bool {
-		// Clear visited
-		for i := range visited {
-			visited[i] = false
-		}
+		clear(visited)
 
 		pos := p.startIdx
 		dir := 0
