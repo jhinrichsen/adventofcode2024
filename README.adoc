@@ -366,48 +366,44 @@ PASS
 
 == Day 6: Guard Gallivant
 
-=== Part 1
+Refactored from `[][]byte` grid with `image.Point` to flat arrays with index arithmetic.
+
+=== Benchstat Comparison
 
 ----
-goos: linux
-goarch: amd64
-pkg: gitlab.com/jhinrichsen/adventofcode2024
-cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics
-BenchmarkDay06Part1-16    	    4609	    243924 ns/op	  895651 B/op	     196 allocs/op
+              │   Original    │            Flat             │
+              │    sec/op     │   sec/op     vs base        │
+Day06Part1-16      353.0µ         36.0µ       -89.80%
+Day06Part2-16      72.0m          41.6m       -42.22%
+
+              │  Original  │          Flat           │
+              │ allocs/op  │ allocs/op   vs base     │
+Day06Part1-16      196           2         -98.98%
+Day06Part2-16      197           3         -98.48%
 ----
 
-=== Part 2
+Key optimizations:
 
-----
-goos: linux
-goarch: amd64
-pkg: gitlab.com/jhinrichsen/adventofcode2024
-cpu: AMD Ryzen 7 7840HS w/ Radeon 780M Graphics
-BenchmarkDay06Part2-16    	      21	  55184398 ns/op	  969380 B/op	     197 allocs/op
-----
+1. Flat `[]byte` grid instead of `[][]byte`
+2. Integer indices instead of `image.Point`
+3. Direction as int (0-3) with `[4]int` offset lookup
+4. Part 1: `[]bool` visited instead of `map[image.Point]bool`
+5. Part 2: path-only testing (only test positions on original path)
+6. Part 2: reuse `[]bool` state array with `clear()` equivalent
 
-That's 55ms for part 2.
-
-=== Optimization Analysis
+=== Historical Optimization
 
 Original brute force approach (14.5 seconds):
 - Tests all 17,161 grid positions as potential obstructions
 - Uses `map[state]struct{}` for loop detection with expensive hash operations
 - Allocates new map for each simulation (4.1M allocations total)
 
-Optimized approach (55ms):
+First optimization (55ms → now 41ms with flat arrays):
+- Path-only testing: ~4,900 positions vs 17,161 total
+- Array-based state tracking: `stateIdx = pos*4 + direction`
+- State reuse: clear and reuse visited array
 
-1. Path-only testing: Only test obstruction positions on the guard's original path (~4,900 positions vs 17,161 total). This optimization is valid because only positions the guard visits can potentially cause loops when blocked.
-
-2. Array-based state tracking: Replace `map[state]struct{}` with `[]bool` using packed state indices:
-   ```
-   stateIdx = pos.Y*dimX*4 + pos.X*4 + direction
-   ```
-   Array lookups are ~10x faster than map hash operations.
-
-3. State reuse: Clear and reuse the same visited array instead of allocating new maps for each simulation, reducing GC pressure.
-
-**Benchstat comparison**:
+**Original benchstat comparison**:
 ----
               │ bench_before.txt │         bench_after.txt         │
               │      sec/op      │    sec/op     vs base           │

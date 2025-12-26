@@ -7,7 +7,7 @@ Analysis of AoC 2024 puzzles that could be refactored to use the new `grid.go` i
 | Day | Puzzle | Grid Type | Current Approach | Rewrite Benefit |
 |-----|--------|-----------|------------------|-----------------|
 | 4 | Ceres Search | C8 | Manual 8 directions | **None** (benchmarked) |
-| 6 | Guard Gallivant | C4 + direction | Manual directions | Medium |
+| 6 | Guard Gallivant | C4 + direction | Flat array + int dir | **Done** - 90% faster P1, 42% faster P2 |
 | 10 | Hoof It | C4 | Flat array + slices | **Done** - 77-81% faster |
 | 12 | Garden Groups | C4 | Union-find + C4Indices | **Done** - 340x fewer allocs |
 | 14 | Restroom Redoubt | C4/C8 | Manual neighbors | Medium |
