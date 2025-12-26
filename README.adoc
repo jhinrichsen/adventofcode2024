@@ -1259,3 +1259,36 @@ Day17Part1-28   1.000 ± 0%   1.000 ± 0%  ~ (p=1.000 n=10) ¹
 <1> another 3% gain
 
 All in all we're down to 108.9 ns ≙ 9.2 MHz.
+
+== Day 18: RAM Run
+
+Refactored from `[][]byte` grid with `image.Point` to flat arrays with index arithmetic.
+
+=== Benchstat Comparison
+
+----
+              │   Original    │            Flat             │
+              │    sec/op     │   sec/op     vs base        │
+Day18Part1-16      173.0µ        144.0µ       -16.76%
+Day18Part2-16      755.0µ        466.0µ       -38.28%
+
+              │   Original   │           Flat            │
+              │    B/op      │    B/op     vs base       │
+Day18Part1-16     279Ki        298Ki        +6.81%
+Day18Part2-16     820Ki        741Ki        -9.63%
+
+              │  Original  │          Flat           │
+              │ allocs/op  │ allocs/op   vs base     │
+Day18Part1-16     1697         1043       -38.54%
+Day18Part2-16    12690         3506       -72.37%
+----
+
+Key optimizations:
+
+1. Flat `[]byte` grid instead of `[][]byte`
+2. Flat `[]bool` visited instead of `[][]bool`
+3. Integer indices instead of `image.Point`
+4. Pre-computed direction offsets as `[4]int{-dimX, 1, dimX, -1}`
+5. Ring buffer queue (head index instead of slice shifting)
+
+Note: Grid.go C4Indices was benchmarked but proved 3x slower due to neighbor table allocation overhead (16k allocs). Flat arrays with inline bounds checking are optimal for BFS pathfinding.

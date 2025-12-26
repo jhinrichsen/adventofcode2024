@@ -2,171 +2,153 @@ package adventofcode2024
 
 import (
 	"fmt"
-	"image"
 	"strconv"
 	"strings"
 )
 
+// Day18Puzzle represents the parsed Day 18 puzzle data
 type Day18Puzzle struct {
-	points     []image.Point
+	points     []int // flat indices
 	dimX, dimY int
 }
 
+// NewDay18 creates a Day18Puzzle from lines
 func NewDay18(lines []string, dimX, dimY int) (Day18Puzzle, error) {
-	a := Day18Puzzle{dimX: dimX, dimY: dimY}
+	var points []int
 	for i, line := range lines {
 		parts := strings.Split(line, ",")
 		if len(parts) != 2 {
-			return a, fmt.Errorf("want <number>,<number> but got %q in line %d", line, i+1)
+			return Day18Puzzle{}, fmt.Errorf("want <number>,<number> but got %q in line %d", line, i+1)
 		}
 		x, err := strconv.Atoi(parts[0])
 		if err != nil {
-			return a, fmt.Errorf("cannot parse x coordinate in line %d", i+1)
+			return Day18Puzzle{}, fmt.Errorf("cannot parse x coordinate in line %d", i+1)
 		}
 		y, err := strconv.Atoi(parts[1])
 		if err != nil {
-			return a, fmt.Errorf("cannot parse y coordinate in line %d", i+1)
+			return Day18Puzzle{}, fmt.Errorf("cannot parse y coordinate in line %d", i+1)
 		}
-		a.points = append(a.points, image.Point{x, y})
+		if x >= 0 && x < dimX && y >= 0 && y < dimY {
+			points = append(points, y*dimX+x)
+		}
 	}
-	return a, nil
+	return Day18Puzzle{points: points, dimX: dimX, dimY: dimY}, nil
 }
 
-func Day18(a Day18Puzzle, part1 bool) (uint, string) {
+// Day18 solves Day 18 using flat arrays and index arithmetic
+func Day18(p Day18Puzzle, part1 bool) (uint, string) {
 	if part1 {
-		steps := findShortestPath(a)
-		return steps, ""
+		return day18Part1(p), ""
 	}
-	coord := findBlockingByteString(a)
-	return 0, coord
+	x, y := day18Part2(p)
+	return 0, fmt.Sprintf("%d,%d", x, y)
 }
 
-func findShortestPath(a Day18Puzzle) uint {
-	const corrupted = '#'
+func day18Part1(p Day18Puzzle) uint {
+	dimX, dimY := p.dimX, p.dimY
+	size := dimX * dimY
 
-	grid := make([][]byte, a.dimY)
-	for y := range a.dimY {
-		grid[y] = make([]byte, a.dimX)
-		for x := range a.dimX {
-			grid[y][x] = '.'
-		}
+	// Flat grid: 0 = open, 1 = corrupted
+	grid := make([]byte, size)
+	for _, idx := range p.points {
+		grid[idx] = 1
 	}
 
-	// Apply all corruption from input
-	for _, p := range a.points {
-		if p.X >= 0 && p.X < a.dimX && p.Y >= 0 && p.Y < a.dimY {
-			grid[p.Y][p.X] = corrupted
-		}
-	}
-
-	return bfsShortestPath(grid, a.dimX, a.dimY)
+	return bfsFlat(grid, dimX, dimY)
 }
 
-func findBlockingByteString(a Day18Puzzle) string {
-	// Binary search to find the first byte that blocks all paths
-	left, right := 0, len(a.points)-1
+func day18Part2(p Day18Puzzle) (int, int) {
+	// Binary search for first blocking byte
+	left, right := 0, len(p.points)-1
 
 	for left < right {
 		mid := (left + right) / 2
-		if canReachExit(a, mid+1) {
+		if canReachFlat(p, mid+1) {
 			left = mid + 1
 		} else {
 			right = mid
 		}
 	}
 
-	if left < len(a.points) {
-		p := a.points[left]
-		return fmt.Sprintf("%d,%d", p.X, p.Y)
+	if left < len(p.points) {
+		idx := p.points[left]
+		return idx % p.dimX, idx / p.dimX
 	}
-	return "0,0"
+	return 0, 0
 }
 
-func canReachExit(a Day18Puzzle, corruptionLimit int) bool {
-	const corrupted = '#'
+func canReachFlat(p Day18Puzzle, limit int) bool {
+	dimX, dimY := p.dimX, p.dimY
+	size := dimX * dimY
 
-	grid := make([][]byte, a.dimY)
-	for y := range a.dimY {
-		grid[y] = make([]byte, a.dimX)
-		for x := range a.dimX {
-			grid[y][x] = '.'
-		}
+	grid := make([]byte, size)
+	for i := range min(limit, len(p.points)) {
+		grid[p.points[i]] = 1
 	}
 
-	// Apply corruption up to limit
-	limit := min(corruptionLimit, len(a.points))
-	for i := range limit {
-		p := a.points[i]
-		if p.X >= 0 && p.X < a.dimX && p.Y >= 0 && p.Y < a.dimY {
-			grid[p.Y][p.X] = corrupted
-		}
-	}
-
-	return bfsShortestPath(grid, a.dimX, a.dimY) > 0
+	return bfsFlat(grid, dimX, dimY) > 0
 }
 
+func bfsFlat(grid []byte, dimX, dimY int) uint {
+	size := dimX * dimY
+	start, end := 0, size-1
 
-func bfsShortestPath(grid [][]byte, dimX, dimY int) uint {
-	const corrupted = '#'
-
-	start := image.Point{X: 0, Y: 0}
-	end := image.Point{X: dimX - 1, Y: dimY - 1}
-
-	if grid[start.Y][start.X] == corrupted || grid[end.Y][end.X] == corrupted {
-		return 0 // blocked start or end
-	}
-
-	if start == end {
+	if grid[start] == 1 || grid[end] == 1 {
 		return 0
 	}
 
-	visited := make([][]bool, dimY)
-	for y := range dimY {
-		visited[y] = make([]bool, dimX)
-	}
+	// Flat visited
+	visited := make([]bool, size)
+	visited[start] = true
 
+	// Direction offsets: N, E, S, W
+	dirs := [4]int{-dimX, 1, dimX, -1}
+
+	// BFS with flat indices, ring buffer style
 	type state struct {
-		pos   image.Point
+		idx   int
 		steps uint
 	}
+	queue := make([]state, 0, size/4)
+	queue = append(queue, state{idx: start, steps: 0})
+	head := 0
 
-	queue := []state{{pos: start, steps: 0}}
-	visited[start.Y][start.X] = true
+	for head < len(queue) {
+		cur := queue[head]
+		head++
 
-	directions := []image.Point{
-		{X: 0, Y: -1}, // up
-		{X: 0, Y: 1},  // down
-		{X: -1, Y: 0}, // left
-		{X: 1, Y: 0},  // right
-	}
-
-	for len(queue) > 0 {
-		current := queue[0]
-		queue = queue[1:]
-
-		if current.pos == end {
-			return current.steps
+		if cur.idx == end {
+			return cur.steps
 		}
 
-		for _, dir := range directions {
-			next := image.Point{
-				X: current.pos.X + dir.X,
-				Y: current.pos.Y + dir.Y,
+		x, y := cur.idx%dimX, cur.idx/dimX
+		for di, d := range dirs {
+			// Bounds check
+			switch di {
+			case 0: // N
+				if y == 0 {
+					continue
+				}
+			case 1: // E
+				if x == dimX-1 {
+					continue
+				}
+			case 2: // S
+				if y == dimY-1 {
+					continue
+				}
+			case 3: // W
+				if x == 0 {
+					continue
+				}
 			}
 
-			if next.X >= 0 && next.X < dimX &&
-				next.Y >= 0 && next.Y < dimY &&
-				!visited[next.Y][next.X] &&
-				grid[next.Y][next.X] != corrupted {
-
-				visited[next.Y][next.X] = true
-				queue = append(queue, state{
-					pos:   next,
-					steps: current.steps + 1,
-				})
+			ni := cur.idx + d
+			if !visited[ni] && grid[ni] == 0 {
+				visited[ni] = true
+				queue = append(queue, state{idx: ni, steps: cur.steps + 1})
 			}
 		}
 	}
-
-	return 0 // no path found
+	return 0
 }
