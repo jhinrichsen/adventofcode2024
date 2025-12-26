@@ -8,13 +8,13 @@ Analysis of AoC 2024 puzzles that could be refactored to use the new `grid.go` i
 |-----|--------|-----------|------------------|-----------------|
 | 4 | Ceres Search | C8 | Manual 8 directions | **None** (benchmarked) |
 | 6 | Guard Gallivant | C4 + direction | Manual directions | Medium |
-| 10 | Hoof It | C4 | container/list + directions | **None** (benchmarked) |
-| 12 | Garden Groups | C4 | Manual 4 directions | **Yes** - union-find pattern |
+| 10 | Hoof It | C4 | Flat array + slices | **Done** - 77-81% faster |
+| 12 | Garden Groups | C4 | Union-find + C4Indices | **Done** - 340x fewer allocs |
 | 14 | Restroom Redoubt | C4/C8 | Manual neighbors | Medium |
 | 15 | Warehouse Woes | Movement | Index arithmetic | Low |
 | 16 | Reindeer Maze | C4 + direction | Manual directions | Medium |
-| 18 | RAM Run | C4 | (not implemented) | High |
-| 20 | Race Condition | C4 | (not implemented) | High |
+| 18 | RAM Run | C4 | Flat array + BFS | **Done** - 38% faster |
+| 20 | Race Condition | C4 | Flat array + BFS | **Done** - 45% faster |
 | 21 | Keypad Conundrum | Small grids | (not implemented) | Low |
 
 ## High Priority Rewrites
@@ -127,6 +127,54 @@ for idx, neighbors := range g.C4Indices() {
 3. Algorithm adapts to scan pattern (union-find instead of DFS)
 
 Flat DFS is still fastest for this problem, but GridUnionFind demonstrates the iterator's potential.
+
+---
+
+### Day 18: RAM Run - OPTIMIZED
+
+**Benchmark Results:**
+
+| Implementation | Part 1 | Part 2 | Allocs | vs Original |
+|----------------|--------|--------|--------|-------------|
+| Original ([][]byte, image.Point) | 173µs | 755µs | 1,697 / 12,690 | baseline |
+| Flat array + index arithmetic | 144µs | 466µs | 1,043 / 3,506 | **17-38% faster** |
+| Grid C4Indices (pre-computed) | 499µs | 746µs | 16,163 / 18,625 | **3x slower** |
+
+**Finding:** Grid.go C4Indices is 3x slower for BFS pathfinding due to neighbor table allocation overhead (16k allocs). Flat arrays with inline bounds checking are optimal.
+
+**Optimizations applied:**
+1. Flat `[]byte` grid instead of `[][]byte`
+2. Flat `[]bool` visited instead of `[][]bool`
+3. Integer indices instead of `image.Point`
+4. Pre-computed direction offsets as `[4]int{-dimX, 1, dimX, -1}`
+5. Ring buffer queue (head index instead of slice shifting)
+
+**Conclusion:** Grid.go iterators don't help BFS pathfinding. The optimization comes from flat arrays and avoiding image.Point overhead.
+
+---
+
+### Day 20: Race Condition - OPTIMIZED
+
+**Benchmark Results:**
+
+| Implementation | Part 1 | Part 2 | Allocs | vs Original |
+|----------------|--------|--------|--------|-------------|
+| Original ([][]byte, image.Point) | 1.54ms | 46.0ms | 28,894 | baseline |
+| Flat array + index arithmetic | 0.87ms | 24.9ms | 11 | **44-46% faster, 99.96% fewer allocs** |
+
+**Finding:** The massive allocation reduction (28,894 → 11) comes from:
+- Flat `[]uint` distances instead of `[][]uint` (eliminates row allocations)
+- Ring buffer queue instead of slice shifting
+
+**Optimizations applied:**
+1. Flat `[]byte` grid instead of `[][]byte`
+2. Flat `[]uint` distances instead of `[][]uint`
+3. Integer indices instead of `image.Point`
+4. Pre-computed direction offsets as `[4]int{-dimX, 1, dimX, -1}`
+5. Ring buffer queue (head index instead of slice shifting)
+6. Optimized manhattan distance iteration (skip invalid dx range)
+
+**Conclusion:** Same pattern as Day 18 - flat arrays with index arithmetic beat grid.go iterators for BFS-based algorithms.
 
 ---
 
