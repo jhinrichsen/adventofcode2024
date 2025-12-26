@@ -8,6 +8,7 @@ Analysis of AoC 2024 puzzles that could be refactored to use the new `grid.go` i
 |-----|--------|-----------|------------------|-----------------|
 | 4 | Ceres Search | C8 | Manual 8 directions | **None** (benchmarked) |
 | 6 | Guard Gallivant | C4 + direction | Flat array + int dir | **Done** - 90% faster P1, 42% faster P2 |
+| 8 | Resonant Collinearity | Ray casting | O(n⁴) + map[Point]bool | Medium - group antennas + []bool |
 | 10 | Hoof It | C4 | Flat array + slices | **Done** - 77-81% faster |
 | 12 | Garden Groups | C4 | Union-find + C4Indices | **Done** - 340x fewer allocs |
 | 14 | Restroom Redoubt | C4/C8 | Manual neighbors | Medium |
@@ -179,6 +180,39 @@ Flat DFS is still fastest for this problem, but GridUnionFind demonstrates the i
 ---
 
 ## Medium Priority Rewrites
+
+### Day 8: Resonant Collinearity
+
+**Benchmark Results:**
+
+| Implementation | Part 1 | Part 2 | Allocs |
+|----------------|--------|--------|--------|
+| Original (O(n⁴) + map[Point]bool) | 290µs | 330µs | 109KB, 9 allocs |
+
+**Current:** O(n⁴) nested loops scanning full grid for each antenna pair
+```go
+for y := range dimY {
+    for x := range dimX {
+        c := lines[y][x]
+        if c == empty { continue }
+        // O(n²) inner loop to find matching frequencies
+        for y2 := range dimY {
+            for x2 := range dimX {
+                if lines[y2][x2] != c { continue }
+                // compute antinodes
+            }
+        }
+    }
+}
+uniques[image.Point{x, y}] = true  // map lookup overhead
+```
+
+**Optimization Opportunities:**
+1. Pre-group antennas by frequency (one pass through grid) → O(n) + O(k²) per frequency
+2. Replace `map[image.Point]bool` with `[]bool` flat array
+3. Use integer indices instead of image.Point
+
+---
 
 ### Day 6: Guard Gallivant
 
