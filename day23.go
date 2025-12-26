@@ -7,180 +7,220 @@ import (
 )
 
 type Day23Puzzle struct {
-	connections map[string][]string
-	computers   []string
+	adj       []uint64     // adjacency bitset: adj[i*11 + j/64] bit j%64
+	nodeCount int          // number of unique nodes
+	idToName  []string     // id -> "xx" name
+	nameToID  map[string]int
+	tNodes    []int        // nodes starting with 't'
 }
 
+const day23MaxNodes = 676 // 26*26
+const day23Words = (day23MaxNodes + 63) / 64 // 11 words per node
+
 func NewDay23(lines []string) (Day23Puzzle, error) {
-	connections := make(map[string][]string)
-	computerSet := make(map[string]bool)
+	nameToID := make(map[string]int)
+	var idToName []string
+	var edges [][2]int
+	var tNodes []int
 
 	for _, line := range lines {
-		if line := strings.TrimSpace(line); line != "" {
-			parts := strings.Split(line, "-")
-			if len(parts) == 2 {
-				a, b := parts[0], parts[1]
-				connections[a] = append(connections[a], b)
-				connections[b] = append(connections[b], a)
-				computerSet[a] = true
-				computerSet[b] = true
+		if line = strings.TrimSpace(line); line == "" {
+			continue
+		}
+		// Parse "xx-yy"
+		a, b := line[:2], line[3:5]
+
+		idA, ok := nameToID[a]
+		if !ok {
+			idA = len(idToName)
+			nameToID[a] = idA
+			idToName = append(idToName, a)
+			if a[0] == 't' {
+				tNodes = append(tNodes, idA)
 			}
 		}
+
+		idB, ok := nameToID[b]
+		if !ok {
+			idB = len(idToName)
+			nameToID[b] = idB
+			idToName = append(idToName, b)
+			if b[0] == 't' {
+				tNodes = append(tNodes, idB)
+			}
+		}
+
+		edges = append(edges, [2]int{idA, idB})
 	}
 
-	// Convert set to sorted slice for deterministic iteration
-	computers := make([]string, 0, len(computerSet))
-	for comp := range computerSet {
-		computers = append(computers, comp)
+	n := len(idToName)
+	// Adjacency bitset: n nodes, each with day23Words uint64s
+	adj := make([]uint64, n*day23Words)
+
+	for _, e := range edges {
+		a, b := e[0], e[1]
+		// Set bit b in node a's adjacency
+		adj[a*day23Words+b/64] |= 1 << (b % 64)
+		// Set bit a in node b's adjacency
+		adj[b*day23Words+a/64] |= 1 << (a % 64)
 	}
-	slices.Sort(computers)
 
 	return Day23Puzzle{
-		connections: connections,
-		computers:   computers,
+		adj:       adj,
+		nodeCount: n,
+		idToName:  idToName,
+		nameToID:  nameToID,
+		tNodes:    tNodes,
 	}, nil
+}
+
+func (p *Day23Puzzle) connected(a, b int) bool {
+	return (p.adj[a*day23Words+b/64] & (1 << (b % 64))) != 0
 }
 
 func Day23(puzzle Day23Puzzle, part1 bool) string {
 	if part1 {
-		triangles := findTriangles(puzzle)
-
-		// Count triangles with at least one computer starting with 't'
-		var count uint
-		for triangle := range triangles {
-			if hasComputerStartingWithT(triangle) {
-				count++
-			}
-		}
-
-		return strconv.FormatUint(uint64(count), 10)
+		return strconv.Itoa(countTrianglesWithT(puzzle))
 	}
-
-	// Part 2: return password (largest clique, comma-separated)
-	maxClique := findMaximumClique(puzzle)
-	slices.Sort(maxClique)
-	return strings.Join(maxClique, ",")
+	return findMaxClique(puzzle)
 }
 
-func findTriangles(puzzle Day23Puzzle) map[[3]string]bool {
-	triangles := make(map[[3]string]bool)
+func countTrianglesWithT(p Day23Puzzle) int {
+	count := 0
+	n := p.nodeCount
 
-	// For each computer, check all pairs of its neighbors
-	for _, a := range puzzle.computers {
-		neighbors := puzzle.connections[a]
-
-		for i := range neighbors {
-			for j := i + 1; j < len(neighbors); j++ {
-				b := neighbors[i]
-				c := neighbors[j]
-
-				// Check if b and c are connected
-				if isConnected(puzzle, b, c) {
-					// Create canonical triangle (sorted)
-					triangle := [3]string{a, b, c}
-					slices.Sort(triangle[:])
-					triangles[triangle] = true
+	// For each node starting with 't', find triangles
+	for _, t := range p.tNodes {
+		// Get neighbors of t
+		for a := 0; a < n; a++ {
+			if a == t || !p.connected(t, a) {
+				continue
+			}
+			for b := a + 1; b < n; b++ {
+				if b == t || !p.connected(t, b) {
+					continue
+				}
+				if p.connected(a, b) {
+					// Triangle t-a-b, but only count if t is smallest 't' node
+					// to avoid duplicates when multiple 't' nodes in triangle
+					hasSmaller := false
+					for _, other := range p.tNodes {
+						if other < t && (other == a || other == b) {
+							hasSmaller = true
+							break
+						}
+					}
+					if !hasSmaller {
+						count++
+					}
 				}
 			}
 		}
 	}
-
-	return triangles
+	return count
 }
 
-func isConnected(puzzle Day23Puzzle, a, b string) bool {
-	neighbors := puzzle.connections[a]
-	return slices.Contains(neighbors, b)
-}
+func findMaxClique(p Day23Puzzle) string {
+	n := p.nodeCount
 
-func hasComputerStartingWithT(triangle [3]string) bool {
-	for _, comp := range triangle {
-		if len(comp) > 0 && comp[0] == 't' {
-			return true
+	// Bron-Kerbosch with pivoting, iterative with stack
+	type state struct {
+		R []int   // current clique
+		P []int   // candidates
+		X []int   // excluded
+	}
+
+	// Initial state: R={}, P=all nodes, X={}
+	allNodes := make([]int, n)
+	for i := range allNodes {
+		allNodes[i] = i
+	}
+
+	stack := []state{{R: nil, P: allNodes, X: nil}}
+	var maxClique []int
+
+	for len(stack) > 0 {
+		s := stack[len(stack)-1]
+		stack = stack[:len(stack)-1]
+
+		if len(s.P) == 0 && len(s.X) == 0 {
+			if len(s.R) > len(maxClique) {
+				maxClique = append([]int(nil), s.R...)
+			}
+			continue
 		}
-	}
-	return false
-}
 
-// findMaximumClique finds the largest clique using Bron-Kerbosch algorithm
-func findMaximumClique(puzzle Day23Puzzle) []string {
-	var maxClique []string
+		if len(s.P) == 0 {
+			continue
+		}
 
-	// Convert computers slice to set for easier manipulation
-	allComputers := make(map[string]bool)
-	for _, comp := range puzzle.computers {
-		allComputers[comp] = true
-	}
-
-	// Bron-Kerbosch algorithm
-	bronKerbosch(
-		puzzle,
-		make(map[string]bool),  // R: current clique
-		allComputers,            // P: candidates
-		make(map[string]bool),  // X: already processed
-		&maxClique,
-	)
-
-	return maxClique
-}
-
-// bronKerbosch implements the Bron-Kerbosch algorithm for finding maximal cliques
-func bronKerbosch(
-	puzzle Day23Puzzle,
-	R map[string]bool,  // current clique
-	P map[string]bool,  // candidates
-	X map[string]bool,  // already processed
-	maxClique *[]string,
-) {
-	if len(P) == 0 && len(X) == 0 {
-		// Found a maximal clique
-		if len(R) > len(*maxClique) {
-			*maxClique = make([]string, 0, len(R))
-			for node := range R {
-				*maxClique = append(*maxClique, node)
+		// Choose pivot from P ∪ X with most connections to P
+		pivot := -1
+		maxConn := -1
+		for _, u := range s.P {
+			conn := 0
+			for _, v := range s.P {
+				if p.connected(u, v) {
+					conn++
+				}
+			}
+			if conn > maxConn {
+				maxConn = conn
+				pivot = u
 			}
 		}
-		return
-	}
-
-	// Make a copy of P to iterate over (since we modify P in the loop)
-	PCopy := make([]string, 0, len(P))
-	for node := range P {
-		PCopy = append(PCopy, node)
-	}
-
-	for _, v := range PCopy {
-		// R ∪ {v}
-		newR := make(map[string]bool, len(R)+1)
-		for node := range R {
-			newR[node] = true
-		}
-		newR[v] = true
-
-		// P ∩ N(v)
-		neighbors := puzzle.connections[v]
-		newP := make(map[string]bool)
-		for _, neighbor := range neighbors {
-			if P[neighbor] {
-				newP[neighbor] = true
+		for _, u := range s.X {
+			conn := 0
+			for _, v := range s.P {
+				if p.connected(u, v) {
+					conn++
+				}
+			}
+			if conn > maxConn {
+				maxConn = conn
+				pivot = u
 			}
 		}
 
-		// X ∩ N(v)
-		newX := make(map[string]bool)
-		for _, neighbor := range neighbors {
-			if X[neighbor] {
-				newX[neighbor] = true
+		// Process P \ N(pivot)
+		for i := len(s.P) - 1; i >= 0; i-- {
+			v := s.P[i]
+			if pivot >= 0 && p.connected(pivot, v) {
+				continue
 			}
+
+			// newR = R ∪ {v}
+			newR := append(append([]int(nil), s.R...), v)
+
+			// newP = P ∩ N(v)
+			var newP []int
+			for _, u := range s.P {
+				if u != v && p.connected(v, u) {
+					newP = append(newP, u)
+				}
+			}
+
+			// newX = X ∩ N(v)
+			var newX []int
+			for _, u := range s.X {
+				if p.connected(v, u) {
+					newX = append(newX, u)
+				}
+			}
+
+			stack = append(stack, state{R: newR, P: newP, X: newX})
+
+			// P = P \ {v}, X = X ∪ {v}
+			s.P = append(s.P[:i], s.P[i+1:]...)
+			s.X = append(s.X, v)
 		}
-
-		bronKerbosch(puzzle, newR, newP, newX, maxClique)
-
-		// P := P \ {v}
-		delete(P, v)
-
-		// X := X ∪ {v}
-		X[v] = true
 	}
-}
 
+	// Convert to names and sort
+	names := make([]string, len(maxClique))
+	for i, id := range maxClique {
+		names[i] = p.idToName[id]
+	}
+	slices.Sort(names)
+	return strings.Join(names, ",")
+}

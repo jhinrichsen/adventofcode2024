@@ -1,7 +1,6 @@
 package adventofcode2024
 
 import (
-	"container/heap"
 	"errors"
 	"fmt"
 	"image"
@@ -29,53 +28,16 @@ func (e *NoSolutionError) Is(target error) bool {
 	return ok
 }
 
-// Sentinel error for errors.Is() compatibility
 var ErrNoSolutionFound = &NoSolutionError{}
 
-type state struct {
-	pos image.Point
-	dir int // 0=North, 1=East, 2=South, 3=West
-}
+// Direction deltas: North=0, East=1, South=2, West=3
+var day16DX = [4]int{0, 1, 0, -1}
+var day16DY = [4]int{-1, 0, 1, 0}
 
-type dijkstraNode struct {
-	state state
-	cost  uint
-	index int // for heap interface
-}
-
-type priorityQueue []*dijkstraNode
-
-func (pq priorityQueue) Len() int { return len(pq) }
-
-func (pq priorityQueue) Less(i, j int) bool {
-	return pq[i].cost < pq[j].cost
-}
-
-func (pq priorityQueue) Swap(i, j int) {
-	pq[i], pq[j] = pq[j], pq[i]
-	pq[i].index = i
-	pq[j].index = j
-}
-
-func (pq *priorityQueue) Push(x interface{}) {
-	n := len(*pq)
-	node := x.(*dijkstraNode)
-	node.index = n
-	*pq = append(*pq, node)
-}
-
-func (pq *priorityQueue) Pop() interface{} {
-	old := *pq
-	n := len(old)
-	node := old[n-1]
-	old[n-1] = nil  // avoid memory leak
-	node.index = -1 // for safety
-	*pq = old[0 : n-1]
-	return node
-}
+const day16MaxCost = uint(1<<31 - 1)
 
 func Day16(grid []byte, part1 bool) (uint, error) {
-	// Find dimensions by scanning for first newline
+	// Find dimensions
 	dimX := 0
 	for i, b := range grid {
 		if b == '\n' {
@@ -83,166 +45,197 @@ func Day16(grid []byte, part1 bool) (uint, error) {
 			break
 		}
 	}
+	stride := dimX + 1
+	dimY := (len(grid) + 1) / stride
 
-	// Find start and end positions
-	var start, end image.Point
-	var startFound, endFound bool
-
+	// Find start and end
+	startX, startY, endX, endY := -1, -1, -1, -1
 	for i, b := range grid {
-		if b == '\n' {
-			continue
-		}
-		x := i % (dimX + 1)
-		y := i / (dimX + 1)
-
-		switch b {
-		case 'S':
-			start = image.Point{X: x, Y: y}
-			startFound = true
-		case 'E':
-			end = image.Point{X: x, Y: y}
-			endFound = true
+		if b == 'S' {
+			startX, startY = i%stride, i/stride
+		} else if b == 'E' {
+			endX, endY = i%stride, i/stride
 		}
 	}
-
-	if !startFound {
+	if startX < 0 {
 		return 0, ErrNoStartFound
 	}
-	if !endFound {
+	if endX < 0 {
 		return 0, ErrNoEndFound
 	}
-	// Direction vectors: North, East, South, West
-	dirs := []image.Point{
-		{X: 0, Y: -1}, // North
-		{X: 1, Y: 0},  // East
-		{X: 0, Y: 1},  // South
-		{X: -1, Y: 0}, // West
+
+	// State encoding: (y * dimX + x) * 4 + dir
+	numStates := dimX * dimY * 4
+	cost := make([]uint, numStates)
+	for i := range cost {
+		cost[i] = day16MaxCost
 	}
 
-	// Start facing East (direction 1)
-	startState := state{pos: start, dir: 1}
+	// Bucket queue for Dijkstra (costs are 1 or 1000)
+	// Use two levels: buckets[i] = states with cost in [i*1000, (i+1)*1000)
+	// Within each bucket, use deque-like processing
+	maxBuckets := (dimX + dimY) * 2 // rough upper bound on turns
+	buckets := make([][]int, maxBuckets)
+	for i := range buckets {
+		buckets[i] = make([]int, 0, 64)
+	}
 
-	// Priority queue for Dijkstra's
-	pq := &priorityQueue{}
-	heap.Init(pq)
-	heap.Push(pq, &dijkstraNode{state: startState, cost: 0})
+	// Start facing East (dir=1)
+	startState := (startY*dimX + startX) * 4 + 1
+	cost[startState] = 0
+	buckets[0] = append(buckets[0], startState)
 
-	// Track visited states with their minimum cost
-	visited := make(map[state]uint)
-	var minCost uint
-	var foundSolution bool
+	endPos := endY*dimX + endX
+	var minCost uint = day16MaxCost
+	currentBucket := 0
 
-	for pq.Len() > 0 {
-		current := heap.Pop(pq).(*dijkstraNode)
-
-		// Skip if we've already found a better path to this state
-		if prevCost, exists := visited[current.state]; exists && prevCost < current.cost {
+	for currentBucket < maxBuckets {
+		if len(buckets[currentBucket]) == 0 {
+			currentBucket++
 			continue
 		}
-		visited[current.state] = current.cost
 
-		// Check if we reached the end
-		if current.state.pos == end {
-			if part1 {
-				return current.cost, nil
-			}
-			if !foundSolution {
-				minCost = current.cost
-				foundSolution = true
-			} else if current.cost > minCost {
-				break // No more optimal paths
-			}
+		// Pop from current bucket
+		s := buckets[currentBucket][len(buckets[currentBucket])-1]
+		buckets[currentBucket] = buckets[currentBucket][:len(buckets[currentBucket])-1]
+
+		pos := s / 4
+		dir := s % 4
+		c := cost[s]
+
+		// Check if outdated
+		if c > cost[s] {
+			continue
 		}
 
-		// Try moving forward
-		newPos := current.state.pos.Add(dirs[current.state.dir])
-		if newPos.X >= 0 && newPos.X < dimX && newPos.Y >= 0 {
-			gridPos := newPos.Y*(dimX+1) + newPos.X
-			if gridPos < len(grid) && grid[gridPos] != '#' {
-				newState := state{pos: newPos, dir: current.state.dir}
-				if prevCost, exists := visited[newState]; !exists || prevCost > current.cost+1 {
-					heap.Push(pq, &dijkstraNode{state: newState, cost: current.cost + 1})
+		// Check if reached end
+		if pos == endPos {
+			if part1 {
+				return c, nil
+			}
+			if c < minCost {
+				minCost = c
+			}
+			continue
+		}
+
+		// Early termination for part2
+		if c > minCost {
+			continue
+		}
+
+		x, y := pos%dimX, pos/dimX
+
+		// Move forward
+		nx, ny := x+day16DX[dir], y+day16DY[dir]
+		if nx >= 0 && nx < dimX && ny >= 0 && ny < dimY {
+			if grid[ny*stride+nx] != '#' {
+				newState := (ny*dimX+nx)*4 + dir
+				newCost := c + 1
+				if newCost < cost[newState] {
+					cost[newState] = newCost
+					bucket := int(newCost / 1000)
+					if bucket < maxBuckets {
+						buckets[bucket] = append(buckets[bucket], newState)
+					}
 				}
 			}
 		}
 
-		// Try turning left
-		leftDir := (current.state.dir + 3) % 4 // -1 mod 4
-		leftState := state{pos: current.state.pos, dir: leftDir}
-		if prevCost, exists := visited[leftState]; !exists || prevCost > current.cost+1000 {
-			heap.Push(pq, &dijkstraNode{state: leftState, cost: current.cost + 1000})
+		// Turn left (dir-1 mod 4)
+		leftDir := (dir + 3) % 4
+		leftState := pos*4 + leftDir
+		leftCost := c + 1000
+		if leftCost < cost[leftState] {
+			cost[leftState] = leftCost
+			bucket := int(leftCost / 1000)
+			if bucket < maxBuckets {
+				buckets[bucket] = append(buckets[bucket], leftState)
+			}
 		}
 
-		// Try turning right
-		rightDir := (current.state.dir + 1) % 4
-		rightState := state{pos: current.state.pos, dir: rightDir}
-		if prevCost, exists := visited[rightState]; !exists || prevCost > current.cost+1000 {
-			heap.Push(pq, &dijkstraNode{state: rightState, cost: current.cost + 1000})
-		}
-	}
-
-	if !foundSolution {
-		return 0, &NoSolutionError{Start: start, End: end}
-	}
-
-	// Part 2: Count tiles on optimal paths using backtracking
-	optimalTiles := make(map[image.Point]bool)
-
-	// Find all end states with minimum cost
-	endStates := []state{}
-	for s, cost := range visited {
-		if s.pos == end && cost == minCost {
-			endStates = append(endStates, s)
+		// Turn right (dir+1 mod 4)
+		rightDir := (dir + 1) % 4
+		rightState := pos*4 + rightDir
+		rightCost := c + 1000
+		if rightCost < cost[rightState] {
+			cost[rightState] = rightCost
+			bucket := int(rightCost / 1000)
+			if bucket < maxBuckets {
+				buckets[bucket] = append(buckets[bucket], rightState)
+			}
 		}
 	}
 
-	// Backtrack from all optimal end states
-	stack := make([]state, 0, len(endStates))
-	stack = append(stack, endStates...)
-	processed := make(map[state]bool)
+	if minCost == day16MaxCost {
+		return 0, &NoSolutionError{
+			Start: image.Point{X: startX, Y: startY},
+			End:   image.Point{X: endX, Y: endY},
+		}
+	}
+
+	// Part 2: backtrack to find all optimal tiles
+	onOptimal := make([]bool, numStates)
+	optimalTiles := make([]bool, dimX*dimY)
+
+	// Mark end states with minCost
+	stack := make([]int, 0, 256)
+	for dir := range 4 {
+		s := endPos*4 + dir
+		if cost[s] == minCost {
+			stack = append(stack, s)
+			onOptimal[s] = true
+		}
+	}
 
 	for len(stack) > 0 {
-		current := stack[len(stack)-1]
+		s := stack[len(stack)-1]
 		stack = stack[:len(stack)-1]
 
-		if processed[current] {
-			continue
-		}
-		processed[current] = true
-		optimalTiles[current.pos] = true
+		pos := s / 4
+		dir := s % 4
+		optimalTiles[pos] = true
+		c := cost[s]
 
-		currentCost := visited[current]
+		x, y := pos%dimX, pos/dimX
 
-		// Check all possible predecessors
-		// 1. Move backward (came from forward move)
-		backDir := (current.dir + 2) % 4 // opposite direction
-		backPos := current.pos.Add(dirs[backDir])
-		if backPos.X >= 0 && backPos.X < dimX && backPos.Y >= 0 {
-			gridPos := backPos.Y*(dimX+1) + backPos.X
-			if gridPos < len(grid) && grid[gridPos] != '#' {
-				prevState := state{pos: backPos, dir: current.dir}
-				if cost, exists := visited[prevState]; exists && cost == currentCost-1 {
+		// Predecessor: moved from backward position
+		backDir := (dir + 2) % 4
+		bx, by := x+day16DX[backDir], y+day16DY[backDir]
+		if bx >= 0 && bx < dimX && by >= 0 && by < dimY {
+			if grid[by*stride+bx] != '#' {
+				prevState := (by*dimX+bx)*4 + dir
+				if cost[prevState] == c-1 && !onOptimal[prevState] {
+					onOptimal[prevState] = true
 					stack = append(stack, prevState)
 				}
 			}
 		}
 
-		// 2. Turn left (came from right turn)
-		leftDir := (current.dir + 1) % 4
-		leftState := state{pos: current.pos, dir: leftDir}
-		if cost, exists := visited[leftState]; exists && cost == currentCost-1000 {
+		// Predecessor: turned right to get here (was facing left)
+		leftDir := (dir + 3) % 4
+		leftState := pos*4 + leftDir
+		if cost[leftState] == c-1000 && !onOptimal[leftState] {
+			onOptimal[leftState] = true
 			stack = append(stack, leftState)
 		}
 
-		// 3. Turn right (came from left turn)
-		rightDir := (current.dir + 3) % 4
-		rightState := state{pos: current.pos, dir: rightDir}
-		if cost, exists := visited[rightState]; exists && cost == currentCost-1000 {
+		// Predecessor: turned left to get here (was facing right)
+		rightDir := (dir + 1) % 4
+		rightState := pos*4 + rightDir
+		if cost[rightState] == c-1000 && !onOptimal[rightState] {
+			onOptimal[rightState] = true
 			stack = append(stack, rightState)
 		}
 	}
 
-	return uint(len(optimalTiles)), nil
+	var count uint
+	for _, v := range optimalTiles {
+		if v {
+			count++
+		}
+	}
+	return count, nil
 }
 
 func Day16Part1(grid []byte) (uint, error) {

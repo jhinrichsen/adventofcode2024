@@ -5,16 +5,44 @@ import (
 )
 
 type Day19Puzzle struct {
-	patterns []string
-	designs  []string
+	trie    []day19Node // Trie for patterns
+	designs []string
+}
+
+// Trie node with 5 children (w=0, u=1, b=2, r=3, g=4)
+type day19Node struct {
+	children [5]int // index into trie, 0 = no child
+	isEnd    bool
+}
+
+func day19CharIndex(c byte) int {
+	switch c {
+	case 'w':
+		return 0
+	case 'u':
+		return 1
+	case 'b':
+		return 2
+	case 'r':
+		return 3
+	case 'g':
+		return 4
+	}
+	return -1
 }
 
 func NewDay19(lines []string) (Day19Puzzle, error) {
 	var p Day19Puzzle
 
+	// Initialize trie with root node
+	p.trie = make([]day19Node, 1, 1024)
+
 	// First line contains available patterns (comma-separated)
 	if len(lines) > 0 {
-		p.patterns = strings.Split(strings.TrimSpace(lines[0]), ", ")
+		patterns := strings.Split(strings.TrimSpace(lines[0]), ", ")
+		for _, pattern := range patterns {
+			p.addPattern(pattern)
+		}
 	}
 
 	// Skip empty line (line 1), designs start from line 2
@@ -27,42 +55,59 @@ func NewDay19(lines []string) (Day19Puzzle, error) {
 	return p, nil
 }
 
+func (p *Day19Puzzle) addPattern(pattern string) {
+	node := 0
+	for i := range pattern {
+		idx := day19CharIndex(pattern[i])
+		if idx < 0 {
+			return
+		}
+		if p.trie[node].children[idx] == 0 {
+			p.trie[node].children[idx] = len(p.trie)
+			p.trie = append(p.trie, day19Node{})
+		}
+		node = p.trie[node].children[idx]
+	}
+	p.trie[node].isEnd = true
+}
+
 func Day19(puzzle Day19Puzzle, part1 bool) (uint, string) {
 	if part1 {
-		count := countPossibleDesigns(puzzle.patterns, puzzle.designs)
+		var count uint
+		for _, design := range puzzle.designs {
+			if canMakeDesignTrie(design, puzzle.trie) {
+				count++
+			}
+		}
 		return count, ""
 	}
-	// Part 2: Count total number of ways to make all designs
-	totalWays := countAllWaysToMakeDesigns(puzzle.patterns, puzzle.designs)
-	return totalWays, ""
-}
-
-func countPossibleDesigns(patterns []string, designs []string) uint {
-	var count uint
-
-	for _, design := range designs {
-		if canMakeDesign(design, patterns) {
-			count++
-		}
+	// Part 2
+	var total uint
+	for _, design := range puzzle.designs {
+		total += countWaysTrie(design, puzzle.trie)
 	}
-
-	return count
+	return total, ""
 }
 
-func canMakeDesign(design string, patterns []string) bool {
-	// Use dynamic programming - iterative bottom-up approach
+func canMakeDesignTrie(design string, trie []day19Node) bool {
 	n := len(design)
 	dp := make([]bool, n+1)
-	dp[0] = true // Empty string can always be made
+	dp[0] = true
 
-	for i := 1; i <= n; i++ {
-		for _, pattern := range patterns {
-			patternLen := len(pattern)
-			if i >= patternLen && design[i-patternLen:i] == pattern {
-				if dp[i-patternLen] {
-					dp[i] = true
-					break
-				}
+	for i := 0; i < n; i++ {
+		if !dp[i] {
+			continue
+		}
+		// Walk trie from position i
+		node := 0
+		for j := i; j < n; j++ {
+			idx := day19CharIndex(design[j])
+			if idx < 0 || trie[node].children[idx] == 0 {
+				break
+			}
+			node = trie[node].children[idx]
+			if trie[node].isEnd {
+				dp[j+1] = true
 			}
 		}
 	}
@@ -70,28 +115,25 @@ func canMakeDesign(design string, patterns []string) bool {
 	return dp[n]
 }
 
-func countAllWaysToMakeDesigns(patterns []string, designs []string) uint {
-	var total uint
-
-	for _, design := range designs {
-		ways := countWaysToMakeDesign(design, patterns)
-		total += ways
-	}
-
-	return total
-}
-
-func countWaysToMakeDesign(design string, patterns []string) uint {
-	// Use dynamic programming - count number of ways to make each prefix
+func countWaysTrie(design string, trie []day19Node) uint {
 	n := len(design)
 	dp := make([]uint, n+1)
-	dp[0] = 1 // One way to make empty string
+	dp[0] = 1
 
-	for i := 1; i <= n; i++ {
-		for _, pattern := range patterns {
-			patternLen := len(pattern)
-			if i >= patternLen && design[i-patternLen:i] == pattern {
-				dp[i] += dp[i-patternLen]
+	for i := 0; i < n; i++ {
+		if dp[i] == 0 {
+			continue
+		}
+		// Walk trie from position i
+		node := 0
+		for j := i; j < n; j++ {
+			idx := day19CharIndex(design[j])
+			if idx < 0 || trie[node].children[idx] == 0 {
+				break
+			}
+			node = trie[node].children[idx]
+			if trie[node].isEnd {
+				dp[j+1] += dp[i]
 			}
 		}
 	}

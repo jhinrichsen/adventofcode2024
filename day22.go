@@ -68,41 +68,51 @@ func prune(secret uint) uint {
 }
 
 func solveDay22Part2(puzzle Day22Puzzle) uint {
-	// Map from sequence (as [4]int8) to total bananas across all buyers
-	sequenceTotals := make(map[[4]int8]uint)
+	// Encode 4 changes (each -9 to 9) as single index
+	// (c0+9)*19^3 + (c1+9)*19^2 + (c2+9)*19 + (c3+9)
+	// Max: 19^4 = 130321 possible sequences
+	const seqSize = 19 * 19 * 19 * 19 // 130321
+
+	sequenceTotals := make([]uint, seqSize)
+	seen := make([]bool, seqSize)
 
 	for _, initialSecret := range puzzle.secrets {
-		// Generate prices and changes for this buyer
-		prices := make([]uint, 2001)
-		prices[0] = initialSecret % 10
+		// Clear seen for this buyer
+		clear(seen)
 
+		// Generate first 4 prices to bootstrap
 		secret := initialSecret
-		for i := 1; i <= 2000; i++ {
+		p0 := secret % 10
+		secret = nextSecret(secret)
+		p1 := secret % 10
+		secret = nextSecret(secret)
+		p2 := secret % 10
+		secret = nextSecret(secret)
+		p3 := secret % 10
+
+		// Process remaining prices
+		for range 1997 { // 2000 - 3 already done
 			secret = nextSecret(secret)
-			prices[i] = secret % 10
-		}
+			p4 := secret % 10
 
-		// Track which sequences we've seen for this buyer (first occurrence only)
-		seen := make(map[[4]int8]bool)
+			// Encode sequence of 4 changes as index
+			// Changes are in [-9, 9], offset by 9 to get [0, 18]
+			idx := (int(p1)-int(p0)+9)*6859 + // 19^3
+				(int(p2)-int(p1)+9)*361 + // 19^2
+				(int(p3)-int(p2)+9)*19 +
+				(int(p4) - int(p3) + 9)
 
-		// Build sequences of 4 consecutive changes
-		for i := 4; i < len(prices); i++ {
-			sequence := [4]int8{
-				int8(prices[i-3]) - int8(prices[i-4]),
-				int8(prices[i-2]) - int8(prices[i-3]),
-				int8(prices[i-1]) - int8(prices[i-2]),
-				int8(prices[i]) - int8(prices[i-1]),
+			if !seen[idx] {
+				seen[idx] = true
+				sequenceTotals[idx] += p4
 			}
 
-			// Only count first occurrence for this buyer
-			if !seen[sequence] {
-				seen[sequence] = true
-				sequenceTotals[sequence] += prices[i]
-			}
+			// Shift window
+			p0, p1, p2, p3 = p1, p2, p3, p4
 		}
 	}
 
-	// Find the maximum total
+	// Find maximum
 	var maxBananas uint
 	for _, total := range sequenceTotals {
 		if total > maxBananas {
